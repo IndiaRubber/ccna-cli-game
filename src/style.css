@@ -406,8 +406,22 @@ li {
 }
 
 .launch-footer {
-  margin-top: 18px;
-  min-height: 20px;
+  text-align: center;
+}
+
+.launch-home-link {
+  display: inline-block;
+  margin-top: 12px;
+  color: #9fb7d8;
+  font-size: 0.9rem;
+  text-decoration: none;
+  opacity: 0.85;
+}
+
+.launch-home-link:hover {
+  color: #38cfff;
+  opacity: 1;
+  text-decoration: underline;
 }
 
 .launch-footer p {
@@ -1035,4 +1049,28 @@ button.building-floor {
 
 .map-node-row.hidden {
   display: none !important;
+}
+
+.launch-home-link {
+  display: inline-block;
+  margin-top: 14px;
+  color: #38cfff;
+  font-size: 0.85rem;
+  text-decoration: none;
+  opacity: 0.8;
+}
+
+.launch-home-link {
+  display: block;
+  margin-top: 12px;
+  color: #8bbcff;
+  font-size: 0.85rem;
+  text-decoration: none;
+  opacity: 0.75;
+}
+
+.launch-home-link:hover {
+  opacity: 1;
+  color: #38cfff;
+  text-decoration: underline;
 }
