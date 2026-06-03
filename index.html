@@ -1,0 +1,231 @@
+<body>
+  <!-- Launch Screen -->
+  <div id="launch-screen">
+    <div class="launch-card">
+      <div class="launch-header">
+        <div class="launch-logo">&#9672;</div>
+        <h1>District 3 Network Console</h1>
+        <p>HELIOS Assisted Infrastructure Training Environment</p>
+      </div>
+
+      <div class="launch-summary">
+        <div class="summary-row">
+          <span>Total Credits Earned</span>
+          <strong id="launch-total-credits">0</strong>
+        </div>
+
+        <div class="summary-row">
+          <span>Current Assignment</span>
+          <strong id="launch-current-quest">None</strong>
+        </div>
+
+        <div class="summary-row">
+          <span>Career Rank</span>
+          <strong id="launch-rank">Unassigned</strong>
+        </div>
+      </div>
+
+      <div class="launch-actions">
+        <button id="new-game-button" class="primary-launch-button">
+          New Game
+        </button>
+
+        <button id="continue-button">
+          Continue
+        </button>
+      </div>
+
+      <div class="mini-game-section">
+        <h2>Training Simulations</h2>
+
+        <button id="subnet-sprint-button" class="mini-game-button">
+          <span>Subnet Sprint</span>
+          <small>Coming Soon</small>
+        </button>
+
+        <button id="vlan-sorter-button" class="mini-game-button">
+          <span>VLAN Sorter</span>
+          <small>Coming Soon</small>
+        </button>
+
+        <button id="cable-match-button" class="mini-game-button locked">
+          <span>Cable Match</span>
+          <small>Locked</small>
+        </button>
+      </div>
+
+      <div class="launch-footer">
+        <p id="launch-status-message">
+          Awaiting operator login...
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Home Base Screen -->
+  <div id="home-screen" class="hidden">
+    <div id="home-app">
+      <header id="home-header">
+        <div>
+          <h1>District 3 Satellite Office</h1>
+          <p>Infrastructure Operations Home Base</p>
+        </div>
+
+        <div id="home-operator-summary">
+          <span>Rank: <strong id="home-rank">Helpdesk Refugee</strong></span>
+          <span>Credits: <strong id="home-credits">0</strong></span>
+          <button id="home-to-launch-button">Main Console</button>
+        </div>
+      </header> 
+
+      <main id="home-layout">
+        <!-- Building / Map Pane -->
+        <section id="building-map-panel" class="home-panel">
+          <div class="home-panel-header">
+            <h2>Facility Map</h2>
+            <button id="go-to-terminal-button">Go to Terminal</button>
+          </div>
+
+          <div id="building-map-placeholder">
+            <div class="building-shell">
+              <div class="building-floor">Floor 5 - Administration</div>
+              <div class="building-floor">Floor 4 - Finance / HR</div>
+
+              <button class="building-floor active-floor clickable-floor" id="floor-3-button">
+                <span>Floor 3 - Infrastructure / IDF</span>
+                <span class="floor-expand-indicator">Expand</span>
+              </button>
+
+              <div class="map-node-row hidden" id="floor-3-node-row">
+                <button class="map-node" id="map-office-4b-button">Office 4B</button>
+                <button class="map-node" id="map-idf-3a-button">IDF-3A</button>
+                <button class="map-node primary-node" id="map-switch-d8sw1-button">Switch D8SW1</button>
+              </div>
+
+              <div class="building-floor">Floor 2 - Clinical Ops</div>
+              <div class="building-floor">Floor 1 - Lobby / Support</div>
+            </div>
+
+            <p class="map-caption">
+              Pixel facility map placeholder. Future version: clickable floors, rooms, switches, and IDF closets.
+            </p>
+          </div>
+        </section>
+
+        <!-- Inbox Pane -->
+        <aside id="email-list-panel" class="home-panel">
+          <h2>Inbox</h2>
+
+          <button class="email-list-item active-email" data-email-id="welcome">
+            <span class="email-from">Network Engineering</span>
+            <strong>Welcome to District 3</strong>
+            <small>Start here, new hire.</small>
+          </button>
+
+          <button class="email-list-item" data-email-id="training">
+            <span class="email-from">HELIOS-CLI</span>
+            <strong>Training Brief: Switch Access Ports</strong>
+            <small>Useful commands for your first assignment.</small>
+          </button>
+
+          <button class="email-list-item" data-email-id="ticket-office4b">
+            <span class="email-from">Helpdesk Queue</span>
+            <strong>Ticket: Office 4B New Hire Port</strong>
+            <small>User reports workstation offline.</small>
+          </button>
+
+          <button class="email-list-item" data-email-id="corporate">
+            <span class="email-from">Facilities</span>
+            <strong>Reminder: Do Not Block IDF Doors</strong>
+            <small>Apparently this needed to be said again.</small>
+          </button>
+        </aside>
+
+        <!-- Reading Pane -->
+        <section id="email-reading-panel" class="home-panel">
+          <div id="email-reading-header">
+            <p id="email-reading-from">From: Network Engineering</p>
+            <h2 id="email-reading-subject">Welcome to District 3</h2>
+          </div>
+
+          <div id="email-reading-body">
+            <p>
+              Welcome to the District 3 Satellite Office. Due to a very normal and not at all concerning staffing shortage,
+              you have been temporarily assigned to assist with basic network operations.
+            </p>
+
+            <p>
+              HELIOS-CLI has been assigned as your infrastructure assistant. It is obsolete, overconfident, and technically
+              still within support parameters.
+            </p>
+
+            <p>
+              Review your inbox, read the training brief, then open your first ticket.
+            </p>
+          </div>
+        </section>
+
+        <!-- HELIOS Home Commentary Pane -->
+        <aside id="home-ai-panel" class="home-panel">
+          <h2>HELIOS-CLI</h2>
+          <p id="home-ai-message">
+            Home Base initialized. I have reviewed the staffing situation and diagnosed the primary failure domain as:
+            management.
+          </p>
+        </aside>
+      </main>
+    </div>
+  </div>
+
+  <!-- Main Game Screen -->
+  <div id="game-screen" class="hidden">
+    <header id="mission-header">
+      <div>
+        <h1>District 3 Satellite Office</h1>
+        <p>Active Terminal Session</p>
+      </div>
+
+      <div id="mission-operator-summary">
+        <span>Rank: <strong id="mission-rank">Helpdesk Refugee</strong></span>
+        <span>Credits: <strong id="mission-credits">0</strong></span>
+        <button id="mission-to-home-button">Home Base</button>
+      </div>
+    </header>
+
+    <div id="app">
+      <div id="terminal"></div>
+
+      <div class="panel">
+        <h1 id="quest-title"></h1>
+        <p id="quest-description"></p>
+
+        <h2>Objectives</h2>
+        <ul id="quest-objectives"></ul>
+
+        <h2>Hint</h2>
+        <p id="quest-hint"></p>
+
+        <div class="xp-box">
+          <h2>Progress</h2>
+          <p><strong>XP:</strong> <span id="xp-counter">0</span></p>
+          <p><strong>Status:</strong> <span id="quest-status">In Progress</span></p>
+          <button id="next-quest-button" disabled>Mark Ticket Complete</button>
+        </div>
+
+        <div id="ai-panel">
+          <h2>HELIOS-CLI</h2>
+          <p id="ai-message">
+            Standing by. Try a command, and I’ll offer hints if you get stuck.
+          </p>
+        </div>
+      </div>
+
+      <div id="notes-panel">
+        <h2>Documentation</h2>
+        <div id="quest-notes"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
