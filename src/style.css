@@ -169,6 +169,248 @@ body {
   color: #38bdf8;
   font-size: 12px;
 }
+
+/* ---------------------------- */
+/* Home Base Screen */
+/* ---------------------------- */
+
+#home-screen {
+  height: 100vh;
+  width: 100%;
+  background: #111827;
+  box-sizing: border-box;
+  padding: 20px;
+  overflow: hidden;
+  font-family: Consolas, "Courier New", monospace;
+}
+
+#home-app {
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 18px;
+  min-height: 0;
+}
+
+#home-header {
+  background: rgba(15, 23, 42, 0.96);
+  border: 1px solid #334155;
+  border-radius: 14px;
+  padding: 16px 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  box-shadow: 0 0 28px rgba(0, 0, 0, 0.35);
+}
+
+#home-header h1 {
+  margin: 0 0 6px;
+  font-size: 24px;
+  color: #f8fafc;
+}
+
+#home-header p {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+#home-operator-summary {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  color: #cbd5e1;
+  font-size: 14px;
+}
+
+#home-operator-summary strong {
+  color: #facc15;
+}
+
+#home-to-launch-button,
+#go-to-terminal-button {
+  border: 1px solid #38bdf8;
+  background: #1e293b;
+  color: #e5e7eb;
+  padding: 8px 11px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: Consolas, "Courier New", monospace;
+  font-weight: bold;
+}
+
+#home-to-launch-button:hover,
+#go-to-terminal-button:hover {
+  background: #0369a1;
+  color: #f8fafc;
+}
+
+#home-layout {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  grid-template-rows: minmax(0, 1.2fr) minmax(220px, 0.8fr);
+  gap: 18px;
+  overflow: hidden;
+}
+
+.home-panel {
+  background: #111827;
+  border: 1px solid #334155;
+  border-radius: 14px;
+  padding: 16px;
+  min-height: 0;
+  overflow: auto;
+  box-sizing: border-box;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.25);
+}
+
+.home-panel h2 {
+  margin-top: 0;
+  font-size: 18px;
+  color: #f8fafc;
+}
+
+.home-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.home-panel-header h2 {
+  margin: 0;
+}
+
+#building-map-panel {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+#email-list-panel {
+  grid-column: 2;
+  grid-row: 1;
+  background: #111827;
+}
+
+#email-reading-panel {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+#home-ai-panel {
+  grid-column: 2;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#home-ai-message {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* Building placeholder */
+#building-map-placeholder {
+  height: calc(100% - 44px);
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.building-shell {
+  width: min(560px, 90%);
+  margin: 0 auto;
+  border: 1px solid #475569;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #0f172a;
+}
+
+.building-floor {
+  padding: 16px 20px;
+  border-bottom: 1px solid #334155;
+  color: #e5e7eb;
+  background: #111827;
+  font-family: Consolas, "Courier New", monospace;
+}
+
+.building-floor:last-child {
+  border-bottom: none;
+}
+
+.active-floor {
+  background: rgba(14, 165, 233, 0.16);
+  color: #f8fafc;
+}
+
+.map-caption {
+  text-align: center;
+  color: #94a3b8;
+  font-size: 13px;
+  margin: 18px auto 0;
+  max-width: 640px;
+}
+
+/* Email cards */
+.email-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.email-card {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 12px;
+  cursor: pointer;
+}
+
+.email-card:hover {
+  border-color: #38bdf8;
+  background: #172033;
+}
+
+.email-card p {
+  margin: 0;
+}
+
+.email-card small {
+  color: #94a3b8;
+}
+
+#email-reading-header {
+  border-bottom: 1px solid #334155;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+}
+
+#email-reading-from {
+  margin: 0 0 6px;
+  color: #38bdf8;
+  font-size: 13px;
+}
+
+#email-reading-subject {
+  margin: 0;
+}
+
+#email-reading-body {
+  color: #f8fafc;
+  line-height: 1.5;
+}
+
+#email-reading-body p {
+  margin-top: 0;
+}
+
 /* Main mission page layout */
 #app {
   display: grid;
@@ -828,6 +1070,5 @@ button.building-floor {
   min-height: 72px;
   white-space: pre-wrap;
 }
-
-/* Mission-side HELIOS panel spacing */
+spacing */
 
