@@ -9,7 +9,7 @@ body {
 #app {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 360px;
-  grid-template-rows: minmax(260px, 1.2fr) minmax(180px, 0.8fr);
+  grid-template-rows: minmax(260px, 1fr) 230px;
   gap: 1rem;
   height: calc(100vh - 120px);
   padding: 1rem;
@@ -67,7 +67,7 @@ body {
 /* Quest sidebar */
 .panel {
   grid-column: 2;
-  grid-row: 1 / span 2;
+  grid-row: 1;
 
   background: #1f2937;
   border-radius: 12px;
@@ -185,40 +185,59 @@ li {
 /* Scrollbars */
 #terminal::-webkit-scrollbar,
 #notes-panel::-webkit-scrollbar,
-.panel::-webkit-scrollbar {
+.panel::-webkit-scrollbar,
+#ai-message::-webkit-scrollbar {
   width: 10px;
 }
 
 #terminal::-webkit-scrollbar-track,
 #notes-panel::-webkit-scrollbar-track,
-.panel::-webkit-scrollbar-track {
+.panel::-webkit-scrollbar-track,
+#ai-message::-webkit-scrollbar-track {
   background: #0b0f14;
   border-radius: 999px;
 }
 
 #terminal::-webkit-scrollbar-thumb,
 #notes-panel::-webkit-scrollbar-thumb,
-.panel::-webkit-scrollbar-thumb {
+.panel::-webkit-scrollbar-thumb,
+#ai-message::-webkit-scrollbar-thumb {
   background: #374151;
   border-radius: 999px;
 }
 
 #terminal::-webkit-scrollbar-thumb:hover,
 #notes-panel::-webkit-scrollbar-thumb:hover,
-.panel::-webkit-scrollbar-thumb:hover {
+.panel::-webkit-scrollbar-thumb:hover,
+#ai-message::-webkit-scrollbar-thumb:hover {
   background: #4b5563;
 }
 #ai-panel {
-  margin-top: 28px;
-  padding-top: 18px;
-  border-top: 1px solid #374151;
+  grid-column: 2;
+  grid-row: 2;
+
+  margin-top: 0;
+  padding: 18px;
+
+  background: #1f2937;
+  border-radius: 12px;
+  border-top: none;
+
+  overflow: hidden;
+  min-height: 0;
+
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.25);
 }
 
 #ai-panel h2 {
   margin-top: 0;
+  font-size: 18px;
 }
 
 #ai-message {
+  height: calc(100% - 42px);
+  overflow-y: auto;
+
   background: #111827;
   border: 1px solid #374151;
   border-radius: 12px;
