@@ -411,6 +411,47 @@ body {
   margin-top: 0;
 }
 
+/* Email cards / inbox buttons */
+.email-list button,
+.email-card {
+  width: 100%;
+  display: block;
+  text-align: left;
+
+  background: #0f172a;
+  color: #e5e7eb;
+
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 12px;
+
+  cursor: pointer;
+  font-family: Consolas, "Courier New", monospace;
+  box-sizing: border-box;
+}
+
+.email-list button:hover,
+.email-card:hover {
+  border-color: #38bdf8;
+  background: #172033;
+}
+
+.email-list button strong,
+.email-card strong {
+  color: #f8fafc;
+}
+
+.email-list button small,
+.email-card small {
+  display: block;
+  margin-top: 4px;
+  color: #94a3b8;
+}
+
+.email-list button + button {
+  margin-top: 12px;
+}
+
 /* Main mission page layout */
 #app {
   display: grid;
