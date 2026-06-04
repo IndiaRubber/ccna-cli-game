@@ -8,14 +8,14 @@ body {
 /* Main page layout */
 #app {
   display: grid;
-  grid-template-columns: minmax(680px, 1fr) 390px;
-  grid-template-rows: minmax(420px, 64vh) 1fr;
-  gap: 20px;
-  padding: 20px;
-  height: 100vh;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  grid-template-rows: 430px minmax(220px, 1fr);
+  gap: 1rem;
+  height: calc(100vh - 130px);
+  padding: 1rem;
   box-sizing: border-box;
-  overflow: hidden;
 }
+
 
 /* Terminal panel */
 #terminal {
@@ -1073,4 +1073,155 @@ button.building-floor {
   opacity: 1;
   color: #38cfff;
   text-decoration: underline;
+}
+
+.email-section,
+.archived-email-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.archived-email-section {
+  margin-top: 1rem;
+  border-top: 1px solid rgba(120, 170, 220, 0.25);
+  padding-top: 0.75rem;
+}
+
+.archived-email-section summary {
+  cursor: pointer;
+  color: #8fb8ff;
+  font-family: monospace;
+  margin-bottom: 0.75rem;
+}
+
+.archived-email {
+  opacity: 0.65;
+}
+
+.email-actions {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(120, 170, 220, 0.25);
+}
+
+.email-action-button {
+  background: #063d5c;
+  color: #e5f7ff;
+  border: 1px solid #19a7d8;
+  border-radius: 6px;
+  padding: 0.55rem 0.85rem;
+  cursor: pointer;
+  font-family: monospace;
+}
+
+.email-action-button:hover:not(:disabled) {
+  background: #07577f;
+}
+
+.email-action-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.docs-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(120, 170, 220, 0.25);
+}
+
+.docs-tab {
+  background: transparent;
+  color: #9fb7d7;
+  border: 1px solid transparent;
+  border-bottom: none;
+  padding: 0.45rem 0.75rem;
+  cursor: pointer;
+  font-family: monospace;
+}
+
+.docs-tab:hover {
+  color: #ffffff;
+}
+
+.active-docs-tab {
+  color: #ffffff;
+  border-color: rgba(120, 170, 220, 0.45);
+  background: rgba(120, 170, 220, 0.08);
+}
+
+.docs-tab-panel {
+  min-height: 120px;
+}
+
+.notebook-entry {
+  border: 1px solid rgba(120, 170, 220, 0.25);
+  border-radius: 10px;
+  padding: 0.85rem;
+  margin-bottom: 0.75rem;
+  background: rgba(5, 12, 24, 0.35);
+}
+
+.notebook-entry h3 {
+  margin-top: 0;
+  color: #ffffff;
+}
+
+.notebook-entry h4 {
+  margin-bottom: 0.35rem;
+  color: #9fdcff;
+}
+
+.empty-notebook-message {
+  color: #9fb7d7;
+  font-style: italic;
+}
+
+.docs-tabs {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+  border-bottom: 1px solid rgba(125, 170, 220, 0.35);
+}
+
+.docs-tab {
+  position: relative;
+  top: 1px;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid rgba(125, 170, 220, 0.35);
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+  background: rgba(18, 31, 48, 0.85);
+  color: #9fb7d7;
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.docs-tab:hover {
+  color: #ffffff;
+  background: rgba(27, 45, 68, 0.95);
+}
+
+.docs-tab.active-docs-tab {
+  color: #ffffff;
+  background: #0e1728;
+  border-color: rgba(145, 190, 240, 0.55);
+  box-shadow: 0 -2px 10px rgba(80, 150, 220, 0.15);
+  z-index: 2;
+}
+
+.docs-tab-panel {
+  padding-top: 1rem;
+}
+
+.docs-tab-panel.hidden {
+  display: none;
+}
+
+.active-docs-panel {
+  display: block;
 }

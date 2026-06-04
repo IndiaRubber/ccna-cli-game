@@ -1,3 +1,4 @@
+console.log('[CLI] cli.js module loaded');
 import {
   cmdEnable,
   cmdConfigureTerminal,
@@ -18,6 +19,8 @@ import {
   cmdShowRunningConfig,
   cmdShowInterfacesStatus
 } from './commands.js';
+
+import { triggerHeliosCommandComment } from '../systems/heliosCommandCommentary.js';
 
 const commandAliases = {
   en: 'enable',
@@ -99,17 +102,18 @@ function uiPrint(line = '') {
 function printLines(output, unavailableMessage = '% Command not available in this mode.') {
   if (!output) {
     uiPrint(unavailableMessage);
-    return;
+    return false;
   }
 
   if (Array.isArray(output)) {
     output.forEach(line => uiPrint(line));
     uiPrint();
-    return;
+    return true;
   }
 
   uiPrint(String(output));
   uiPrint();
+  return true;
 }
 
 function printResult(result) {
@@ -131,7 +135,14 @@ function updateObjectivesSafely() {
   }
 }
 
+function commentOnCommand(command) {
+  console.log('[CLI] Asking HELIOS to comment on:', command);
+  triggerHeliosCommandComment(command);
+}
+
 export function runCommand(rawCommand) {
+  console.log('[CLI] runCommand received:', rawCommand);
+  
   const command = normalizeCommand(rawCommand);
   const lower = command.toLowerCase();
 
@@ -141,67 +152,92 @@ export function runCommand(rawCommand) {
     if (typeof window.CiscoUI?.showHelp === 'function') {
       window.CiscoUI.showHelp();
     }
+
+    commentOnCommand(command);
     return;
   }
 
   if (lower === 'enable') {
     cmdEnable();
+
+    uiPrint('DEBUG: cli.js enable branch reached');
+
+    commentOnCommand(command);
     return;
   }
 
   if (lower === 'configure terminal') {
     cmdConfigureTerminal();
+    commentOnCommand(command);
     return;
   }
 
   if (lower === 'end') {
     cmdEnd();
+    commentOnCommand(command);
     return;
   }
 
   if (lower === 'exit') {
     cmdExit();
+    commentOnCommand(command);
     return;
   }
 
   if (lower === 'show interfaces status') {
     const output = cmdShowInterfacesStatus();
-    printLines(output);
+
+    if (printLines(output)) {
+      commentOnCommand(command);
+    }
+
     return;
   }
 
   if (lower === 'show vlan brief') {
     const output = cmdShowVlanBrief();
-    printLines(output);
+
+    if (printLines(output)) {
+      commentOnCommand(command);
+    }
+
     return;
   }
 
   if (lower === 'show running-config') {
     const output = cmdShowRunningConfig();
-    printLines(output);
+
+    if (printLines(output)) {
+      commentOnCommand(command);
+    }
+
     return;
   }
 
   if (lower.startsWith('hostname ')) {
     cmdHostname(command);
+    commentOnCommand(command);
     return;
   }
 
   if (lower.startsWith('vlan ')) {
     cmdVlan(command);
     updateObjectivesSafely();
+    commentOnCommand(command);
     return;
   }
 
   if (lower.startsWith('name ')) {
     cmdVlanName(command);
     updateObjectivesSafely();
+    commentOnCommand(command);
     return;
   }
 
   if (lower.startsWith('interface ')) {
     cmdInterface(command);
     updateObjectivesSafely();
+    commentOnCommand(command);
     return;
   }
 
@@ -210,6 +246,7 @@ export function runCommand(rawCommand) {
 
     if (printResult(result)) {
       updateObjectivesSafely();
+      commentOnCommand(command);
     }
 
     return;
@@ -220,6 +257,7 @@ export function runCommand(rawCommand) {
 
     if (printResult(result)) {
       updateObjectivesSafely();
+      commentOnCommand(command);
     }
 
     return;
@@ -230,6 +268,7 @@ export function runCommand(rawCommand) {
 
     if (printResult(result)) {
       updateObjectivesSafely();
+      commentOnCommand(command);
     }
 
     return;
@@ -240,6 +279,7 @@ export function runCommand(rawCommand) {
 
     if (printResult(result)) {
       updateObjectivesSafely();
+      commentOnCommand(command);
     }
 
     return;
@@ -250,6 +290,7 @@ export function runCommand(rawCommand) {
 
     if (printResult(result)) {
       updateObjectivesSafely();
+      commentOnCommand(command);
     }
 
     return;
@@ -260,6 +301,7 @@ export function runCommand(rawCommand) {
 
     if (printResult(result)) {
       updateObjectivesSafely();
+      commentOnCommand(command);
     }
 
     return;
@@ -270,8 +312,12 @@ export function runCommand(rawCommand) {
     lower === 'write memory'
   ) {
     const output = cmdSaveConfig();
-    printLines(output, '% Save failed: you must be in privileged EXEC mode.');
-    updateObjectivesSafely();
+
+    if (printLines(output, '% Save failed: you must be in privileged EXEC mode.')) {
+      updateObjectivesSafely();
+      commentOnCommand(command);
+    }
+
     return;
   }
 

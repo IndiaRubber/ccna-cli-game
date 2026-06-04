@@ -58,6 +58,7 @@
         <p id="launch-status-message">
           Awaiting operator login...
         </p>
+
         <a class="launch-home-link" href="https://www.doktorclok.com">
           &larr; Return to Sifting Technologies Home
         </a>
@@ -79,11 +80,15 @@
           <span>Credits: <strong id="home-credits">0</strong></span>
           <button id="home-to-launch-button">Main Console</button>
         </div>
-      </header> 
+      </header>
 
       <main id="home-layout">
         <!-- Building / Map Pane -->
-        <section id="building-map-panel" class="home-panel">
+        <section
+          id="building-map-panel"
+          class="home-panel tutorial-target"
+          data-tutorial-id="facility-map"
+        >
           <div class="home-panel-header">
             <h2>Facility Map</h2>
             <button id="go-to-terminal-button">Go to Terminal</button>
@@ -94,15 +99,26 @@
               <div class="building-floor">Floor 5 - Administration</div>
               <div class="building-floor">Floor 4 - Finance / HR</div>
 
-              <button class="building-floor active-floor clickable-floor" id="floor-3-button">
+              <button
+                class="building-floor active-floor clickable-floor"
+                id="floor-3-button"
+              >
                 <span>Floor 3 - Infrastructure / IDF</span>
                 <span class="floor-expand-indicator">Expand</span>
               </button>
 
               <div class="map-node-row hidden" id="floor-3-node-row">
-                <button class="map-node" id="map-office-4b-button">Office 4B</button>
-                <button class="map-node" id="map-idf-3a-button">IDF-3A</button>
-                <button class="map-node primary-node" id="map-switch-d8sw1-button">Switch D8SW1</button>
+                <button class="map-node" id="map-office-4b-button">
+                  Office 4B
+                </button>
+
+                <button class="map-node" id="map-idf-3a-button">
+                  IDF-3A
+                </button>
+
+                <button class="map-node primary-node" id="map-switch-d8sw1-button">
+                  Switch D8SW1
+                </button>
               </div>
 
               <div class="building-floor">Floor 2 - Clinical Ops</div>
@@ -110,70 +126,59 @@
             </div>
 
             <p class="map-caption">
-              Pixel facility map placeholder. Future version: clickable floors, rooms, switches, and IDF closets.
+              Pixel facility map placeholder. Future version: clickable floors,
+              rooms, switches, and IDF closets.
             </p>
           </div>
         </section>
 
         <!-- Inbox Pane -->
-        <aside id="email-list-panel" class="home-panel">
+        <aside
+          id="email-list-panel"
+          class="home-panel tutorial-target"
+          data-tutorial-id="email-list"
+        >
           <h2>Inbox</h2>
 
-          <button class="email-list-item active-email" data-email-id="welcome">
-            <span class="email-from">Network Engineering</span>
-            <strong>Welcome to District 3</strong>
-            <small>Start here, new hire.</small>
-          </button>
-
-          <button class="email-list-item" data-email-id="training">
-            <span class="email-from">HELIOS-CLI</span>
-            <strong>Training Brief: Switch Access Ports</strong>
-            <small>Useful commands for your first assignment.</small>
-          </button>
-
-          <button class="email-list-item" data-email-id="ticket-office4b">
-            <span class="email-from">Helpdesk Queue</span>
-            <strong>Ticket: Office 4B New Hire Port</strong>
-            <small>User reports workstation offline.</small>
-          </button>
-
-          <button class="email-list-item" data-email-id="corporate">
-            <span class="email-from">Facilities</span>
-            <strong>Reminder: Do Not Block IDF Doors</strong>
-            <small>Apparently this needed to be said again.</small>
-          </button>
+          <!-- Populated by src/systems/emailSystem.js -->
+          <div id="email-list" class="email-list"></div>
         </aside>
 
         <!-- Reading Pane -->
-        <section id="email-reading-panel" class="home-panel">
+        <section
+          id="email-reading-panel"
+          class="home-panel tutorial-target"
+          data-tutorial-id="reading-pane"
+        >
           <div id="email-reading-header">
-            <p id="email-reading-from">From: Network Engineering</p>
-            <h2 id="email-reading-subject">Welcome to District 3</h2>
+            <p id="email-reading-from">From:</p>
+            <h2 id="email-reading-subject">Select an email</h2>
           </div>
 
+          <!-- Populated by src/systems/emailSystem.js -->
           <div id="email-reading-body">
             <p>
-              Welcome to the District 3 Satellite Office. Due to a very normal and not at all concerning staffing shortage,
-              you have been temporarily assigned to assist with basic network operations.
-            </p>
-
-            <p>
-              HELIOS-CLI has been assigned as your infrastructure assistant. It is obsolete, overconfident, and technically
-              still within support parameters.
-            </p>
-
-            <p>
-              Review your inbox, read the training brief, then open your first ticket.
+              Select an email from the inbox to review assignments, training
+              briefs, and questionable corporate communications.
             </p>
           </div>
         </section>
 
         <!-- HELIOS Home Commentary Pane -->
-        <aside id="home-ai-panel" class="home-panel">
+        <aside
+          id="home-ai-panel"
+          class="home-panel tutorial-target"
+          data-tutorial-id="helios-pane"
+        >
           <h2>HELIOS-CLI</h2>
-          <p id="home-ai-message">
-            Home Base initialized. I have reviewed the staffing situation and diagnosed the primary failure domain as:
-            management.
+
+          <!-- Populated by src/systems/helios.js -->
+          <p 
+            id="home-ai-message"
+            class="helios-message"
+            data-helios-panel
+          >
+            HELIOS standby.
           </p>
         </aside>
       </main>
@@ -198,7 +203,7 @@
     <div id="app">
       <div id="terminal"></div>
 
-      <div class="panel">
+      <aside class="panel">
         <h1 id="quest-title"></h1>
         <p id="quest-description"></p>
 
@@ -212,23 +217,68 @@
           <h2>Progress</h2>
           <p><strong>XP:</strong> <span id="xp-counter">0</span></p>
           <p><strong>Status:</strong> <span id="quest-status">In Progress</span></p>
-          <button id="next-quest-button" disabled>Mark Ticket Complete</button>
+          <button id="next-quest-button" disabled>
+            Mark Ticket Complete
+          </button>
         </div>
 
         <div id="ai-panel">
           <h2>HELIOS-CLI</h2>
-          <p id="ai-message">
-            Standing by. Try a command, and I’ll offer hints if you get stuck.
+          <p 
+            id="mission-ai-message"
+            class="helios-message"
+            data-helios-panel
+          >
+            Standing by. Try a command. Go on. What's the worst that could happen?
           </p>
         </div>
-      </div>
+      </aside>
 
-      <div id="notes-panel">
+      <section id="notes-panel">
         <h2>Documentation</h2>
-        <div id="quest-notes"></div>
-      </div>
+
+        <div class="docs-tabs">
+          <button
+            class="docs-tab active-docs-tab"
+            data-docs-tab="quest-notes-tab"
+          >
+            Documentation
+          </button>
+
+          <button class="docs-tab" data-docs-tab="notebook-tab">
+            Notebook
+          </button>
+        </div>
+
+        <div id="quest-notes-tab" class="docs-tab-panel active-docs-panel">
+          <div id="quest-notes"></div>
+        </div>
+
+        <div id="notebook-tab" class="docs-tab-panel hidden">
+          <div id="notebook-notes">
+            <p class="empty-notebook-message">
+              No notebook entries yet. Training briefs can be added from Home
+              Base emails.
+            </p>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 
-  <script type="module" src="/src/main.js"></script>
+<!-- HELIOS Tutorial Overlay -->
+  <div id="tutorial-overlay" class="hidden">
+    <div id="tutorial-card">
+    <h2>HELIOS-CLI</h2>
+
+    <p id="tutorial-message">
+      Standing by. What are you waiting for? Try a command. What's the worst that could happen?
+    </p>
+
+    <div id="tutorial-controls">
+      <button id="tutorial-next-button">Next</button>
+      <button id="tutorial-skip-button">Skip Tutorial</button>
+    </div>
+  </div>
+<script type="module" src="/src/main.js"></script>
 </body>

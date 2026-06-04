@@ -61,6 +61,8 @@ export function createTerminal({
     }
 
     if (char === '\r') {
+      console.log('[TERMINAL] submitting input:', input);
+      
       term.write('\r\n');
       runCommand(input);
       input = '';
