@@ -1225,3 +1225,27 @@ button.building-floor {
 .active-docs-panel {
   display: block;
 }
+
+/* Shared HELIOS message bubble */
+.helios-message {
+  background: #080d16;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 16px;
+  margin: 14px 0 0;
+  color: #f8fafc;
+  line-height: 1.45;
+  min-height: 72px;
+  white-space: pre-wrap;
+}
+
+/* Mission-side HELIOS panel spacing */
+#ai-panel {
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid #334155;
+}
+
+#ai-panel h2 {
+  margin-top: 0;
+}
