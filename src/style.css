@@ -9,11 +9,13 @@ body {
 #app {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 360px;
-  grid-template-rows: 430px minmax(220px, 1fr);
+  grid-template-rows: minmax(260px, 1.2fr) minmax(180px, 0.8fr);
   gap: 1rem;
-  height: calc(100vh - 130px);
+  height: calc(100vh - 120px);
   padding: 1rem;
   box-sizing: border-box;
+  overflow: hidden;
+  min-height: 0;
 }
 
 
