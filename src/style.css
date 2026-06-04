@@ -6,10 +6,11 @@ body {
 }
 
 /* Main page layout */
+/* Main page layout */
 #app {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 360px;
-  grid-template-rows: minmax(260px, 1fr) 230px;
+  grid-template-rows: minmax(260px, 60%) minmax(180px, 40%);
   gap: 1rem;
   height: calc(100vh - 120px);
   padding: 1rem;
@@ -17,7 +18,6 @@ body {
   overflow: hidden;
   min-height: 0;
 }
-
 
 /* Terminal panel */
 #terminal {
@@ -37,6 +37,8 @@ body {
   scrollbar-gutter: stable;
 
   min-height: 0;
+  height: 100%;
+
   box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
 }
 
@@ -64,7 +66,7 @@ body {
   max-width: 100%;
 }
 
-/* Quest sidebar */
+/* Quest / Progress panel */
 .panel {
   grid-column: 2;
   grid-row: 1;
@@ -103,6 +105,42 @@ body {
 #notes-panel p,
 #notes-panel li {
   font-size: 14px;
+}
+
+/* HELIOS mission panel */
+#ai-panel {
+  grid-column: 2;
+  grid-row: 2;
+
+  margin-top: 0;
+  padding: 18px;
+
+  background: #1f2937;
+  border-radius: 12px;
+  border-top: none;
+
+  overflow: hidden;
+  min-height: 0;
+
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.25);
+}
+
+#ai-panel h2 {
+  margin-top: 0;
+  font-size: 18px;
+}
+
+#mission-ai-message {
+  height: calc(100% - 42px);
+  overflow-y: auto;
+
+  background: #111827;
+  border: 1px solid #374151;
+  border-radius: 12px;
+  padding: 12px;
+  color: #cbd5e1;
+  line-height: 1.4;
+  box-sizing: border-box;
 }
 
 /* Documentation chips */
@@ -186,14 +224,14 @@ li {
 #terminal::-webkit-scrollbar,
 #notes-panel::-webkit-scrollbar,
 .panel::-webkit-scrollbar,
-#ai-message::-webkit-scrollbar {
+#mission-ai-message::-webkit-scrollbar {
   width: 10px;
 }
 
 #terminal::-webkit-scrollbar-track,
 #notes-panel::-webkit-scrollbar-track,
 .panel::-webkit-scrollbar-track,
-#ai-message::-webkit-scrollbar-track {
+#mission-ai-message::-webkit-scrollbar-track {
   background: #0b0f14;
   border-radius: 999px;
 }
@@ -201,7 +239,7 @@ li {
 #terminal::-webkit-scrollbar-thumb,
 #notes-panel::-webkit-scrollbar-thumb,
 .panel::-webkit-scrollbar-thumb,
-#ai-message::-webkit-scrollbar-thumb {
+#mission-ai-message::-webkit-scrollbar-thumb {
   background: #374151;
   border-radius: 999px;
 }
@@ -209,41 +247,8 @@ li {
 #terminal::-webkit-scrollbar-thumb:hover,
 #notes-panel::-webkit-scrollbar-thumb:hover,
 .panel::-webkit-scrollbar-thumb:hover,
-#ai-message::-webkit-scrollbar-thumb:hover {
+#mission-ai-message::-webkit-scrollbar-thumb:hover {
   background: #4b5563;
-}
-#ai-panel {
-  grid-column: 2;
-  grid-row: 2;
-
-  margin-top: 0;
-  padding: 18px;
-
-  background: #1f2937;
-  border-radius: 12px;
-  border-top: none;
-
-  overflow: hidden;
-  min-height: 0;
-
-  box-shadow: 0 0 25px rgba(0, 0, 0, 0.25);
-}
-
-#ai-panel h2 {
-  margin-top: 0;
-  font-size: 18px;
-}
-
-#ai-message {
-  height: calc(100% - 42px);
-  overflow-y: auto;
-
-  background: #111827;
-  border: 1px solid #374151;
-  border-radius: 12px;
-  padding: 12px;
-  color: #cbd5e1;
-  line-height: 1.4;
 }
 
 .hidden-objective::before {
@@ -259,608 +264,8 @@ li {
 }
 
 #game-screen {
-  min-height: 100vh;
-  overflow: hidden;
-}
-
-#launch-screen {
-  min-height: 100vh;
-  width: 100%;
-  background:
-    radial-gradient(circle at top, rgba(56, 189, 248, 0.18), transparent 35%),
-    linear-gradient(135deg, #020617 0%, #0f172a 55%, #111827 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #e5e7eb;
-  font-family: Consolas, "Courier New", monospace;
-}
-
-.launch-card {
-  width: 460px;
-  max-width: calc(100vw - 32px);
-  background: rgba(15, 23, 42, 0.96);
-  border: 1px solid #334155;
-  border-radius: 18px;
-  padding: 28px;
-  box-shadow:
-    0 0 40px rgba(14, 165, 233, 0.12),
-    0 24px 80px rgba(0, 0, 0, 0.65);
-}
-
-.launch-header {
-  text-align: center;
-  margin-bottom: 24px;
-}
-
-.launch-logo {
-  width: 58px;
-  height: 58px;
-  margin: 0 auto 14px;
-  border: 1px solid #38bdf8;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #38bdf8;
-  font-size: 28px;
-  box-shadow: 0 0 22px rgba(56, 189, 248, 0.35);
-}
-
-.launch-header h1 {
-  font-size: 24px;
-  margin: 0 0 8px;
-  color: #f8fafc;
-}
-
-.launch-header p {
-  margin: 0;
-  color: #94a3b8;
-  font-size: 13px;
-}
-
-.launch-summary {
-  background: #020617;
-  border: 1px solid #1e293b;
-  border-radius: 14px;
-  padding: 16px;
-  margin-bottom: 20px;
-}
-
-.summary-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 8px 0;
-  border-bottom: 1px solid #1e293b;
-}
-
-.summary-row:last-child {
-  border-bottom: none;
-}
-
-.summary-row span {
-  color: #94a3b8;
-  font-size: 13px;
-}
-
-.summary-row strong {
-  color: #e2e8f0;
-  font-size: 13px;
-  text-align: right;
-}
-
-.launch-actions {
-  display: grid;
-  gap: 10px;
-  margin-bottom: 24px;
-}
-
-.launch-card button {
-  border: 1px solid #475569;
-  background: #1e293b;
-  color: #e5e7eb;
-  padding: 12px 14px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-family: inherit;
-  font-weight: bold;
-  transition:
-    background 0.15s ease,
-    border-color 0.15s ease,
-    transform 0.08s ease;
-}
-
-.launch-card button:hover:not(:disabled) {
-  background: #334155;
-  border-color: #38bdf8;
-}
-
-.launch-card button:active:not(:disabled) {
-  transform: translateY(1px);
-}
-
-.launch-card button:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.primary-launch-button {
-  background: #0369a1 !important;
-  border-color: #38bdf8 !important;
-  color: #f8fafc !important;
-}
-
-.primary-launch-button:hover {
-  background: #0284c7 !important;
-}
-
-.mini-game-section {
-  border-top: 1px solid #334155;
-  padding-top: 18px;
-}
-
-.mini-game-section h2 {
-  font-size: 15px;
-  margin: 0 0 12px;
-  color: #cbd5e1;
-}
-
-.mini-game-button {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.mini-game-button span {
-  font-size: 14px;
-}
-
-.mini-game-button small {
-  color: #94a3b8;
-  font-size: 11px;
-}
-
-.mini-game-button.locked {
-  opacity: 0.55;
-}
-
-.launch-footer {
-  text-align: center;
-}
-
-.launch-home-link {
-  display: inline-block;
-  margin-top: 12px;
-  color: #9fb7d8;
-  font-size: 0.9rem;
-  text-decoration: none;
-  opacity: 0.85;
-}
-
-.launch-home-link:hover {
-  color: #38cfff;
-  opacity: 1;
-  text-decoration: underline;
-}
-
-.launch-footer p {
-  margin: 0;
-  color: #38bdf8;
-  font-size: 12px;
-  text-align: center;
-}
-
-/* ---------------------------- */
-/* Home Base Screen */
-/* ---------------------------- */
-
-#home-screen {
-  min-height: 100vh;
-  width: 100%;
-  background:
-    radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 30%),
-    linear-gradient(135deg, #020617 0%, #0f172a 60%, #111827 100%);
-  color: #e5e7eb;
-  font-family: Consolas, "Courier New", monospace;
-}
-
-#home-app {
   height: 100vh;
-  box-sizing: border-box;
-  padding: 20px;
-  display: grid;
-  grid-template-rows: auto 1fr;
-  gap: 18px;
-}
-
-#home-header {
-  background: rgba(15, 23, 42, 0.96);
-  border: 1px solid #334155;
-  border-radius: 14px;
-  padding: 16px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 0 28px rgba(0, 0, 0, 0.35);
-}
-
-#home-header h1 {
-  margin: 0 0 6px;
-  font-size: 24px;
-  color: #f8fafc;
-}
-
-#home-header p {
-  margin: 0;
-  color: #94a3b8;
-  font-size: 14px;
-}
-
-#home-operator-summary {
-  display: flex;
-  gap: 18px;
-  color: #cbd5e1;
-  font-size: 14px;
-}
-
-#home-operator-summary strong {
-  color: #facc15;
-}
-
-#home-layout {
-  min-height: 0;
-  display: grid;
-  grid-template-columns: minmax(520px, 1fr) 360px;
-  grid-template-rows: minmax(360px, 1fr) 280px;
-  gap: 18px;
-}
-
-.home-panel {
-  background: rgba(15, 23, 42, 0.96);
-  border: 1px solid #334155;
-  border-radius: 14px;
-  padding: 16px;
-  box-sizing: border-box;
-  min-height: 0;
-  overflow: auto;
-  box-shadow: 0 0 28px rgba(0, 0, 0, 0.28);
-}
-
-.home-panel h2 {
-  margin-top: 0;
-  color: #f8fafc;
-  font-size: 18px;
-}
-
-/* Map panel */
-
-#building-map-panel {
-  grid-column: 1;
-  grid-row: 1;
-}
-
-.floor-with-nodes {
-  display: block;
-  padding: 16px 20px;
-}
-
-.floor-with-nodes::after {
-  content: none;
-}
-
-.floor-label {
-  margin-bottom: 12px;
-  color: #e0f2fe;
-  font-weight: bold;
-}
-
-.floor-nodes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.map-node {
-  border: 1px solid #475569;
-  background: #020617;
-  color: #cbd5e1;
-  padding: 8px 11px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-family: Consolas, "Courier New", monospace;
-  font-size: 13px;
-  font-weight: bold;
-}
-
-.map-node:hover {
-  border-color: #38bdf8;
-  background: #0f172a;
-  color: #f8fafc;
-}
-
-.primary-node {
-  border-color: #38bdf8;
-  background: #0369a1;
-  color: #f8fafc;
-}
-
-.primary-node:hover {
-  background: #0284c7;
-}
-
-.home-panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 14px;
-}
-
-.home-panel-header h2 {
-  margin: 0;
-}
-
-#go-to-terminal-button {
-  border: 1px solid #38bdf8;
-  background: #0369a1;
-  color: #f8fafc;
-  padding: 9px 12px;
-  border-radius: 9px;
-  cursor: pointer;
-  font-family: inherit;
-  font-weight: bold;
-}
-
-#go-to-terminal-button:hover {
-  background: #0284c7;
-}
-
-#building-map-placeholder {
-  height: calc(100% - 44px);
-  min-height: 300px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.building-shell {
-  width: min(520px, 100%);
-  margin: 0 auto;
-  border: 2px solid #475569;
-  border-radius: 12px;
   overflow: hidden;
-  background: #020617;
-  box-shadow:
-    inset 0 0 20px rgba(56, 189, 248, 0.08),
-    0 0 30px rgba(0, 0, 0, 0.35);
-}
-
-.building-floor {
-  padding: 18px 20px;
-  border-bottom: 1px solid #334155;
-  color: #cbd5e1;
-  background: #111827;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.building-floor:last-child {
-  border-bottom: none;
-}
-
-.building-floor::after {
-  content: "■ ■ ■";
-  color: #334155;
-  letter-spacing: 4px;
-}
-
-.active-floor {
-  background: rgba(14, 165, 233, 0.18);
-  color: #e0f2fe;
-  border-left: 5px solid #38bdf8;
-}
-
-.map-caption {
-  max-width: 620px;
-  margin: 18px auto 0;
-  color: #94a3b8;
-  font-size: 13px;
-  text-align: center;
-}
-
-/* Inbox panel */
-
-#email-list-panel {
-  grid-column: 2;
-  grid-row: 1;
-}
-
-.email-list-item {
-  width: 100%;
-  display: grid;
-  gap: 5px;
-  text-align: left;
-  margin-bottom: 10px;
-  padding: 12px;
-  border: 1px solid #334155;
-  border-radius: 10px;
-  background: #111827;
-  color: #e5e7eb;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.email-list-item:hover {
-  background: #1e293b;
-  border-color: #38bdf8;
-}
-
-.email-list-item.active-email {
-  background: rgba(14, 165, 233, 0.18);
-  border-color: #38bdf8;
-}
-
-.email-from {
-  color: #38bdf8;
-  font-size: 12px;
-}
-
-.email-list-item strong {
-  font-size: 14px;
-  color: #f8fafc;
-}
-
-.email-list-item small {
-  color: #94a3b8;
-  font-size: 12px;
-}
-
-/* Reading pane */
-
-#email-reading-panel {
-  grid-column: 1;
-  grid-row: 2;
-}
-
-#email-reading-header {
-  border-bottom: 1px solid #334155;
-  padding-bottom: 10px;
-  margin-bottom: 12px;
-}
-
-#email-reading-from {
-  margin: 0 0 6px;
-  color: #38bdf8;
-  font-size: 13px;
-}
-
-#email-reading-subject {
-  margin: 0;
-  font-size: 18px;
-}
-
-#email-reading-body {
-  color: #cbd5e1;
-  line-height: 1.5;
-  font-size: 14px;
-}
-
-#email-reading-body p {
-  margin-top: 0;
-}
-
-#email-reading-body code {
-  background: #020617;
-  border: 1px solid #334155;
-  border-radius: 5px;
-  padding: 2px 5px;
-  color: #facc15;
-}
-
-.email-action-button {
-  margin-top: 12px;
-  border: 1px solid #38bdf8;
-  background: #0369a1;
-  color: #f8fafc;
-  padding: 10px 14px;
-  border-radius: 9px;
-  cursor: pointer;
-  font-family: inherit;
-  font-weight: bold;
-}
-
-.email-action-button:hover {
-  background: #0284c7;
-}
-
-/* HELIOS home panel */
-
-#home-ai-panel {
-  grid-column: 2;
-  grid-row: 2;
-}
-
-#home-ai-panel p {
-  background: #020617;
-  border: 1px solid #334155;
-  border-radius: 10px;
-  padding: 12px;
-  color: #cbd5e1;
-  line-height: 1.45;
-  font-size: 14px;
-}
-
-/* Home scrollbars */
-
-.home-panel::-webkit-scrollbar {
-  width: 10px;
-}
-
-.home-panel::-webkit-scrollbar-track {
-  background: #020617;
-  border-radius: 999px;
-}
-
-.home-panel::-webkit-scrollbar-thumb {
-  background: #374151;
-  border-radius: 999px;
-}
-
-.home-panel::-webkit-scrollbar-thumb:hover {
-  background: #4b5563;
-}
-
-/* ---------------------------- */
-/* Navigation Buttons */
-/* ---------------------------- */
-
-#home-to-launch-button,
-#mission-to-home-button {
-  border: 1px solid #38bdf8;
-  background: #1e293b;
-  color: #e5e7eb;
-  padding: 8px 11px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-family: inherit;
-  font-weight: bold;
-}
-
-#home-to-launch-button:hover,
-#mission-to-home-button:hover {
-  background: #0369a1;
-  color: #f8fafc;
-}
-
-#home-to-launch-button {
-  font-size: 12px;
-  padding: 7px 10px;
-}
-
-#mission-to-home-button,
-#home-to-launch-button {
-  border: 1px solid #38bdf8;
-  background: #1e293b;
-  color: #e5e7eb;
-  padding: 8px 11px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-family: inherit;
-  font-weight: bold;
-}
-
-#mission-to-home-button:hover,
-#home-to-launch-button:hover {
-  background: #0369a1;
-  color: #f8fafc;
-}
-
-#game-screen {
-  position: relative;
 }
 
 
