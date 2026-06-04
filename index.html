@@ -185,7 +185,7 @@
     </div>
   </div>
 
-  <!-- Main Game Screen -->
+    <!-- Main Game Screen -->
   <div id="game-screen" class="hidden">
     <header id="mission-header">
       <div>
@@ -201,8 +201,10 @@
     </header>
 
     <div id="app">
+      <!-- Terminal Pane -->
       <div id="terminal"></div>
 
+      <!-- Quest / Progress Pane -->
       <aside class="panel">
         <h1 id="quest-title"></h1>
         <p id="quest-description"></p>
@@ -217,23 +219,14 @@
           <h2>Progress</h2>
           <p><strong>XP:</strong> <span id="xp-counter">0</span></p>
           <p><strong>Status:</strong> <span id="quest-status">In Progress</span></p>
+
           <button id="next-quest-button" disabled>
             Mark Ticket Complete
           </button>
         </div>
-
-        <div id="ai-panel">
-          <h2>HELIOS-CLI</h2>
-          <p 
-            id="mission-ai-message"
-            class="helios-message"
-            data-helios-panel
-          >
-            Standing by. Try a command. Go on. What's the worst that could happen?
-          </p>
-        </div>
       </aside>
 
+      <!-- Documentation / Notebook Pane -->
       <section id="notes-panel">
         <h2>Documentation</h2>
 
@@ -263,8 +256,40 @@
           </div>
         </div>
       </section>
+
+      <!-- HELIOS Mission Commentary Pane -->
+      <aside id="ai-panel">
+        <h2>HELIOS-CLI</h2>
+
+        <p
+          id="mission-ai-message"
+          class="helios-message"
+          data-helios-panel
+        >
+          Standing by. Try a command. Go on. What's the worst that could happen?
+        </p>
+      </aside>
     </div>
   </div>
+
+  <!-- HELIOS Tutorial Overlay -->
+  <div id="tutorial-overlay" class="hidden">
+    <div id="tutorial-card">
+      <h2>HELIOS-CLI</h2>
+
+      <p id="tutorial-message">
+        Standing by. What are you waiting for? Try a command. What's the worst that could happen?
+      </p>
+
+      <div id="tutorial-controls">
+        <button id="tutorial-next-button">Next</button>
+        <button id="tutorial-skip-button">Skip Tutorial</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
 
 <!-- HELIOS Tutorial Overlay -->
   <div id="tutorial-overlay" class="hidden">
