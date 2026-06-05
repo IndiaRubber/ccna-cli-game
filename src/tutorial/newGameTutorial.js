@@ -30,7 +30,7 @@ Tickets, engineering notes, policy updates, and suspiciously cheerful corporate 
 
 Read your emails carefully. They may contain useful commands, VLAN numbers, port descriptions, or hints that are not repeated elsewhere.`,
     target: '#email-list-panel',
-    cardPosition: 'leftTarget'
+    cardPosition: 'leftMiddle'
   },
   {
     text:
@@ -63,6 +63,7 @@ Begin by opening your email queue and reviewing your first assignment.`,
 ];
 
 //Mission Center Tutorial//
+
 
 const missionTutorialSteps = [
   {
@@ -106,6 +107,7 @@ Do not guess your way through infrastructure changes. Read the ticket, inspect t
     cardPosition: 'center'
   }
 ];
+
 
 let currentStepIndex = 0;
 let typingTimer = null;
@@ -301,6 +303,11 @@ function positionTutorialCard(step) {
     top = rect.top;
     left = rect.left - cardWidth - margin;
   }
+
+  if (step.cardPosition === 'leftMiddle') {
+    top = rect.top + 24;
+    left = rect.left - cardWidth - margin;
+  }
   
   left = Math.max(16, Math.min(left, window.innerWidth - cardWidth - 16));
 
@@ -346,47 +353,3 @@ function completeTutorial() {
 }
 
 
-//Mission Center Tutorial//
-
-const missionTutorialSteps = [
-  {
-    text:
-`Terminal session initialized.
-
-This is the active mission workspace. From here you will review objectives, consult documentation, and configure network equipment through the command line.`,
-    target: null,
-    cardPosition: 'center'
-  },
-  {
-    text:
-`This is the terminal window.
-
-Commands are typed here. The prompt changes depending on your current mode, just like on real Cisco equipment.`,
-    target: '#terminal',
-    cardPosition: 'nearTarget'
-  },
-  {
-    text:
-`This is the mission objectives pane.
-
-It tracks the ticket, required tasks, current progress, and whether the assignment is ready to submit.`,
-    target: '.panel',
-    cardPosition: 'leftTarget'
-  },
-  {
-    text:
-`This is the documentation pane.
-
-Use it for command references, official notes, and your notebook. Some emails from Home Base can add useful information here.`,
-    target: '#notes-panel',
-    cardPosition: 'aboveTarget'
-  },
-  {
-    text:
-`Training reminder:
-
-Do not guess your way through infrastructure changes. Read the ticket, inspect the device, confirm the target interface, make the smallest safe change, and save your work.`,
-    target: null,
-    cardPosition: 'center'
-  }
-];
