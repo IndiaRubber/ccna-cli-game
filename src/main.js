@@ -507,6 +507,10 @@ function showLaunchScreen() {
   homeScreen.classList.add('hidden');
   gameScreen.classList.add('hidden');
 
+  launchScreen.style.display = 'flex';
+  homeScreen.style.display = 'none';
+  gameScreen.style.display = 'none';
+
   updateLaunchSummary();
 }
 
@@ -514,6 +518,10 @@ function showHomeScreen() {
   launchScreen.classList.add('hidden');
   homeScreen.classList.remove('hidden');
   gameScreen.classList.add('hidden');
+
+  launchScreen.style.display = 'none';
+  homeScreen.style.display = 'block';
+  gameScreen.style.display = 'none';
 
   updateHomeSummary();
   loadEmails();
@@ -527,6 +535,10 @@ function showGameScreen() {
   launchScreen.classList.add('hidden');
   homeScreen.classList.add('hidden');
   gameScreen.classList.remove('hidden');
+
+  launchScreen.style.display = 'none';
+  homeScreen.style.display = 'none';
+  gameScreen.style.display = 'grid';
 
   updateHomeSummary();
 
