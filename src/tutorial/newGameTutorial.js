@@ -96,7 +96,7 @@ It tracks the ticket, required tasks, current progress, and whether the assignme
 
 Use it for command references, official notes, and your notebook. Some emails from Home Base can add useful information here.`,
     target: '#notes-panel',
-    cardPosition: 'aboveTarget'
+    cardPosition: 'topRight'
   },
   {
     text:
