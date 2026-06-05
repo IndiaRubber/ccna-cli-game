@@ -40,7 +40,7 @@ Some assignments will be obvious. Others will require you to pull details from t
 
 Skipping email is an excellent way to misconfigure something important.`,
     target: '#email-reading-panel',
-    cardPosition: 'rightTarget'
+    cardPosition: 'topLeft'
   },
   {
     text:
@@ -48,7 +48,7 @@ Skipping email is an excellent way to misconfigure something important.`,
 
 From here you can inspect floors, select network closets, and eventually reach switches, routers, printers, access points, and other infrastructure.`,
     target: '#building-map-panel',
-    cardPosition: 'nearTarget'
+    cardPosition: 'rightInside'
   },
   {
     text:
@@ -96,7 +96,7 @@ It tracks the ticket, required tasks, current progress, and whether the assignme
 
 Use it for command references, official notes, and your notebook. Some emails from Home Base can add useful information here.`,
     target: '#notes-panel',
-    cardPosition: 'rightInside'
+    cardPosition: 'topLeft'
   },
   {
     text:
@@ -321,7 +321,7 @@ function positionTutorialCard(step) {
   
   left = Math.max(16, Math.min(left, window.innerWidth - cardWidth - 16));
 
-  const cardHeight = card.offsetHeight || 360;
+  const cardHeight = Math.min(430, window.innerHeight - 32);
 
   top = Math.max(
     16,
