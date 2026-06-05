@@ -1190,3 +1190,13 @@ button.building-floor {
   outline: 2px solid #38bdf8;
   box-shadow: 0 0 28px rgba(56, 189, 248, 0.45);
 }
+
+#launch-screen.hidden,
+#home-screen.hidden,
+#game-screen.hidden,
+#tutorial-overlay.hidden,
+#tutorial-spotlight.hidden,
+.map-node-row.hidden,
+.docs-tab-panel.hidden {
+  display: none !important;
+}
