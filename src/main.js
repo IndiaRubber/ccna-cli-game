@@ -568,6 +568,8 @@ function startNewGame() {
     launchStatusMessage.textContent = 'New operator profile created. Loading Home Base...';
   }
 
+  localStorage.removeItem('ciscoCliMissionTutorialComplete');
+
   showHomeScreen();
 
   startNewGameTutorial({ force: true });
