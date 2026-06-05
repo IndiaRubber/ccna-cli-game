@@ -30,7 +30,7 @@ Tickets, engineering notes, policy updates, and suspiciously cheerful corporate 
 
 Read your emails carefully. They may contain useful commands, VLAN numbers, port descriptions, or hints that are not repeated elsewhere.`,
     target: '#email-list-panel',
-    cardPosition: 'nearTarget'
+    cardPosition: 'leftTarget'
   },
   {
     text:
@@ -298,8 +298,8 @@ function positionTutorialCard(step) {
   }
 
   if (step.cardPosition === 'leftTarget') {
-  top = rect.top;
-  left = rect.left - cardWidth - margin;
+    top = rect.top;
+    left = rect.left - cardWidth - margin;
   }
   
   left = Math.max(16, Math.min(left, window.innerWidth - cardWidth - 16));
