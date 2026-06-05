@@ -1,4 +1,7 @@
 const TUTORIAL_COMPLETE_KEY = 'ciscoCliNewGameTutorialComplete';
+const MISSION_TUTORIAL_COMPLETE_KEY = 'ciscoCliMissionTutorialComplete';
+
+//Home Base Tutorial//
 
 const tutorialSteps = [
   {
@@ -59,17 +62,103 @@ Begin by opening your email queue and reviewing your first assignment.`,
   }
 ];
 
+//Mission Center Tutorial//
+
+const missionTutorialSteps = [
+  {
+    text:
+`Terminal session initialized.
+
+This is the active mission workspace. From here you will review objectives, consult documentation, and configure network equipment through the command line.`,
+    target: null,
+    cardPosition: 'center'
+  },
+  {
+    text:
+`This is the terminal window.
+
+Commands are typed here. The prompt changes depending on your current mode, just like on real Cisco equipment.`,
+    target: '#terminal',
+    cardPosition: 'nearTarget'
+  },
+  {
+    text:
+`This is the mission objectives pane.
+
+It tracks the ticket, required tasks, current progress, and whether the assignment is ready to submit.`,
+    target: '.panel',
+    cardPosition: 'leftTarget'
+  },
+  {
+    text:
+`This is the documentation pane.
+
+Use it for command references, official notes, and your notebook. Some emails from Home Base can add useful information here.`,
+    target: '#notes-panel',
+    cardPosition: 'aboveTarget'
+  },
+  {
+    text:
+`Training reminder:
+
+Do not guess your way through infrastructure changes. Read the ticket, inspect the device, confirm the target interface, make the smallest safe change, and save your work.`,
+    target: null,
+    cardPosition: 'center'
+  }
+];
+
 let currentStepIndex = 0;
 let typingTimer = null;
+let activeTutorialSteps = tutorialSteps;
+let activeTutorialCompleteKey = TUTORIAL_COMPLETE_KEY;
 
-export function startNewGameTutorial({ force = false } = {}) {
-  const alreadyComplete = localStorage.getItem(TUTORIAL_COMPLETE_KEY) === 'true';
+export function startMissionTutorial({ force = false } = {}) {
+  const alreadyComplete =
+    localStorage.getItem(MISSION_TUTORIAL_COMPLETE_KEY) === 'true';
 
   if (alreadyComplete && !force) {
     return;
   }
 
   currentStepIndex = 0;
+  activeTutorialSteps = missionTutorialSteps;
+  activeTutorialCompleteKey = MISSION_TUTORIAL_COMPLETE_KEY;
+
+  const overlay = document.getElementById('tutorial-overlay');
+  const nextButton = document.getElementById('tutorial-next-button');
+  const skipButton = document.getElementById('tutorial-skip-button');
+
+  if (!overlay || !nextButton || !skipButton) {
+    console.warn('Mission tutorial elements missing from DOM.');
+    return;
+  }
+
+  overlay.classList.remove('hidden');
+
+  nextButton.onclick = showNextTutorialStep;
+  skipButton.onclick = completeTutorial;
+
+  showTutorialStep(currentStepIndex);
+}
+
+export function resetNewGameTutorial() {
+  localStorage.removeItem(TUTORIAL_COMPLETE_KEY);
+}
+
+export function resetMissionTutorial() {
+  localStorage.removeItem(MISSION_TUTORIAL_COMPLETE_KEY);
+}
+
+export function startNewGameTutorial({ force = false } = {}) {
+  const alreadyComplete = localStorage.getItem(TUTORIAL_COMPLETE_KEY) === 'true';
+  
+  if (alreadyComplete && !force) {
+    return;
+  }
+
+  currentStepIndex = 0;
+  activeTutorialSteps = tutorialSteps;
+  activeTutorialCompleteKey = TUTORIAL_COMPLETE_KEY;
 
   const overlay = document.getElementById('tutorial-overlay');
   const nextButton = document.getElementById('tutorial-next-button');
@@ -91,7 +180,7 @@ export function startNewGameTutorial({ force = false } = {}) {
 function showNextTutorialStep() {
   currentStepIndex += 1;
 
-  if (currentStepIndex >= tutorialSteps.length) {
+  if (currentStepIndex >= activeTutorialSteps.length) {
     completeTutorial();
     return;
   }
@@ -100,7 +189,7 @@ function showNextTutorialStep() {
 }
 
 function showTutorialStep(index) {
-  const step = tutorialSteps[index];
+  const step = activeTutorialSteps[index];
 
   clearTutorialHighlight();
   positionSpotlight(step.target);
@@ -111,7 +200,7 @@ function showTutorialStep(index) {
   const nextButton = document.getElementById('tutorial-next-button');
   if (nextButton) {
     nextButton.textContent =
-      index === tutorialSteps.length - 1 ? 'Begin Assignment' : 'Continue';
+      index === activeTutorialSteps.length - 1 ? 'Begin Assignment' : 'Continue';
   }
 }
 
@@ -198,10 +287,6 @@ function positionTutorialCard(step) {
   let top = rect.bottom + margin;
   let left = rect.left;
 
-  if (step.cardPosition === 'aboveTarget') {
-    top = rect.top - 260;
-  }
-
   if (step.cardPosition === 'nearTarget') {
     top = rect.top;
     left = rect.left - cardWidth - margin;
@@ -212,6 +297,11 @@ function positionTutorialCard(step) {
     left = rect.left;
   }
 
+  if (step.cardPosition === 'leftTarget') {
+  top = rect.top;
+  left = rect.left - cardWidth - margin;
+  }
+  
   left = Math.max(16, Math.min(left, window.innerWidth - cardWidth - 16));
 
   const cardHeight = card.offsetHeight || 360;
@@ -252,9 +342,51 @@ function completeTutorial() {
     overlay.classList.add('hidden');
   }
 
-  localStorage.setItem(TUTORIAL_COMPLETE_KEY, 'true');
+  localStorage.setItem(activeTutorialCompleteKey, 'true');
 }
 
-export function resetNewGameTutorial() {
-  localStorage.removeItem(TUTORIAL_COMPLETE_KEY);
-}
+
+//Mission Center Tutorial//
+
+const missionTutorialSteps = [
+  {
+    text:
+`Terminal session initialized.
+
+This is the active mission workspace. From here you will review objectives, consult documentation, and configure network equipment through the command line.`,
+    target: null,
+    cardPosition: 'center'
+  },
+  {
+    text:
+`This is the terminal window.
+
+Commands are typed here. The prompt changes depending on your current mode, just like on real Cisco equipment.`,
+    target: '#terminal',
+    cardPosition: 'nearTarget'
+  },
+  {
+    text:
+`This is the mission objectives pane.
+
+It tracks the ticket, required tasks, current progress, and whether the assignment is ready to submit.`,
+    target: '.panel',
+    cardPosition: 'leftTarget'
+  },
+  {
+    text:
+`This is the documentation pane.
+
+Use it for command references, official notes, and your notebook. Some emails from Home Base can add useful information here.`,
+    target: '#notes-panel',
+    cardPosition: 'aboveTarget'
+  },
+  {
+    text:
+`Training reminder:
+
+Do not guess your way through infrastructure changes. Read the ticket, inspect the device, confirm the target interface, make the smallest safe change, and save your work.`,
+    target: null,
+    cardPosition: 'center'
+  }
+];
