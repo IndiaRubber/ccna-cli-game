@@ -321,7 +321,7 @@ function positionTutorialCard(step) {
   
   left = Math.max(16, Math.min(left, window.innerWidth - cardWidth - 16));
 
-  const cardHeight = card.offsetHeight || 360;
+  const cardHeight = card.offsetHeight || 600;
 
   top = Math.max(
     16,
