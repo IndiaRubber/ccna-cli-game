@@ -16,7 +16,7 @@ This environment will teach you how to inspect tickets, read documentation, loca
 `Once orientation is complete, I will remain in the assistant pane.
 
 I may provide commentary, warnings, reminders, or questionable morale support as your assignments progress.`,
-    target: '#helios-panel',
+    target: '#home-ai-panel',
     cardPosition: 'nearTarget'
   },
   {
@@ -26,7 +26,7 @@ I may provide commentary, warnings, reminders, or questionable morale support as
 Tickets, engineering notes, policy updates, and suspiciously cheerful corporate announcements will arrive here.
 
 Read your emails carefully. They may contain useful commands, VLAN numbers, port descriptions, or hints that are not repeated elsewhere.`,
-    target: '#email-list',
+    target: '#email-list-panel',
     cardPosition: 'belowTarget'
   },
   {
@@ -36,7 +36,7 @@ Read your emails carefully. They may contain useful commands, VLAN numbers, port
 Some assignments will be obvious. Others will require you to pull details from the message body before touching the switch.
 
 Skipping email is an excellent way to misconfigure something important.`,
-    target: '#email-reading-pane',
+    target: '#email-reading-panel',
     cardPosition: 'aboveTarget'
   },
   {
@@ -44,7 +44,7 @@ Skipping email is an excellent way to misconfigure something important.`,
 `This central area represents the facility.
 
 From here you can inspect floors, select network closets, and eventually reach switches, routers, printers, access points, and other infrastructure.`,
-    target: '#facility-map',
+    target: '#building-map-panel',
     cardPosition: 'nearTarget'
   },
   {
@@ -212,13 +212,15 @@ function positionTutorialCard(step) {
     left = rect.left;
   }
 
-  left = Math.max(16, Math.min(left, window.innerWidth - cardWidth - 16));
-  top = Math.max(16, Math.min(top, window.innerHeight - 300));
+    left = Math.max(16, Math.min(left, window.innerWidth - cardWidth - 16));
 
-  card.style.width = `${cardWidth}px`;
-  card.style.top = `${top}px`;
-  card.style.left = `${left}px`;
-  card.style.transform = 'none';
+    const estimatedCardHeight = Math.min(360, window.innerHeight - 32);
+    top = Math.max(16, Math.min(top, window.innerHeight - estimatedCardHeight - 16));
+
+    card.style.width = `${cardWidth}px`;
+    card.style.top = `${top}px`;
+    card.style.left = `${left}px`;
+    card.style.transform = 'none';
 }
 
 function clearTutorialHighlight() {
