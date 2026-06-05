@@ -1098,31 +1098,18 @@ button.building-floor {
   z-index: 99999;
 
   width: min(520px, calc(100vw - 32px));
-  max-height: calc(100vh - 32px);
+  height: min(430px, calc(100vh - 32px));
 
   display: flex;
   flex-direction: column;
 
   background: #020617;
   color: #e5e7eb;
-
   border: 1px solid #38bdf8;
   border-radius: 16px;
-
-  box-shadow:
-    0 0 0 1px rgba(56, 189, 248, 0.2),
-    0 0 40px rgba(56, 189, 248, 0.22);
-
   padding: 20px;
   box-sizing: border-box;
-
   overflow: hidden;
-
-  transition:
-    top 350ms ease,
-    left 350ms ease,
-    transform 350ms ease,
-    width 350ms ease;
 }
 
 .tutorial-card-center {
@@ -1165,10 +1152,8 @@ button.building-floor {
 
 .tutorial-text {
   flex: 1;
-  overflow-y: auto;
-
   min-height: 0;
-
+  overflow-y: auto;
   line-height: 1.6;
   color: #dbeafe;
   font-family: Consolas, "Courier New", monospace;
