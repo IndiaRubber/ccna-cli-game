@@ -548,7 +548,7 @@ function showGameScreen() {
   requestAnimationFrame(() => {
     initializeTerminal();
 
-    startMissionTutorial();
+    startMissionTutorial({ force: true });
 
     setTimeout(() => {
       window.dispatchEvent(new Event('resize'));
