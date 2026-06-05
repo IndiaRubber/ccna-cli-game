@@ -1110,7 +1110,12 @@ button.building-floor {
   padding: 20px;
   box-sizing: border-box;
   overflow: hidden;
-}
+  transition:
+    top 350ms ease,
+    left 350ms ease,
+    transform 350ms ease,
+    width 350ms ease;
+  }
 
 .tutorial-card-center {
   top: 50%;
