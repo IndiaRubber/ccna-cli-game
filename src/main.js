@@ -553,7 +553,8 @@ function showGameScreen() {
     setTimeout(() => {
       window.dispatchEvent(new Event('resize'));
     }, 50);
-});
+  });
+}
   
 function startNewGame() {
   const freshSave = getDefaultSaveData();
