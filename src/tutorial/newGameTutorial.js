@@ -27,7 +27,7 @@ Tickets, engineering notes, policy updates, and suspiciously cheerful corporate 
 
 Read your emails carefully. They may contain useful commands, VLAN numbers, port descriptions, or hints that are not repeated elsewhere.`,
     target: '#email-list-panel',
-    cardPosition: 'belowTarget'
+    cardPosition: 'nearTarget'
   },
   {
     text:
@@ -104,9 +104,9 @@ function showTutorialStep(index) {
 
   clearTutorialHighlight();
   positionSpotlight(step.target);
-  positionTutorialCard(step);
 
   typeTutorialText(step.text);
+  positionTutorialCard(step);
 
   const nextButton = document.getElementById('tutorial-next-button');
   if (nextButton) {
@@ -213,7 +213,16 @@ function positionTutorialCard(step) {
   }
 
   left = Math.max(16, Math.min(left, window.innerWidth - cardWidth - 16));
-  top = Math.max(16, Math.min(top, window.innerHeight - 300));
+
+  const cardHeight = card.offsetHeight || 360;
+
+  top = Math.max(
+    16,
+    Math.min(
+      top,
+      window.innerHeight - cardHeight - 16
+    )
+  );
 
   card.style.width = `${cardWidth}px`;
   card.style.top = `${top}px`;
