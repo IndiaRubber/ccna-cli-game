@@ -30,7 +30,7 @@ Tickets, engineering notes, policy updates, and suspiciously cheerful corporate 
 
 Read your emails carefully. They may contain useful commands, VLAN numbers, port descriptions, or hints that are not repeated elsewhere.`,
     target: '#email-list-panel',
-    cardPosition: 'leftTarget'
+    cardPosition: 'nearTarget'
   },
   {
     text:
