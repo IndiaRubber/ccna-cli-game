@@ -1075,7 +1075,7 @@ button.building-floor {
 
 .tutorial-spotlight {
   position: fixed;
-  z-index: 9001;
+  z-index: 99999;
   border: 2px solid #38bdf8;
   border-radius: 14px;
   box-shadow:
@@ -1095,20 +1095,28 @@ button.building-floor {
 
 .tutorial-card {
   position: fixed;
-  z-index: 9010;
+  z-index: 99999;
+
   width: min(520px, calc(100vw - 32px));
   max-height: calc(100vh - 32px);
-  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
 
   background: #020617;
   color: #e5e7eb;
+
   border: 1px solid #38bdf8;
   border-radius: 16px;
+
   box-shadow:
     0 0 0 1px rgba(56, 189, 248, 0.2),
     0 0 40px rgba(56, 189, 248, 0.22);
+
   padding: 20px;
   box-sizing: border-box;
+
+  overflow: hidden;
 
   transition:
     top 350ms ease,
@@ -1156,12 +1164,33 @@ button.building-floor {
 }
 
 .tutorial-text {
-  max-height: calc(100vh - 210px);
+  flex: 1;
   overflow-y: auto;
+
+  min-height: 0;
+
   line-height: 1.6;
   color: #dbeafe;
   font-family: Consolas, "Courier New", monospace;
   white-space: pre-wrap;
+}
+
+.tutorial-text::-webkit-scrollbar {
+  width: 10px;
+}
+
+.tutorial-text::-webkit-scrollbar-track {
+  background: #0b0f14;
+  border-radius: 999px;
+}
+
+.tutorial-text::-webkit-scrollbar-thumb {
+  background: #374151;
+  border-radius: 999px;
+}
+
+.tutorial-text::-webkit-scrollbar-thumb:hover {
+  background: #4b5563;
 }
 
 .tutorial-actions {
@@ -1193,7 +1222,7 @@ button.building-floor {
 
 .tutorial-highlighted {
   position: relative;
-  z-index: 9002;
+  z-index: 8999;
   outline: 2px solid #38bdf8;
   box-shadow: 0 0 28px rgba(56, 189, 248, 0.45);
 }
