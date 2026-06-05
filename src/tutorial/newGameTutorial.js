@@ -40,7 +40,7 @@ Some assignments will be obvious. Others will require you to pull details from t
 
 Skipping email is an excellent way to misconfigure something important.`,
     target: '#email-reading-panel',
-    cardPosition: 'center'
+    cardPosition: 'rightInside'
   },
   {
     text:
@@ -96,7 +96,7 @@ It tracks the ticket, required tasks, current progress, and whether the assignme
 
 Use it for command references, official notes, and your notebook. Some emails from Home Base can add useful information here.`,
     target: '#notes-panel',
-    cardPosition: 'center'
+    cardPosition: 'rightInside'
   },
   {
     text:
