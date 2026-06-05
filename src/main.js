@@ -555,8 +555,6 @@ function startNewGame() {
 
   startNewGameTutorial({ force: true });
 }
-  // startHomeBaseTutorial();
-}
 
 function continueGame() {
   const saveData = loadSaveData();
