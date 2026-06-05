@@ -48,7 +48,7 @@ Skipping email is an excellent way to misconfigure something important.`,
 
 From here you can inspect floors, select network closets, and eventually reach switches, routers, printers, access points, and other infrastructure.`,
     target: '#building-map-panel',
-    cardPosition: 'center'
+    cardPosition: 'nearTarget'
   },
   {
     text:
