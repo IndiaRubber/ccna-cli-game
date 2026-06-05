@@ -678,14 +678,16 @@ li {
 #terminal::-webkit-scrollbar,
 #notes-panel::-webkit-scrollbar,
 .panel::-webkit-scrollbar,
-#mission-ai-message::-webkit-scrollbar {
+#mission-ai-message::-webkit-scrollbar,
+#home-ai-message::-webkit-scrollbar {
   width: 10px;
 }
 
 #terminal::-webkit-scrollbar-track,
 #notes-panel::-webkit-scrollbar-track,
 .panel::-webkit-scrollbar-track,
-#mission-ai-message::-webkit-scrollbar-track {
+#mission-ai-message::-webkit-scrollbar-track,
+#home-ai-message::-webkit-scrollbar-track {
   background: #0b0f14;
   border-radius: 999px;
 }
@@ -693,7 +695,8 @@ li {
 #terminal::-webkit-scrollbar-thumb,
 #notes-panel::-webkit-scrollbar-thumb,
 .panel::-webkit-scrollbar-thumb,
-#mission-ai-message::-webkit-scrollbar-thumb {
+#mission-ai-message::-webkit-scrollbar-thumb,
+#home-ai-message::-webkit-scrollbar-thumb {
   background: #374151;
   border-radius: 999px;
 }
@@ -701,28 +704,10 @@ li {
 #terminal::-webkit-scrollbar-thumb:hover,
 #notes-panel::-webkit-scrollbar-thumb:hover,
 .panel::-webkit-scrollbar-thumb:hover,
-#mission-ai-message::-webkit-scrollbar-thumb:hover {
+#mission-ai-message::-webkit-scrollbar-thumb:hover,
+#home-ai-message::-webkit-scrollbar-thumb:hover {
   background: #4b5563;
 }
-
-.hidden-objective::before {
-  content: '⚠ ';
-}
-
-.hidden-objective {
-  color: #facc15;
-}
-
-.hidden {
-  display: none !important;
-}
-
-
-#mission-to-home-button:hover {
-  background: #0369a1;
-  color: #f8fafc;
-}
-
 /* ---------------------------- */
 /* Mission Header */
 /* ---------------------------- */
@@ -924,14 +909,6 @@ button.building-floor {
   display: none !important;
 }
 
-.launch-home-link {
-  display: inline-block;
-  margin-top: 14px;
-  color: #38cfff;
-  font-size: 0.85rem;
-  text-decoration: none;
-  opacity: 0.8;
-}
 
 .launch-home-link {
   display: block;
@@ -995,37 +972,6 @@ button.building-floor {
 .email-action-button:disabled {
   opacity: 0.45;
   cursor: not-allowed;
-}
-
-.docs-tabs {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-  border-bottom: 1px solid rgba(120, 170, 220, 0.25);
-}
-
-.docs-tab {
-  background: transparent;
-  color: #9fb7d7;
-  border: 1px solid transparent;
-  border-bottom: none;
-  padding: 0.45rem 0.75rem;
-  cursor: pointer;
-  font-family: monospace;
-}
-
-.docs-tab:hover {
-  color: #ffffff;
-}
-
-.active-docs-tab {
-  color: #ffffff;
-  border-color: rgba(120, 170, 220, 0.45);
-  background: rgba(120, 170, 220, 0.08);
-}
-
-.docs-tab-panel {
-  min-height: 120px;
 }
 
 .notebook-entry {
@@ -1110,4 +1056,137 @@ button.building-floor {
   line-height: 1.45;
   min-height: 72px;
   white-space: pre-wrap;
+}
+
+/* New Game Tutorial */
+
+.tutorial-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9997;
+  background: rgba(2, 6, 23, 0.82);
+  backdrop-filter: blur(2px);
+}
+
+.tutorial-overlay.hidden {
+  display: none;
+}
+
+.tutorial-card {
+  position: fixed;
+  z-index: 9999;
+  width: min(520px, calc(100vw - 32px));
+  background: #020617;
+  color: #e5e7eb;
+  border: 1px solid #38bdf8;
+  border-radius: 16px;
+  box-shadow:
+    0 0 0 1px rgba(56, 189, 248, 0.2),
+    0 0 40px rgba(56, 189, 248, 0.22);
+  padding: 20px;
+  transition:
+    top 350ms ease,
+    left 350ms ease,
+    transform 350ms ease,
+    width 350ms ease;
+}
+
+.tutorial-card-center {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.tutorial-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.tutorial-orb {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  color: #38bdf8;
+  border: 1px solid #38bdf8;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.08);
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.35);
+}
+
+.tutorial-header h2 {
+  margin: 0;
+  color: #f8fafc;
+  font-size: 1.15rem;
+  letter-spacing: 0.08em;
+}
+
+.tutorial-header p {
+  margin: 4px 0 0;
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+.tutorial-text {
+  min-height: 120px;
+  line-height: 1.6;
+  color: #dbeafe;
+  font-family: Consolas, "Courier New", monospace;
+  white-space: pre-wrap;
+}
+
+.tutorial-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.tutorial-actions button {
+  background: #0f172a;
+  color: #e5e7eb;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 9px 14px;
+  cursor: pointer;
+  font-family: Consolas, "Courier New", monospace;
+}
+
+.tutorial-actions button:hover {
+  border-color: #38bdf8;
+  color: #f8fafc;
+}
+
+#tutorial-next-button {
+  background: rgba(14, 165, 233, 0.18);
+  border-color: #38bdf8;
+}
+
+.tutorial-spotlight {
+  position: fixed;
+  z-index: 9998;
+  border: 2px solid #38bdf8;
+  border-radius: 14px;
+  box-shadow:
+    0 0 0 9999px rgba(2, 6, 23, 0.72),
+    0 0 28px rgba(56, 189, 248, 0.6);
+  pointer-events: none;
+  transition:
+    top 280ms ease,
+    left 280ms ease,
+    width 280ms ease,
+    height 280ms ease;
+}
+
+.tutorial-spotlight.hidden {
+  display: none;
+}
+
+.tutorial-highlighted {
+  position: relative;
+  z-index: 10000;
+  outline: 2px solid #38bdf8;
+  box-shadow: 0 0 28px rgba(56, 189, 248, 0.45);
 }
