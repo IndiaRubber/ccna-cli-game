@@ -40,7 +40,7 @@ Some assignments will be obvious. Others will require you to pull details from t
 
 Skipping email is an excellent way to misconfigure something important.`,
     target: '#email-reading-panel',
-    cardPosition: 'aboveTarget'
+    cardPosition: 'topLeft'
   },
   {
     text:
@@ -48,7 +48,7 @@ Skipping email is an excellent way to misconfigure something important.`,
 
 From here you can inspect floors, select network closets, and eventually reach switches, routers, printers, access points, and other infrastructure.`,
     target: '#building-map-panel',
-    cardPosition: 'nearTarget'
+    cardPosition: 'center'
   },
   {
     text:
@@ -307,6 +307,16 @@ function positionTutorialCard(step) {
   if (step.cardPosition === 'leftMiddle') {
     top = rect.top + 24;
     left = rect.left - cardWidth - margin;
+  }
+
+  if (step.cardPosition === 'topLeft') {
+    top = 48;
+    left = 48;
+  }
+
+  if (step.cardPosition === 'rightInside') {
+    top = rect.top + 24;
+    left = rect.right - cardWidth - 24;
   }
   
   left = Math.max(16, Math.min(left, window.innerWidth - cardWidth - 16));
