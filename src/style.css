@@ -1063,19 +1063,43 @@ button.building-floor {
 .tutorial-overlay {
   position: fixed;
   inset: 0;
-  z-index: 9997;
+  z-index: 9000;
   background: rgba(2, 6, 23, 0.82);
   backdrop-filter: blur(2px);
+  overflow: hidden;
 }
 
 .tutorial-overlay.hidden {
-  display: none;
+  display: none !important;
+}
+
+.tutorial-spotlight {
+  position: fixed;
+  z-index: 9001;
+  border: 2px solid #38bdf8;
+  border-radius: 14px;
+  box-shadow:
+    0 0 0 9999px rgba(2, 6, 23, 0.72),
+    0 0 28px rgba(56, 189, 248, 0.6);
+  pointer-events: none;
+  transition:
+    top 280ms ease,
+    left 280ms ease,
+    width 280ms ease,
+    height 280ms ease;
+}
+
+.tutorial-spotlight.hidden {
+  display: none !important;
 }
 
 .tutorial-card {
   position: fixed;
-  z-index: 9999;
+  z-index: 9010;
   width: min(520px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  overflow: hidden;
+
   background: #020617;
   color: #e5e7eb;
   border: 1px solid #38bdf8;
@@ -1084,6 +1108,8 @@ button.building-floor {
     0 0 0 1px rgba(56, 189, 248, 0.2),
     0 0 40px rgba(56, 189, 248, 0.22);
   padding: 20px;
+  box-sizing: border-box;
+
   transition:
     top 350ms ease,
     left 350ms ease,
@@ -1130,7 +1156,8 @@ button.building-floor {
 }
 
 .tutorial-text {
-  min-height: 120px;
+  max-height: calc(100vh - 210px);
+  overflow-y: auto;
   line-height: 1.6;
   color: #dbeafe;
   font-family: Consolas, "Courier New", monospace;
@@ -1164,29 +1191,9 @@ button.building-floor {
   border-color: #38bdf8;
 }
 
-.tutorial-spotlight {
-  position: fixed;
-  z-index: 9998;
-  border: 2px solid #38bdf8;
-  border-radius: 14px;
-  box-shadow:
-    0 0 0 9999px rgba(2, 6, 23, 0.72),
-    0 0 28px rgba(56, 189, 248, 0.6);
-  pointer-events: none;
-  transition:
-    top 280ms ease,
-    left 280ms ease,
-    width 280ms ease,
-    height 280ms ease;
-}
-
-.tutorial-spotlight.hidden {
-  display: none;
-}
-
 .tutorial-highlighted {
   position: relative;
-  z-index: 10000;
+  z-index: 9002;
   outline: 2px solid #38bdf8;
   box-shadow: 0 0 28px rgba(56, 189, 248, 0.45);
 }
