@@ -9,7 +9,10 @@ import { renderQuest } from './quests/questEngine.js';
 import { loadEmails, openEmail, resetEmailState } from './systems/emailSystem.js';
 import { heliosSay, heliosSayRandom } from './systems/helios.js';
 import { initDocsPanel, resetNotebook } from './ui/docsPanel.js';
-import { startNewGameTutorial } from './tutorial/newGameTutorial.js';
+import {
+  startNewGameTutorial,
+  startMissionTutorial
+} from './tutorial/newGameTutorial.js';
 
 console.log('[MAIN] main.js loaded');
 console.log('[MAIN] imported runCommand:', runCommand);
@@ -545,12 +548,13 @@ function showGameScreen() {
   requestAnimationFrame(() => {
     initializeTerminal();
 
+    startMissionTutorial();
+
     setTimeout(() => {
       window.dispatchEvent(new Event('resize'));
     }, 50);
-  });
-}
-
+});
+  
 function startNewGame() {
   const freshSave = getDefaultSaveData();
 
