@@ -40,7 +40,7 @@ Some assignments will be obvious. Others will require you to pull details from t
 
 Skipping email is an excellent way to misconfigure something important.`,
     target: '#email-reading-panel',
-    cardPosition: 'topLeft'
+    cardPosition: 'topRight'
   },
   {
     text:
