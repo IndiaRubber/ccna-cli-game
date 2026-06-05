@@ -289,7 +289,7 @@ function positionTutorialCard(step) {
 
   if (step.cardPosition === 'nearTarget') {
     top = rect.top;
-    left = rect.left - cardWidth - margin;
+    left = rect.right + margin;
   }
 
   if (step.cardPosition === 'belowTarget') {
