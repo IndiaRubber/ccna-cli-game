@@ -4,12 +4,12 @@ import { getAutocomplete } from './ui/autocomplete.js';
 import { createTerminal } from './ui/terminal.js';
 import './style.css';
 
-import { startNewGameTutorial } from './tutorial/newGameTutorial.js';
 import { mission1 } from './quests/mission1/mission1.js';
 import { renderQuest } from './quests/questEngine.js';
 import { loadEmails, openEmail, resetEmailState } from './systems/emailSystem.js';
 import { heliosSay, heliosSayRandom } from './systems/helios.js';
 import { initDocsPanel, resetNotebook } from './ui/docsPanel.js';
+import { startNewGameTutorial } from './tutorial/newGameTutorial.js';
 
 console.log('[MAIN] main.js loaded');
 console.log('[MAIN] imported runCommand:', runCommand);
