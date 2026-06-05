@@ -4,6 +4,7 @@ import { getAutocomplete } from './ui/autocomplete.js';
 import { createTerminal } from './ui/terminal.js';
 import './style.css';
 
+import { startNewGameTutorial } from './tutorial/newGameTutorial.js';
 import { mission1 } from './quests/mission1/mission1.js';
 import { renderQuest } from './quests/questEngine.js';
 import { loadEmails, openEmail, resetEmailState } from './systems/emailSystem.js';
@@ -546,14 +547,14 @@ function startNewGame() {
   saveGameData(freshSave);
   applySaveToGameState(freshSave);
 
-
   if (launchStatusMessage) {
     launchStatusMessage.textContent = 'New operator profile created. Loading Home Base...';
   }
 
   showHomeScreen();
 
-  // Later this is where the New Game tutorial should start.
+  startNewGameTutorial({ force: true });
+}
   // startHomeBaseTutorial();
 }
 
