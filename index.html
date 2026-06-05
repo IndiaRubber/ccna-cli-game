@@ -271,39 +271,30 @@
       </aside>
     </div>
   </div>
+  
+  <!-- New Game Tutorial Overlay -->
+  <div id="tutorial-overlay" class="tutorial-overlay hidden">
+    <div id="tutorial-spotlight" class="tutorial-spotlight hidden"></div>
 
-  <!-- HELIOS Tutorial Overlay -->
-  <div id="tutorial-overlay" class="hidden">
-    <div id="tutorial-card">
-      <h2>HELIOS-CLI</h2>
+    <div id="tutorial-card" class="tutorial-card tutorial-card-center">
+      <div class="tutorial-header">
+        <div class="tutorial-orb">◆</div>
+        <div>
+          <h2>HELIOS-CLI</h2>
+          <p>Legacy Infrastructure Assistant</p>
+        </div>
+      </div>
 
-      <p id="tutorial-message">
-        Standing by. What are you waiting for? Try a command. What's the worst that could happen?
-      </p>
+      <div id="tutorial-text" class="tutorial-text">
+        Initializing tutorial...
+      </div>
 
-      <div id="tutorial-controls">
-        <button id="tutorial-next-button">Next</button>
-        <button id="tutorial-skip-button">Skip Tutorial</button>
+      <div class="tutorial-actions">
+        <button id="tutorial-skip-button" type="button">Skip</button>
+        <button id="tutorial-next-button" type="button">Continue</button>
       </div>
     </div>
   </div>
 
-  <script type="module" src="/src/main.js"></script>
-</body>
-
-<!-- HELIOS Tutorial Overlay -->
-  <div id="tutorial-overlay" class="hidden">
-    <div id="tutorial-card">
-    <h2>HELIOS-CLI</h2>
-
-    <p id="tutorial-message">
-      Standing by. What are you waiting for? Try a command. What's the worst that could happen?
-    </p>
-
-    <div id="tutorial-controls">
-      <button id="tutorial-next-button">Next</button>
-      <button id="tutorial-skip-button">Skip Tutorial</button>
-    </div>
-  </div>
-<script type="module" src="/src/main.js"></script>
+  <script type="module" src="/src/main.js"></script>   
 </body>
