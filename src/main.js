@@ -11,6 +11,7 @@ import './style.css';
 
 import { getMission } from './quests/missionRegistry.js';
 import { prepareMissionThreeScenario } from './quests/mission3/mission3Runtime.js';
+import { prepareMissionFourScenario } from './quests/mission4/mission4Runtime.js';
 import { renderObjectiveStates, renderQuest } from './quests/questEngine.js';
 import { archiveMissionEmails, getNextActionableOffice4bTicket, loadEmails, openEmail, resetEmailState } from './systems/emailSystem.js';
 import { heliosSay, heliosSayRandom } from './systems/helios.js';
@@ -97,6 +98,10 @@ function showHelp() {
   print('  shutdown');
   print('  show interfaces status');
   print('  show vlan brief');
+  print('  show mac address-table');
+  print('  show mac address-table address MAC');
+  print('  show mac address-table interface INTERFACE');
+  print('  show mac address-table vlan VLAN');
   print('  show running-config');
   print('  show running-config interface gi1/0/12');
   print('  copy running-config startup-config');
@@ -432,6 +437,9 @@ function activateMission(missionId, options = {}) {
   if (missionId === 'mission-3') {
     prepareMissionThreeScenario(GameState);
   }
+  if (missionId === 'mission-4') {
+    prepareMissionFourScenario(GameState);
+  }
 
   saveProgressToLocalStorage();
   renderMissionState();
@@ -449,6 +457,13 @@ function activateMission(missionId, options = {}) {
   if (missionId === 'mission-3') {
     heliosSay(
       'Facilities moved the printer without moving its switchport configuration. Before building anything from memory, find the old known-good port and compare it with the new connection.',
+      'ai-message'
+    );
+  }
+
+  if (missionId === 'mission-4') {
+    heliosSay(
+      'A MAC address is not a room number. Fortunately, the switch keeps receipts.',
       'ai-message'
     );
   }

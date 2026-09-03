@@ -362,6 +362,10 @@ export function cmdShowMacAddressTable(command) {
   const rawValue = tokens[4];
   let value = rawValue;
 
+  if (!['all', 'address', 'interface', 'vlan'].includes(kind)) {
+    return { error: `% Invalid MAC address-table query: ${kind}` };
+  }
+
   if (kind === 'address') {
     value = normalizeMacAddress(rawValue);
     if (!value) return { error: `% Invalid MAC address: ${rawValue || ''}` };
@@ -480,6 +484,7 @@ export function cmdShowRunningConfigInterface(command) {
     accessVlan: intf.accessVlan,
     voiceVlan: intf.voiceVlan,
     shutdown: intf.shutdown,
+    linkUp: intf.linkUp,
     configurationChanges: GameState.configurationChanges ?? 0
   });
 

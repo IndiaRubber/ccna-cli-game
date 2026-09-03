@@ -397,6 +397,74 @@ write memory</code></pre>
   },
 
   {
+    id: 'ticket-warehouse-endpoint',
+    missionId: 'mission-4',
+    unlockAfterQuest: 'mission-3',
+    from: 'Warehouse Support Queue',
+    subject: 'Ticket: Warehouse Scanner Connection Record',
+    preview: 'The scanner works. The port record does not.',
+    heliosMessage:
+      'The endpoint is online, so this is a trace-and-document ticket. Resist the urge to repair what is not broken.',
+    body: `
+      <p>
+        Warehouse support has a scanner that is currently online and communicating normally, but the cabling records
+        do not identify which D8SW1 switchport serves it.
+      </p>
+
+      <p>
+        The scanner MAC address is <code>00aa.bbcc.dd21</code>. Use the switch's learned MAC information to locate
+        the connection, inspect the interface, and correct the stale documentation. Do not change working network
+        settings unless your inspection provides evidence that something is wrong.
+      </p>
+
+      <p>Ticket priority: Low.</p>
+
+      <button id="email-start-ticket-button" class="email-action-button">
+        Open Terminal for This Ticket
+      </button>
+    `
+  },
+
+  {
+    id: 'mission4-debrief',
+    unlockAfterQuest: 'mission-4',
+    from: 'Mara Voss — Network Administration',
+    subject: 'RE: Warehouse Scanner Connection Record',
+    preview: 'The scanner stayed online, and now the record is useful.',
+    heliosMessage:
+      'MAC evidence located the interface. Documentation improved without disturbing a working endpoint.',
+    body: `
+      <p>
+        You used the scanner's MAC address to locate its learned switchport, confirmed the existing access VLAN 10
+        configuration, corrected the interface description, verified the result, and saved the switch configuration.
+      </p>
+
+      <p>
+        A switch learns source MAC addresses and associates them with interfaces. That makes the MAC address table
+        a useful starting point when physical documentation is incomplete.
+      </p>
+    `,
+    notebookEntry: {
+      id: 'mac-address-table-reference',
+      title: 'MAC Address Table Reference',
+      body: `
+        <p>
+          Switches learn source MAC addresses and associate each learned address with a VLAN and interface.
+          One physical interface can have more than one learned MAC address, such as a workstation and phone.
+        </p>
+
+        <pre><code>show mac address-table
+show mac address-table address &lt;mac&gt;
+show mac address-table interface &lt;interface&gt;</code></pre>
+
+        <p>
+          If you only know an IP address, an additional lookup step is needed before a switchport can be identified.
+        </p>
+      `
+    }
+  },
+
+  {
     id: 'postmission-corporate-survey',
     unlockAfterQuest: 'mission-1',
     from: 'People Operations',

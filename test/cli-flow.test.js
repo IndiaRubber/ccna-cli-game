@@ -145,8 +145,10 @@ test('MAC table rejects invalid filters and preserves observed entry snapshots',
 
   runCommand('show mac address-table address invalid-mac');
   runCommand('show mac address-table interface gi1/0/99');
+  runCommand('show mac address-table mystery');
   assert.ok(output.some((line) => line.includes('Invalid MAC address')));
   assert.ok(output.some((line) => line.includes('Invalid interface type and number')));
+  assert.ok(output.some((line) => line.includes('Invalid MAC address-table query')));
   assert.equal(GameState.observations.length, 2);
 });
 
@@ -231,6 +233,7 @@ test('interface running-config inspection records the observed network state', (
     accessVlan: '1',
     voiceVlan: null,
     shutdown: false,
+    linkUp: true,
     configurationChanges: 0
   });
 });
