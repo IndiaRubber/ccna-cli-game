@@ -32,6 +32,7 @@ export function createD8SW1() {
     vlans: {
       '1': { name: 'default' },
       '10': { name: 'DATA' },
+         '15': { name: 'PRINTER' },
       '20': { name: 'VOICE' },
       '99': { name: 'MGMT' }
     },

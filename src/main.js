@@ -111,12 +111,13 @@ function showHelp() {
 
 function updateObjectives() {
   const progress = activeMission.evaluate(GameState);
+  const showHiddenObjectives = activeMission.definition.id === 'mission-3';
 
   renderObjectiveStates(progress.objectiveStates, {
     hiddenObjectiveIds: activeMission.definition.hiddenObjectives?.map(
       (objective) => objective.id
     ),
-    showHiddenObjectives: false
+    showHiddenObjectives
   });
 
   const questStatus = document.getElementById('quest-status');
@@ -254,8 +255,10 @@ function applySaveToGameState(saveData) {
 }
 
 function renderMissionState() {
+  const showHiddenObjectives = activeMission.definition.id === 'mission-3';
+
   renderQuest(activeMission.definition, {
-    showHiddenObjectives: false
+    showHiddenObjectives
   });
 
   const questStatus = document.getElementById('quest-status');
@@ -361,6 +364,8 @@ const homeCredits = document.getElementById('home-credits');
 const goToTerminalButton = document.getElementById('go-to-terminal-button');
 const homeToLaunchButton = document.getElementById('home-to-launch-button');
 const missionToHomeButton = document.getElementById('mission-to-home-button');
+const missionSelect = document.getElementById('mission-select');
+const missionSelectButton = document.getElementById('mission-select-button');
 
 const missionRank = document.getElementById('mission-rank');
 const missionCredits = document.getElementById('mission-credits');
@@ -398,19 +403,19 @@ function showMissionCompletionModal() {
   }
 }
 
-function activateMission(missionId) {
+function activateMission(missionId, options = {}) {
   const mission = getMission(missionId);
 
   if (!mission) return;
 
   const completedQuests = new Set(GameState.completedQuests ?? []);
-  if (completedQuests.has(missionId)) {
+  if (!options.bypassLocks && completedQuests.has(missionId)) {
     heliosSay('That ticket is already closed. Reopening solved incidents is a management feature, not a training feature.');
     return;
   }
 
   const prerequisite = mission.definition.requires;
-  if (prerequisite && !completedQuests.has(prerequisite)) {
+  if (!options.bypassLocks && prerequisite && !completedQuests.has(prerequisite)) {
     heliosSay(`That assignment is locked until ${getMission(prerequisite)?.definition.name ?? prerequisite} is complete.`);
     return;
   }
@@ -653,6 +658,18 @@ if (missionCompletionHome) {
   missionCompletionHome.addEventListener('click', () => {
     hideModal(missionCompletionModal);
     showHomeScreen({ openEmailId: activeMission.definition.completionEmailId });
+  });
+}
+
+if (missionSelectButton) {
+  missionSelectButton.addEventListener('click', () => {
+    resetGameState();
+    resetEmailState();
+    resetNotebook();
+    resetMissionTutorial();
+    GameState.completedQuests = [];
+    saveProgressToLocalStorage();
+    activateMission(missionSelect?.value ?? 'mission-0', { bypassLocks: true });
   });
 }
 

@@ -12,7 +12,7 @@ function getCurrentInterfaceLabel() {
 
 export function normalizeInterfaceName(input = '') {
   const compact = input.toLowerCase().replace(/\s+/g, '');
-  const match = compact.match(/^(?:g0\/|gi1\/0\/|gigabitethernet1\/0\/)(\d{1,2})$/);
+  const match = compact.match(/^(?:g0\/|g1\/0\/|gi1\/0\/|gigabitethernet1\/0\/)(\d{1,2})$/);
 
   if (!match) return null;
 

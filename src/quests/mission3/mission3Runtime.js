@@ -35,7 +35,7 @@ function printerIsOperational(port) {
   return Boolean(
     port &&
     port.mode === 'access' &&
-    port.accessVlan === '10' &&
+       port.accessVlan === '15' &&
     port.voiceVlan === null &&
     port.shutdown === false &&
     port.linkUp === true
@@ -64,23 +64,23 @@ export function evaluateMissionThree(state) {
     observation.voiceVlan === null &&
     observation.shutdown === false
   );
-  const newPortInspectedBeforeRepair = newInspections.some(
-    (observation) => observation.accessVlan !== '10' || observation.mode !== 'access'
-  );
+  const newPortInspected = newInspections.length > 0;
+  const oldPortShutdown = oldPort?.shutdown === true;
   const printerOperational = printerIsOperational(newPort);
   const descriptionComplete = hasPrinterDescription(newPort?.description);
   const verified = printerOperational && newInspections.some((observation) =>
     observation.mode === 'access' &&
-    observation.accessVlan === '10' &&
+       observation.accessVlan === '15' &&
     observation.voiceVlan === null &&
     observation.shutdown === false &&
     observation.description === newPort.description &&
     (observation.configurationChanges ?? 0) === (state.configurationChanges ?? 0)
   );
-  const investigated = statusEvidence && knownGoodInspection && newPortInspectedBeforeRepair;
+  const investigated = statusEvidence && knownGoodInspection && newPortInspected;
   const objectiveStates = {
     'investigate-printer-outage': Boolean(statusObservation),
     'locate-new-printer-connection': statusEvidence,
+    'shutdown-old-printer-port': oldPortShutdown,
     'restore-printer-service': investigated && printerOperational,
     'verify-printer-repair': investigated && verified,
     'document-printer-port': descriptionComplete,
@@ -96,7 +96,7 @@ export function evaluateMissionThree(state) {
     descriptionComplete,
     verified,
     objectiveStates,
-    readyToSubmit: investigated && verified && descriptionComplete && objectiveStates.save
+    readyToSubmit: investigated && oldPortShutdown && verified && descriptionComplete && objectiveStates.save
   };
 }
 

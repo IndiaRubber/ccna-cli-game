@@ -309,15 +309,60 @@ write memory</code></pre>
 
       <p>
         Inspect the switch to determine which printer port went offline and which spare connection is now active.
-        Use the old printer port as a known-good comparison before restoring service.
+        Use the old printer port as a known-good comparison, shut down the abandoned port, then restore service
+        on the new connection using the dedicated Printer VLAN 15. Verify the result and save the configuration.
       </p>
+
+      <p>Suggested command sequence:</p>
+
+      <pre><code>enable
+show interfaces status
+show running-config interface g0/6
+show running-config interface g0/13
+configure terminal
+interface g0/6
+shutdown
+interface g0/13
+switchport mode access
+switchport access vlan 15
+description Records Printer
+end
+show running-config interface g0/13
+write memory</code></pre>
 
       <p>Ticket priority: Medium.</p>
 
       <button id="email-start-ticket-button" class="email-action-button">
         Open Terminal for This Ticket
       </button>
-    `
+    `,
+    notebookEntry: {
+      id: 'relocated-printer-recovery',
+      title: 'Relocated Printer Recovery',
+      body: `
+        <p>
+          Compare the disconnected old printer port with the newly connected spare port. After confirming the move,
+          shut down the abandoned port, configure the new port for Printer VLAN 15, document its location, verify, and save.
+        </p>
+
+        <h4>Suggested Commands</h4>
+
+        <pre><code>enable
+show interfaces status
+show running-config interface g0/6
+show running-config interface g0/13
+configure terminal
+interface g0/6
+shutdown
+interface g0/13
+switchport mode access
+switchport access vlan 15
+description Records Printer
+end
+show running-config interface g0/13
+write memory</code></pre>
+      `
+    }
   },
 
   {
@@ -330,7 +375,7 @@ write memory</code></pre>
       'Printer service restored. The endpoint moved; the switchport configuration did not. This is why comparisons matter.',
     body: `
       <p>
-        You used the old known-good printer port as evidence, configured the new connection on DATA VLAN 10,
+        You used the old known-good printer port as evidence, configured the new connection on Printer VLAN 15,
         documented its location, verified the result, and saved the switch configuration.
       </p>
 

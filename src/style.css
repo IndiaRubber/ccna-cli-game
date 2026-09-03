@@ -326,6 +326,49 @@ body {
   overflow: hidden;
 }
 
+.mission-select-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+  min-width: 0;
+}
+
+.mission-select-controls label {
+  color: #94a3b8;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+#mission-select {
+  width: 150px;
+  min-width: 0;
+  padding: 6px 8px;
+  background: #0f172a;
+  border: 1px solid #475569;
+  border-radius: 6px;
+  color: #f8fafc;
+}
+
+@media (max-width: 720px) {
+  .home-panel-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .mission-select-controls {
+    align-items: stretch;
+    flex-direction: column;
+    margin-left: 0;
+    order: 3;
+    width: 100%;
+  }
+
+  #mission-select {
+    width: 100%;
+  }
+}
+
 #home-ai-message {
   flex: 1;
   min-height: 0;

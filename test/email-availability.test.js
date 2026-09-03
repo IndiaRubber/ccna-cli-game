@@ -94,6 +94,10 @@ test('Mission 2 ticket follows Mission 1 and its debrief waits for Mission 2', (
 });
 
 test('Mission 3 ticket follows Mission 2 and its debrief waits for Mission 3', () => {
+  assert.ok(missionThreeTicket.notebookEntry);
+  assert.match(missionThreeTicket.body, /interface g0\/6[\s\S]*shutdown/);
+  assert.match(missionThreeTicket.notebookEntry.body, /interface g0\/13[\s\S]*write memory/);
+
   assert.equal(isEmailAvailable(missionThreeTicket, {
     currentQuestId: 'mission-2',
     questCompleted: true,

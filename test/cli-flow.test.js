@@ -102,6 +102,17 @@ test('shorthand interface names work but nonexistent ports are rejected', () => 
   assert.equal(Object.hasOwn(GameState.interfaces, 'g0/99'), false);
 });
 
+test('single-letter g1/0 interface aliases resolve to simulator ports', () => {
+  resetHarness();
+
+  runCommand('enable');
+  runCommand('configure terminal');
+  runCommand('interface g1/0/13');
+
+  assert.equal(GameState.mode, 'interface');
+  assert.equal(GameState.currentInterface, 'g0/13');
+});
+
 test('privileged show commands are rejected from user EXEC mode', () => {
   resetHarness();
 
