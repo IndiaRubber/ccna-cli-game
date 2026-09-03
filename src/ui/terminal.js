@@ -41,9 +41,19 @@ export function createTerminal({
     term.write(`\r\n${getPrompt()} `);
   }
 
-  term.write('Cisco CLI Quest Trainer\r\n');
-  term.write('Type "help" or "?" for commands.\r\n');
-  term.write(`${getPrompt()} `);
+  function writeWelcome() {
+    term.write('Cisco CLI Quest Trainer\r\n');
+    term.write('Type "help" or "?" for commands.\r\n');
+    term.write(`${getPrompt()} `);
+  }
+
+  function reset() {
+    input = '';
+    term.reset();
+    writeWelcome();
+  }
+
+  writeWelcome();
 
   term.onData((data) => {
     const char = data;
@@ -61,8 +71,6 @@ export function createTerminal({
     }
 
     if (char === '\r') {
-      console.log('[TERMINAL] submitting input:', input);
-      
       term.write('\r\n');
       runCommand(input);
       input = '';
@@ -91,6 +99,7 @@ export function createTerminal({
     term,
     print,
     writePrompt,
-    fit: () => fitAddon.fit()
+    fit: () => fitAddon.fit(),
+    reset
   };
 }

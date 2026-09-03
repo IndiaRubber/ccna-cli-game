@@ -1,26 +1,38 @@
-import { GameState } from './engine/state.js';
+import {
+  GameState,
+  createGameStateSnapshot,
+  resetGameState,
+  restoreGameState
+} from './engine/state.js';
 import { runCommand } from './engine/cli.js';
 import { getAutocomplete } from './ui/autocomplete.js';
 import { createTerminal } from './ui/terminal.js';
 import './style.css';
 
-import { mission1 } from './quests/mission1/mission1.js';
-import { renderQuest } from './quests/questEngine.js';
+import { getMission } from './quests/missionRegistry.js';
+import { MISSION_ONE_EVENTS } from './quests/mission1/mission1Runtime.js';
+import { renderObjectiveStates, renderQuest } from './quests/questEngine.js';
 import { loadEmails, openEmail, resetEmailState } from './systems/emailSystem.js';
 import { heliosSay, heliosSayRandom } from './systems/helios.js';
 import { initDocsPanel, resetNotebook } from './ui/docsPanel.js';
 import {
+  resetMissionTutorial,
+  resetNewGameTutorial,
   startNewGameTutorial,
   startMissionTutorial
 } from './tutorial/newGameTutorial.js';
 
-console.log('[MAIN] main.js loaded');
-console.log('[MAIN] imported runCommand:', runCommand);
 // ----------------------------
 // Quest / Terminal Setup
 // ----------------------------
 
-renderQuest(mission1);
+const activeMission = getMission('mission-1');
+
+if (!activeMission) {
+  throw new Error('Mission 1 is not registered.');
+}
+
+renderQuest(activeMission.definition);
 
 const terminalElement = document.getElementById('terminal');
 
@@ -57,7 +69,8 @@ function initializeTerminal() {
   window.CiscoUI = {
     print,
     showHelp,
-    updateObjectives
+    updateObjectives,
+    persistProgress: saveProgressToLocalStorage
   };
 
   heliosSayRandom('terminalInitial', 'ai-message');
@@ -66,14 +79,15 @@ function initializeTerminal() {
 window.CiscoUI = {
   print,
   showHelp: () => {},
-  updateObjectives: () => {}
+  updateObjectives: () => {},
+  persistProgress: () => {}
 };
 
 function showHelp() {
   print('Available commands:');
   print('  enable');
   print('  configure terminal');
-  print('  interface g0/12');
+  print('  interface gi1/0/12');
   print('  switchport mode access');
   print('  switchport access vlan NUMBER');
   print('  switchport voice vlan NUMBER');
@@ -93,110 +107,29 @@ function showHelp() {
 // Quest Objective Logic
 // ----------------------------
 
-function setObjectiveComplete(id, isComplete) {
-  const element = document.getElementById(`obj-${id}`);
-
-  if (!element) {
-    console.warn(`Objective element not found: obj-${id}`);
-    return;
-  }
-
-  element.className = isComplete ? 'complete' : '';
-}
-
-function getMissionOneProgress() {
-  const g012 = GameState.interfaces?.['g0/12'];
-
-  if (!g012) {
-    return {
-      g012: null,
-      hasDescription: false,
-      phaseOneComplete: false,
-      phaseTwoComplete: false
-    };
-  }
-
-  const hasDescription =
-    g012.description?.toLowerCase().includes('office 4b');
-
-  const phaseOneComplete =
-    g012.mode === 'access' &&
-    g012.accessVlan === '10' &&
-    hasDescription &&
-    GameState.saved === true;
-
-  const phaseTwoComplete =
-    phaseOneComplete &&
-    g012.voiceVlan === '20' &&
-    GameState.saved === true;
-
-  return {
-    g012,
-    hasDescription,
-    phaseOneComplete,
-    phaseTwoComplete
-  };
-}
-
 function updateObjectives() {
-  const {
-    g012,
-    hasDescription,
-    phaseOneComplete,
-    phaseTwoComplete
-  } = getMissionOneProgress();
+  const progress = activeMission.evaluate(GameState);
 
-  if (!g012) return;
-
-  setObjectiveComplete(
-    'identify-office4b-port',
-    GameState.currentInterface === 'g0/12' ||
-      g012.mode === 'access' ||
-      g012.accessVlan === '10'
-  );
-
-  setObjectiveComplete(
-    'g012-mode-access',
-    g012.mode === 'access'
-  );
-
-  setObjectiveComplete(
-    'g012-access-vlan10',
-    g012.accessVlan === '10'
-  );
-
-  setObjectiveComplete(
-    'g012-description',
-    hasDescription
-  );
-
-  setObjectiveComplete(
-    'save',
-    GameState.saved === true
-  );
-
-  if (GameState.hiddenObjectiveRevealed) {
-    setObjectiveComplete(
-      'g012-voice-vlan20',
-      g012.voiceVlan === '20'
-    );
-  }
-
-  const readyToSubmit = GameState.hiddenObjectiveRevealed
-    ? phaseTwoComplete
-    : phaseOneComplete;
+  renderObjectiveStates(progress.objectiveStates, {
+    hiddenObjectiveIds: activeMission.definition.hiddenObjectives?.map(
+      (objective) => objective.id
+    ),
+    showHiddenObjectives: GameState.hiddenObjectiveRevealed === true
+  });
 
   const questStatus = document.getElementById('quest-status');
   const nextQuestButton = document.getElementById('next-quest-button');
 
   if (questStatus) {
-    questStatus.textContent = readyToSubmit ? 'Ready to Submit' : 'In Progress';
+    questStatus.textContent = progress.readyToSubmit
+      ? 'Ready to Submit'
+      : 'In Progress';
   }
 
   if (nextQuestButton) {
-    nextQuestButton.disabled = !readyToSubmit;
+    nextQuestButton.disabled = !progress.readyToSubmit;
 
-    if (GameState.hiddenObjectiveRevealed && phaseTwoComplete) {
+    if (GameState.hiddenObjectiveRevealed && progress.phaseTwoComplete) {
       nextQuestButton.textContent = 'Next Quest';
     }
   }
@@ -207,9 +140,11 @@ function updateObjectives() {
 // ----------------------------
 
 const SAVE_KEY = 'ciscoCliQuestSave';
+const SAVE_SCHEMA_VERSION = 1;
 
 function getDefaultSaveData() {
   return {
+    schemaVersion: SAVE_SCHEMA_VERSION,
     hasSave: true,
     totalCredits: 0,
     currentQuestId: 'mission-1',
@@ -217,12 +152,14 @@ function getDefaultSaveData() {
     rank: 'Helpdesk Refugee',
     xp: 0,
     completedQuests: [],
-    unlockedMiniGames: ['subnet-sprint', 'vlan-sorter']
+    unlockedMiniGames: ['subnet-sprint', 'vlan-sorter'],
+    deviceState: null
   };
 }
 
 function getEmptySaveData() {
   return {
+    schemaVersion: SAVE_SCHEMA_VERSION,
     hasSave: false,
     totalCredits: 0,
     currentQuestId: null,
@@ -230,7 +167,8 @@ function getEmptySaveData() {
     rank: 'Unassigned',
     xp: 0,
     completedQuests: [],
-    unlockedMiniGames: ['subnet-sprint', 'vlan-sorter']
+    unlockedMiniGames: ['subnet-sprint', 'vlan-sorter'],
+    deviceState: null
   };
 }
 
@@ -245,6 +183,7 @@ function loadSaveData() {
     const parsedSave = JSON.parse(rawSave);
 
     return {
+      schemaVersion: parsedSave.schemaVersion ?? 0,
       hasSave: true,
       totalCredits: parsedSave.totalCredits ?? 0,
       currentQuestId: parsedSave.currentQuestId ?? 'mission-1',
@@ -252,7 +191,8 @@ function loadSaveData() {
       rank: parsedSave.rank ?? 'Helpdesk Refugee',
       xp: parsedSave.xp ?? 0,
       completedQuests: parsedSave.completedQuests ?? [],
-      unlockedMiniGames: parsedSave.unlockedMiniGames ?? ['subnet-sprint', 'vlan-sorter']
+      unlockedMiniGames: parsedSave.unlockedMiniGames ?? ['subnet-sprint', 'vlan-sorter'],
+      deviceState: parsedSave.deviceState ?? null
     };
   } catch (error) {
     console.error('Save file could not be loaded:', error);
@@ -274,6 +214,7 @@ function saveProgressToLocalStorage() {
 
   const updatedSave = {
     ...existingSave,
+    schemaVersion: SAVE_SCHEMA_VERSION,
     hasSave: true,
     totalCredits: GameState.credits ?? existingSave.totalCredits ?? 0,
     currentQuestId: GameState.currentQuestId ?? existingSave.currentQuestId ?? 'mission-1',
@@ -281,7 +222,8 @@ function saveProgressToLocalStorage() {
     rank: GameState.rank ?? existingSave.rank ?? 'Helpdesk Refugee',
     xp: GameState.xp ?? existingSave.xp ?? 0,
     completedQuests: existingSave.completedQuests ?? [],
-    unlockedMiniGames: existingSave.unlockedMiniGames ?? ['subnet-sprint', 'vlan-sorter']
+    unlockedMiniGames: existingSave.unlockedMiniGames ?? ['subnet-sprint', 'vlan-sorter'],
+    deviceState: createGameStateSnapshot()
   };
 
   saveGameData(updatedSave);
@@ -301,31 +243,43 @@ function applySaveToGameState(saveData) {
   }
 }
 
+function renderMissionState() {
+  renderQuest(activeMission.definition, {
+    showHiddenObjectives: GameState.hiddenObjectiveRevealed === true
+  });
+
+  const questStatus = document.getElementById('quest-status');
+  const nextQuestButton = document.getElementById('next-quest-button');
+
+  if (nextQuestButton) {
+    nextQuestButton.textContent = GameState.questCompleted
+      ? 'Next Quest'
+      : 'Mark Ticket Complete';
+  }
+
+  updateObjectives();
+
+  if (GameState.questCompleted) {
+    if (questStatus) questStatus.textContent = 'Complete';
+    if (nextQuestButton) nextQuestButton.disabled = false;
+  }
+}
+
 // ----------------------------
 // Ticket Button Logic
 // ----------------------------
 
 function handleTicketButtonClick() {
-  const {
-    g012,
-    phaseOneComplete,
-    phaseTwoComplete
-  } = getMissionOneProgress();
+  const result = activeMission.advance(GameState);
 
-  if (!g012) {
+  if (result.type === MISSION_ONE_EVENTS.DEVICE_MISSING) {
     print('');
     print('Ticket system error: Office 4B port has not been identified yet.');
     return;
   }
 
-  if (!GameState.hiddenObjectiveRevealed && phaseOneComplete) {
-    GameState.ticketSubmitted = true;
-    GameState.hiddenObjectiveRevealed = true;
-
-    // Force the player to save again after the corrective change.
-    GameState.saved = false;
-
-    renderQuest(mission1, { showHiddenObjectives: true });
+  if (result.type === MISSION_ONE_EVENTS.HIDDEN_OBJECTIVE_REVEALED) {
+    renderQuest(activeMission.definition, { showHiddenObjectives: true });
 
     print('');
     print('Ticket Update:');
@@ -353,20 +307,11 @@ function handleTicketButtonClick() {
     }
 
     updateObjectives();
+    saveProgressToLocalStorage();
     return;
   }
 
-  if (GameState.hiddenObjectiveRevealed && phaseTwoComplete) {
-    GameState.questCompleted = true;
-
-    if (!GameState.xp || GameState.xp < 100) {
-      GameState.xp = 100;
-    }
-
-    if (!GameState.credits || GameState.credits < 25) {
-      GameState.credits = 25;
-    }
-
+  if (result.type === MISSION_ONE_EVENTS.COMPLETED) {
     const xpCounter = document.getElementById('xp-counter');
     const questStatus = document.getElementById('quest-status');
     const nextQuestButton = document.getElementById('next-quest-button');
@@ -394,6 +339,12 @@ function handleTicketButtonClick() {
 
     heliosSayRandom('missionComplete', 'ai-message');
 
+    return;
+  }
+
+  if (result.type === MISSION_ONE_EVENTS.ALREADY_COMPLETED) {
+    print('');
+    print('No additional quest is available yet.');
     return;
   }
 
@@ -530,7 +481,6 @@ function showHomeScreen() {
   loadEmails();
   openEmail('welcome', { silent: true });
 
-  console.log('Testing HELIOS random category...');
   heliosSayRandom('homeBaseInitial');
 }
 
@@ -559,16 +509,24 @@ function showGameScreen() {
 function startNewGame() {
   const freshSave = getDefaultSaveData();
 
+  resetGameState();
   resetEmailState();
   resetNotebook();
+  resetNewGameTutorial();
+  resetMissionTutorial();
   saveGameData(freshSave);
   applySaveToGameState(freshSave);
+  saveProgressToLocalStorage();
+
+  renderMissionState();
+
+  if (terminal) {
+    terminal.reset();
+  }
 
   if (launchStatusMessage) {
     launchStatusMessage.textContent = 'New operator profile created. Loading Home Base...';
   }
-
-  localStorage.removeItem('ciscoCliMissionTutorialComplete');
 
   showHomeScreen();
 
@@ -587,7 +545,18 @@ function continueGame() {
     return;
   }
 
+  if (saveData.deviceState) {
+    restoreGameState(saveData.deviceState);
+  } else {
+    resetGameState();
+  }
+
   applySaveToGameState(saveData);
+  renderMissionState();
+
+  if (terminal) {
+    terminal.reset();
+  }
 
   if (launchStatusMessage) {
     launchStatusMessage.textContent = 'Restoring previous assignment...';

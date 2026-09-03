@@ -1,28 +1,56 @@
 import { GameState } from './state.js';
 
+function normalizeInterfaceName(input = '') {
+  const compact = input.toLowerCase().replace(/\s+/g, '');
+  const match = compact.match(/^(?:g0\/|gi1\/0\/|gigabitethernet1\/0\/)(\d{1,2})$/);
+
+  if (!match) return null;
+
+  const portNumber = Number(match[1]);
+  if (portNumber < 1 || portNumber > 24) return null;
+
+  return `g0/${portNumber}`;
+}
+
 export function cmdEnable() {
   if (GameState.mode === 'user') {
     GameState.mode = 'privileged';
+    return { success: null };
   }
+
+  if (GameState.mode === 'privileged') return { success: null };
+
+  return { error: '% Command rejected: already in privileged mode.' };
 }
 
 export function cmdConfigureTerminal() {
   if (GameState.mode === 'privileged') {
     GameState.mode = 'global';
+    return { success: 'Enter configuration commands, one per line. End with CNTL/Z.' };
   }
+
+  return { error: '% Invalid command from the current mode.' };
 }
 
 export function cmdHostname(command) {
-  if (GameState.mode !== 'global') return;
+  if (GameState.mode !== 'global') {
+    return { error: '% Command rejected: enter global configuration mode first.' };
+  }
 
   GameState.hostname =
     command.split(/\s+/)[1] || GameState.hostname;
 }
 
 export function cmdVlan(command) {
-  if (GameState.mode !== 'global') return;
+  if (GameState.mode !== 'global') {
+    return { error: '% Command rejected: enter global configuration mode first.' };
+  }
 
   const vlanId = command.split(/\s+/)[1];
+
+  if (!/^\d+$/.test(vlanId) || Number(vlanId) < 1 || Number(vlanId) > 4094) {
+    return { error: '% Invalid VLAN ID. Valid range is 1-4094.' };
+  }
 
   GameState.vlans[vlanId] =
     GameState.vlans[vlanId] || { name: `VLAN${vlanId}` };
@@ -32,7 +60,9 @@ export function cmdVlan(command) {
 }
 
 export function cmdVlanName(command) {
-  if (GameState.mode !== 'vlan') return;
+  if (GameState.mode !== 'vlan') {
+    return { error: '% Command rejected: not in VLAN configuration mode.' };
+  }
 
   const name = command.substring(5).trim().toUpperCase();
 
@@ -63,26 +93,21 @@ export function cmdEnd() {
 }
 
 export function cmdInterface(command) {
-  if (GameState.mode !== 'global') return;
-
-  const interfaceName = command.split(/\s+/)[1];
-
-  if (!GameState.interfaces) {
-    GameState.interfaces = {};
+  if (GameState.mode !== 'global') {
+    return { error: '% Command rejected: enter global configuration mode first.' };
   }
 
-  if (!GameState.interfaces[interfaceName]) {
-    GameState.interfaces[interfaceName] = {
-      description: '',
-      mode: null,
-      accessVlan: null,
-      voiceVlan: null,
-      shutdown: false
-    };
+  const requestedName = command.split(/\s+/).slice(1).join('');
+  const interfaceName = normalizeInterfaceName(requestedName);
+
+  if (!interfaceName || !GameState.interfaces?.[interfaceName]) {
+    return { error: `% Invalid interface type and number: ${requestedName}` };
   }
 
   GameState.currentInterface = interfaceName;
   GameState.mode = 'interface';
+
+  return { success: null };
 }
 
 export function cmdSwitchportModeAccess() {
@@ -259,6 +284,8 @@ export function cmdShowVlanBrief() {
 }
 
 export function cmdShowRunningConfig() {
+  if (GameState.mode === 'user') return null;
+
   const lines = [];
 
   lines.push(`hostname ${GameState.hostname}`);
@@ -271,7 +298,7 @@ export function cmdShowRunningConfig() {
   }
 
   for (const [intName, intf] of Object.entries(GameState.interfaces || {})) {
-    lines.push(`interface ${intName}`);
+    lines.push(`interface ${intf.displayName || intName}`);
 
     if (intf.description) {
       lines.push(` description ${intf.description}`);
@@ -300,6 +327,8 @@ export function cmdShowRunningConfig() {
 }
 
 export function cmdShowInterfacesStatus() {
+  if (GameState.mode === 'user') return null;
+
   const lines = [];
 
   lines.push('Port      Name               Status       Vlan       Duplex  Speed Type');
@@ -308,9 +337,13 @@ export function cmdShowInterfacesStatus() {
   for (const [intName, rawIntf] of Object.entries(GameState.interfaces || {})) {
     const intf = rawIntf || {};
 
-    const port = String(intName).padEnd(9);
+    const port = String(intf.displayName || intName).padEnd(9);
     const name = String(intf.description || '').substring(0, 18).padEnd(18);
-    const status = intf.shutdown ? 'disabled' : 'connected';
+    const status = intf.shutdown
+      ? 'disabled'
+      : intf.linkUp
+        ? 'connected'
+        : 'notconnect';
 
     const vlanValue =
       intf.mode === 'trunk'
@@ -318,7 +351,7 @@ export function cmdShowInterfacesStatus() {
         : String(intf.accessVlan || '1');
 
     lines.push(
-      `${port} ${name} ${status.padEnd(12)} ${vlanValue.padEnd(10)} auto   auto  10/100/1000BaseTX`
+      `${port} ${name} ${status.padEnd(12)} ${vlanValue.padEnd(10)} ${(intf.duplex || 'auto').padEnd(6)} ${(intf.speed || 'auto').padEnd(6)} ${intf.mediaType || '10/100/1000BaseTX'}`
     );
   }
 

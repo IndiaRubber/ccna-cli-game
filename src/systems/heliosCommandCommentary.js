@@ -124,29 +124,21 @@ function getCommentKey(rawCommand) {
 }
 
 export function triggerHeliosCommandComment(rawCommand) {
-  console.log('[HELIOS commentary] Raw command:', rawCommand);
-
   const now = Date.now();
 
   if (now - lastCommentTime < COMMENT_COOLDOWN_MS) {
-    console.log('[HELIOS commentary] Cooldown active.');
     return;
   }
 
   const key = getCommentKey(rawCommand);
 
-  console.log('[HELIOS commentary] Matched key:', key);
-
   if (!key) return;
 
   if (key === lastCommentKey) {
-    console.log('[HELIOS commentary] Same command key as last time. Skipping.');
     return;
   }
 
   const comments = heliosCommandComments[key];
-
-  console.log('[HELIOS commentary] Comments found:', comments);
 
   if (!comments?.length) return;
 
@@ -154,8 +146,6 @@ export function triggerHeliosCommandComment(rawCommand) {
   lastCommentTime = now;
 
   const line = pickRandom(comments);
-
-  console.log('[HELIOS commentary] Saying:', line);
 
   heliosSay(line);
 }

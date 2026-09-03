@@ -48,3 +48,18 @@ export function renderQuest(quest, options = {}) {
 
   questNotes.appendChild(ul);
 }
+
+export function renderObjectiveStates(objectiveStates, options = {}) {
+  const hiddenObjectiveIds = new Set(options.hiddenObjectiveIds ?? []);
+  const showHiddenObjectives = options.showHiddenObjectives ?? false;
+
+  for (const [objectiveId, isComplete] of Object.entries(objectiveStates)) {
+    if (hiddenObjectiveIds.has(objectiveId) && !showHiddenObjectives) continue;
+
+    const element = document.getElementById(`obj-${objectiveId}`);
+
+    if (element) {
+      element.classList.toggle('complete', isComplete);
+    }
+  }
+}

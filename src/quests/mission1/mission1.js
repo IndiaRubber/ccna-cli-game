@@ -47,9 +47,9 @@ export const mission1 = {
     'MGMT VLAN: 99',
     'D8SW1 management IP: 10.8.99.2',
     'Default gateway: 10.8.99.1',
-    'Uplink: g0/1 to D8CORE1',
-    'Known bad port: g0/9 water damage',
-    'Known bad port: g0/18 flapping link',
-    'Do not use g0/23. It is reserved for maintenance access on VLAN 99.'
+    'Uplink: Gi1/0/1 to D8CORE1',
+    'Known bad port: Gi1/0/9 water damage',
+    'Known bad port: Gi1/0/18 flapping link',
+    'Do not use Gi1/0/23. It is reserved for maintenance access on VLAN 99.'
   ]
 };

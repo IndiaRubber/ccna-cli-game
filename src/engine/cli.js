@@ -1,4 +1,3 @@
-console.log('[CLI] cli.js module loaded');
 import {
   cmdEnable,
   cmdConfigureTerminal,
@@ -136,13 +135,10 @@ function updateObjectivesSafely() {
 }
 
 function commentOnCommand(command) {
-  console.log('[CLI] Asking HELIOS to comment on:', command);
   triggerHeliosCommandComment(command);
 }
 
 export function runCommand(rawCommand) {
-  console.log('[CLI] runCommand received:', rawCommand);
-  
   const command = normalizeCommand(rawCommand);
   const lower = command.toLowerCase();
 
@@ -158,17 +154,14 @@ export function runCommand(rawCommand) {
   }
 
   if (lower === 'enable') {
-    cmdEnable();
-
-    uiPrint('DEBUG: cli.js enable branch reached');
-
-    commentOnCommand(command);
+    const result = cmdEnable();
+    if (printResult(result)) commentOnCommand(command);
     return;
   }
 
   if (lower === 'configure terminal') {
-    cmdConfigureTerminal();
-    commentOnCommand(command);
+    const result = cmdConfigureTerminal();
+    if (printResult(result)) commentOnCommand(command);
     return;
   }
 
@@ -215,29 +208,35 @@ export function runCommand(rawCommand) {
   }
 
   if (lower.startsWith('hostname ')) {
-    cmdHostname(command);
-    commentOnCommand(command);
+    const result = cmdHostname(command);
+    if (printResult(result)) commentOnCommand(command);
     return;
   }
 
   if (lower.startsWith('vlan ')) {
-    cmdVlan(command);
-    updateObjectivesSafely();
-    commentOnCommand(command);
+    const result = cmdVlan(command);
+    if (printResult(result)) {
+      updateObjectivesSafely();
+      commentOnCommand(command);
+    }
     return;
   }
 
   if (lower.startsWith('name ')) {
-    cmdVlanName(command);
-    updateObjectivesSafely();
-    commentOnCommand(command);
+    const result = cmdVlanName(command);
+    if (printResult(result)) {
+      updateObjectivesSafely();
+      commentOnCommand(command);
+    }
     return;
   }
 
   if (lower.startsWith('interface ')) {
-    cmdInterface(command);
-    updateObjectivesSafely();
-    commentOnCommand(command);
+    const result = cmdInterface(command);
+    if (printResult(result)) {
+      updateObjectivesSafely();
+      commentOnCommand(command);
+    }
     return;
   }
 
@@ -315,6 +314,11 @@ export function runCommand(rawCommand) {
 
     if (printLines(output, '% Save failed: you must be in privileged EXEC mode.')) {
       updateObjectivesSafely();
+
+      if (typeof window.CiscoUI?.persistProgress === 'function') {
+        window.CiscoUI.persistProgress();
+      }
+
       commentOnCommand(command);
     }
 

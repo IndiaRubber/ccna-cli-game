@@ -50,12 +50,6 @@ function getVisibleHeliosTarget(targetId = null) {
 export function heliosSay(message, targetId = null, speed = 24) {
   const target = getVisibleHeliosTarget(targetId);
 
-  console.log('HELIOS SAY:', {
-    requestedTarget: targetId,
-    resolvedTarget: target?.id || target?.className || 'unknown',
-    message
-  });
-
   if (!target) {
     console.warn('HELIOS target not found.');
     return;
@@ -70,9 +64,6 @@ export function heliosSay(message, targetId = null, speed = 24) {
 }
 
 export function heliosSayRandom(category, targetId = null, speed = 24) {
-  console.log('HELIOS RANDOM CALLED:', category);
-  console.log('Available HELIOS categories:', Object.keys(heliosResponses));
-
   const responses = heliosResponses[category];
 
   if (!responses || responses.length === 0) {
@@ -82,8 +73,6 @@ export function heliosSayRandom(category, targetId = null, speed = 24) {
 
   const randomIndex = Math.floor(Math.random() * responses.length);
   const message = responses[randomIndex];
-
-  console.log('Selected HELIOS message:', message);
 
   heliosSay(message, targetId, speed);
 }
