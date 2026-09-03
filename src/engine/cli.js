@@ -361,12 +361,18 @@ export function getInvalidCommandPosition(rawCommand, mode = GameState.mode) {
     return spans[3]?.start ?? rawCommand.length;
   }
 
+  if (mode === 'interface' && tokenMatches(first, 'power')) {
+    if (!spans[1]) return rawCommand.length;
+    if (!tokenMatches(spans[1], 'inline')) return spans[1].start;
+    return spans[2]?.start ?? rawCommand.length;
+  }
+
   const knownRoots = mode === 'global'
     ? ['hostname', 'vlan', 'interface', 'exit', 'end', 'help']
     : mode === 'vlan'
       ? ['name', 'exit', 'end', 'help']
       : mode === 'interface'
-        ? ['description', 'exit', 'end', 'switchport', 'shutdown', 'no', 'help']
+        ? ['description', 'exit', 'end', 'switchport', 'shutdown', 'power', 'no', 'help']
         : ['enable', 'configure', 'copy', 'write', 'exit', 'end', 'help', 'show'];
 
   return knownRoots.some((root) => tokenMatches(first, root, root === 'exit' ? 2 : 1))

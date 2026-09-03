@@ -19,7 +19,7 @@ globalThis.window = {
   }
 };
 
-const { runCommand } = await import('../src/engine/cli.js');
+const { getInvalidCommandPosition, runCommand } = await import('../src/engine/cli.js');
 const { getAutocomplete } = await import('../src/ui/autocomplete.js');
 const { GameState, resetGameState, restoreGameState } = await import('../src/engine/state.js');
 
@@ -56,6 +56,24 @@ test('show power inline displays known devices and supports targeted lookup', ()
   assert.ok(output.some((line) => line.includes('Gi1/0/20')));
   assert.equal(GameState.observations[1].query.value, 'g0/20');
   assert.equal(GameState.observations[1].entries.length, 1);
+});
+
+test('interface status observations include modeled inline-power state', () => {
+  resetHarness();
+  runCommand('enable');
+  runCommand('show interfaces status');
+
+  assert.deepEqual(GameState.observations[0].interfaces['g0/20'], {
+    description: 'Security Camera Rear Door',
+    linkUp: true,
+    shutdown: false,
+    mode: 'access',
+    accessVlan: '10',
+    voiceVlan: null,
+    powerInline: 'auto',
+    powerOper: 'on',
+    powerWatts: 7
+  });
 });
 
 test('short targeted power syntax and invalid interfaces behave cleanly', () => {
@@ -152,4 +170,5 @@ test('autocomplete includes PoE and environment diagnostics', () => {
   assert.equal(getAutocomplete('show power inline', 'privileged'), 'show power inline');
   assert.equal(getAutocomplete('show env', 'privileged'), 'show environment');
   assert.equal(getAutocomplete('pow in ne', 'interface'), 'power inline never');
+  assert.equal(getInvalidCommandPosition('power mystery', 'interface'), 6);
 });

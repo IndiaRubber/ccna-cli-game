@@ -493,7 +493,8 @@ export function cmdShowPowerInline(command) {
   GameState.observations.push({
     type: 'inline-power',
     query: { kind: value ? 'interface' : 'all', value },
-    entries: entries.map(snapshotInlinePowerEntry)
+    entries: entries.map(snapshotInlinePowerEntry),
+    configurationChanges: GameState.configurationChanges ?? 0
   });
 
   return [
