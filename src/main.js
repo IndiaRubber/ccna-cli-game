@@ -128,10 +128,6 @@ function updateObjectives() {
 
   if (nextQuestButton) {
     nextQuestButton.disabled = !progress.readyToSubmit;
-
-    if (GameState.hiddenObjectiveRevealed && progress.phaseTwoComplete) {
-      nextQuestButton.textContent = 'Next Quest';
-    }
   }
 }
 
@@ -148,7 +144,7 @@ function getDefaultSaveData() {
     hasSave: true,
     totalCredits: 0,
     currentQuestId: 'mission-1',
-    currentQuestName: 'Office 4B Port Assignment',
+    currentQuestName: activeMission.definition.name,
     rank: 'Helpdesk Refugee',
     xp: 0,
     completedQuests: [],
@@ -187,7 +183,7 @@ function loadSaveData() {
       hasSave: true,
       totalCredits: parsedSave.totalCredits ?? 0,
       currentQuestId: parsedSave.currentQuestId ?? 'mission-1',
-      currentQuestName: parsedSave.currentQuestName ?? 'Office 4B Port Assignment',
+      currentQuestName: parsedSave.currentQuestName ?? activeMission.definition.name,
       rank: parsedSave.rank ?? 'Helpdesk Refugee',
       xp: parsedSave.xp ?? 0,
       completedQuests: parsedSave.completedQuests ?? [],
@@ -211,6 +207,11 @@ function saveGameData(saveData) {
 
 function saveProgressToLocalStorage() {
   const existingSave = loadSaveData();
+  const completedQuests = new Set(existingSave.completedQuests ?? []);
+
+  if (GameState.questCompleted && GameState.currentQuestId) {
+    completedQuests.add(GameState.currentQuestId);
+  }
 
   const updatedSave = {
     ...existingSave,
@@ -218,10 +219,10 @@ function saveProgressToLocalStorage() {
     hasSave: true,
     totalCredits: GameState.credits ?? existingSave.totalCredits ?? 0,
     currentQuestId: GameState.currentQuestId ?? existingSave.currentQuestId ?? 'mission-1',
-    currentQuestName: GameState.currentQuestName ?? existingSave.currentQuestName ?? 'Office 4B Port Assignment',
+    currentQuestName: GameState.currentQuestName ?? existingSave.currentQuestName ?? activeMission.definition.name,
     rank: GameState.rank ?? existingSave.rank ?? 'Helpdesk Refugee',
     xp: GameState.xp ?? existingSave.xp ?? 0,
-    completedQuests: existingSave.completedQuests ?? [],
+    completedQuests: [...completedQuests],
     unlockedMiniGames: existingSave.unlockedMiniGames ?? ['subnet-sprint', 'vlan-sorter'],
     deviceState: createGameStateSnapshot()
   };
@@ -232,9 +233,10 @@ function saveProgressToLocalStorage() {
 function applySaveToGameState(saveData) {
   GameState.credits = saveData.totalCredits ?? 0;
   GameState.currentQuestId = saveData.currentQuestId ?? 'mission-1';
-  GameState.currentQuestName = saveData.currentQuestName ?? 'Office 4B Port Assignment';
+  GameState.currentQuestName = saveData.currentQuestName ?? activeMission.definition.name;
   GameState.rank = saveData.rank ?? 'Helpdesk Refugee';
   GameState.xp = saveData.xp ?? 0;
+  GameState.completedQuests = saveData.completedQuests ?? [];
 
   const xpCounter = document.getElementById('xp-counter');
 
@@ -253,7 +255,7 @@ function renderMissionState() {
 
   if (nextQuestButton) {
     nextQuestButton.textContent = GameState.questCompleted
-      ? 'Next Quest'
+      ? 'Quest Complete'
       : 'Mark Ticket Complete';
   }
 
@@ -261,7 +263,7 @@ function renderMissionState() {
 
   if (GameState.questCompleted) {
     if (questStatus) questStatus.textContent = 'Complete';
-    if (nextQuestButton) nextQuestButton.disabled = false;
+    if (nextQuestButton) nextQuestButton.disabled = true;
   }
 }
 
@@ -325,8 +327,8 @@ function handleTicketButtonClick() {
     }
 
     if (nextQuestButton) {
-      nextQuestButton.textContent = 'Next Quest';
-      nextQuestButton.disabled = false;
+      nextQuestButton.textContent = 'Quest Complete';
+      nextQuestButton.disabled = true;
     }
 
     saveProgressToLocalStorage();
@@ -337,7 +339,7 @@ function handleTicketButtonClick() {
     print('+100 XP');
     print('+25 Credits');
 
-    heliosSayRandom('missionComplete', 'ai-message');
+    showHomeScreen({ openEmailId: 'mission1-debrief' });
 
     return;
   }
@@ -468,7 +470,7 @@ function showLaunchScreen() {
   updateLaunchSummary();
 }
 
-function showHomeScreen() {
+function showHomeScreen(options = {}) {
   launchScreen.classList.add('hidden');
   homeScreen.classList.remove('hidden');
   gameScreen.classList.add('hidden');
@@ -479,9 +481,13 @@ function showHomeScreen() {
 
   updateHomeSummary();
   loadEmails();
-  openEmail('welcome', { silent: true });
+  openEmail(options.openEmailId ?? 'welcome', {
+    silent: !options.openEmailId
+  });
 
-  heliosSayRandom('homeBaseInitial');
+  if (!options.openEmailId) {
+    heliosSayRandom('homeBaseInitial');
+  }
 }
 
 function showGameScreen() {

@@ -39,6 +39,19 @@ function isTicketLocked(email) {
   return isTicketEmail(email) && GameState.questCompleted !== true;
 }
 
+export function isEmailAvailable(email, state = GameState) {
+  if (!email.unlockAfterQuest) return true;
+
+  return (
+    state.completedQuests?.includes(email.unlockAfterQuest) ||
+    (state.currentQuestId === email.unlockAfterQuest && state.questCompleted === true)
+  );
+}
+
+export function getAvailableEmails(state = GameState) {
+  return emails.filter((email) => isEmailAvailable(email, state));
+}
+
 function isArchived(emailId) {
   const emailState = loadEmailState();
   return emailState.archivedEmailIds.includes(emailId);
@@ -68,7 +81,9 @@ function archiveEmail(emailId) {
   saveEmailState(emailState);
   loadEmails();
 
-  const nextActiveEmail = emails.find((item) => !isArchived(item.id));
+  const nextActiveEmail = getAvailableEmails().find(
+    (item) => !isArchived(item.id)
+  );
 
   if (nextActiveEmail) {
     openEmail(nextActiveEmail.id, { silent: true });
@@ -103,8 +118,12 @@ function createEmailButton(email, archived = false) {
     button.classList.add('archived-email');
   }
 
+  const newBadge = email.unlockAfterQuest && !archived
+    ? '<span class="email-new-badge">NEW</span>'
+    : '';
+
   button.innerHTML = `
-    <span class="email-from">${email.from}</span>
+    <span class="email-from">${email.from} ${newBadge}</span>
     <strong>${email.subject}</strong>
     <small>${email.preview}</small>
   `;
@@ -127,11 +146,13 @@ export function loadEmails() {
   const emailState = loadEmailState();
   const archivedEmailIds = emailState.archivedEmailIds ?? [];
 
-  const activeEmails = emails.filter(
+  const availableEmails = getAvailableEmails();
+
+  const activeEmails = availableEmails.filter(
     (email) => !archivedEmailIds.includes(email.id)
   );
 
-  const archivedEmails = emails.filter(
+  const archivedEmails = availableEmails.filter(
     (email) => archivedEmailIds.includes(email.id)
   );
 
@@ -178,6 +199,11 @@ export function openEmail(emailId, options = {}) {
 
   if (!email) {
     console.warn(`Email not found: ${emailId}`);
+    return;
+  }
+
+  if (!isEmailAvailable(email)) {
+    console.warn(`Email is not available yet: ${emailId}`);
     return;
   }
 
@@ -265,7 +291,9 @@ export function openEmail(emailId, options = {}) {
   }
 
   if (!options.silent) {
-    if (isTicketEmail(email)) {
+    if (email.heliosMessage) {
+      heliosSay(email.heliosMessage);
+    } else if (isTicketEmail(email)) {
       heliosSayRandom('missionTicketOpened');
     } else {
       heliosSayRandom('emailOpened');

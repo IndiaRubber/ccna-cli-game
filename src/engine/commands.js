@@ -1,5 +1,14 @@
 import { GameState } from './state.js';
 
+function markConfigurationChanged() {
+  GameState.saved = false;
+}
+
+function getCurrentInterfaceLabel() {
+  const intf = GameState.interfaces?.[GameState.currentInterface];
+  return intf?.displayName ?? GameState.currentInterface;
+}
+
 function normalizeInterfaceName(input = '') {
   const compact = input.toLowerCase().replace(/\s+/g, '');
   const match = compact.match(/^(?:g0\/|gi1\/0\/|gigabitethernet1\/0\/)(\d{1,2})$/);
@@ -37,8 +46,12 @@ export function cmdHostname(command) {
     return { error: '% Command rejected: enter global configuration mode first.' };
   }
 
-  GameState.hostname =
-    command.split(/\s+/)[1] || GameState.hostname;
+  const hostname = command.split(/\s+/)[1] || GameState.hostname;
+
+  if (hostname !== GameState.hostname) {
+    GameState.hostname = hostname;
+    markConfigurationChanged();
+  }
 }
 
 export function cmdVlan(command) {
@@ -52,8 +65,10 @@ export function cmdVlan(command) {
     return { error: '% Invalid VLAN ID. Valid range is 1-4094.' };
   }
 
-  GameState.vlans[vlanId] =
-    GameState.vlans[vlanId] || { name: `VLAN${vlanId}` };
+  if (!GameState.vlans[vlanId]) {
+    GameState.vlans[vlanId] = { name: `VLAN${vlanId}` };
+    markConfigurationChanged();
+  }
 
   GameState.currentVlan = vlanId;
   GameState.mode = 'vlan';
@@ -66,7 +81,10 @@ export function cmdVlanName(command) {
 
   const name = command.substring(5).trim().toUpperCase();
 
-  GameState.vlans[GameState.currentVlan].name = name;
+  if (GameState.vlans[GameState.currentVlan].name !== name) {
+    GameState.vlans[GameState.currentVlan].name = name;
+    markConfigurationChanged();
+  }
 }
 
 export function cmdExit() {
@@ -121,7 +139,10 @@ export function cmdSwitchportModeAccess() {
     return { error: '% No interface selected.' };
   }
 
-  intf.mode = 'access';
+  if (intf.mode !== 'access') {
+    intf.mode = 'access';
+    markConfigurationChanged();
+  }
 
   return {
     success: 'Access mode configured.'
@@ -147,10 +168,13 @@ export function cmdSwitchportAccessVlan(command) {
     };
   }
 
-  intf.accessVlan = vlanId;
+  if (intf.accessVlan !== vlanId) {
+    intf.accessVlan = vlanId;
+    markConfigurationChanged();
+  }
 
   return {
-    success: `Interface ${GameState.currentInterface} assigned to VLAN ${vlanId}.`
+    success: `Interface ${getCurrentInterfaceLabel()} assigned to VLAN ${vlanId}.`
   };
 }
 
@@ -171,10 +195,13 @@ export function cmdSwitchportVoiceVlan(command) {
     return { error: `% VLAN ${vlanId} does not exist.` };
   }
 
-  intf.voiceVlan = vlanId;
+  if (intf.voiceVlan !== vlanId) {
+    intf.voiceVlan = vlanId;
+    markConfigurationChanged();
+  }
 
   return {
-    success: `Interface ${GameState.currentInterface} assigned to voice VLAN ${vlanId}.`
+    success: `Interface ${getCurrentInterfaceLabel()} assigned to voice VLAN ${vlanId}.`
   };
 }
 
@@ -195,7 +222,10 @@ export function cmdDescription(command) {
     return { error: '% Description cannot be empty.' };
   }
 
-  intf.description = description;
+  if (intf.description !== description) {
+    intf.description = description;
+    markConfigurationChanged();
+  }
 
   return {
     success: `Description set to "${description}".`
@@ -213,10 +243,13 @@ export function cmdNoShutdown() {
     return { error: '% No interface selected.' };
   }
 
-  intf.shutdown = false;
+  if (intf.shutdown) {
+    intf.shutdown = false;
+    markConfigurationChanged();
+  }
 
   return {
-    success: `Interface ${GameState.currentInterface} enabled.`
+    success: `Interface ${getCurrentInterfaceLabel()} enabled.`
   };
 }
 
@@ -231,10 +264,13 @@ export function cmdShutdown() {
     return { error: '% No interface selected.' };
   }
 
-  intf.shutdown = true;
+  if (!intf.shutdown) {
+    intf.shutdown = true;
+    markConfigurationChanged();
+  }
 
   return {
-    success: `Interface ${GameState.currentInterface} disabled.`
+    success: `Interface ${getCurrentInterfaceLabel()} disabled.`
   };
 }
 
@@ -272,7 +308,7 @@ export function cmdShowVlanBrief() {
 
     const ports = Object.entries(GameState.interfaces || {})
       .filter(([, intf]) => intf && String(intf.accessVlan) === String(vlanId))
-      .map(([name]) => name)
+      .map(([name, intf]) => intf.displayName || name)
       .join(', ');
 
     lines.push(
@@ -308,7 +344,7 @@ export function cmdShowRunningConfig() {
       lines.push(' switchport mode access');
     }
 
-    if (intf.accessVlan) {
+    if (intf.accessVlan && intf.accessVlan !== '1') {
       lines.push(` switchport access vlan ${intf.accessVlan}`);
     }
 

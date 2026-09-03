@@ -85,3 +85,30 @@ test('privileged show commands are rejected from user EXEC mode', () => {
 
   assert.ok(output.includes('% Command not available in this mode.'));
 });
+
+test('configuration changes made after saving require another save', () => {
+  resetHarness();
+
+  runCommand('enable');
+  runCommand('configure terminal');
+  runCommand('interface gi1/0/12');
+  runCommand('description Office 4B Workstation');
+  runCommand('end');
+  runCommand('write memory');
+
+  assert.equal(GameState.saved, true);
+  assert.equal(persistenceRequests, 1);
+
+  runCommand('configure terminal');
+  runCommand('interface gi1/0/12');
+  runCommand('switchport access vlan 10');
+
+  assert.equal(GameState.saved, false);
+  assert.equal(persistenceRequests, 1);
+
+  runCommand('end');
+  runCommand('write memory');
+
+  assert.equal(GameState.saved, true);
+  assert.equal(persistenceRequests, 2);
+});

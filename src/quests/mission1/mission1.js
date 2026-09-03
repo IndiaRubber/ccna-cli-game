@@ -1,5 +1,6 @@
 export const mission1 = {
   id: 'mission-1',
+  name: 'New Hire Port Activation',
   title: 'Quest: New Hire Port Activation',
   description:
     'A new hire is starting in Office 4B. Find the correct switchport, configure their workstation network access, then save your work.',

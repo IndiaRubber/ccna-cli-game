@@ -134,5 +134,93 @@ write memory</code></pre>
         Thank you for your cooperation.
       </p>
     `
+  },
+
+  {
+    id: 'mission1-debrief',
+    unlockAfterQuest: 'mission-1',
+    from: 'Mara Voss — Network Administration',
+    subject: 'RE: Office 4B — Acceptable Recovery',
+    preview: 'You inspected the port and only broke the problem you were assigned.',
+    heliosMessage:
+      'A compliment from Network Administration has arrived wearing several layers of protective sarcasm.',
+    body: `
+      <p>
+        Office 4B is online, including the phone. You inspected the switch, changed the intended interface,
+        and saved the configuration. That clears the current standard for "did not create an outage elsewhere."
+      </p>
+
+      <p>
+        Keep the sequence: inspect, identify, change, verify, save. Experienced operators still follow it;
+        they are simply faster at pretending it was obvious.
+      </p>
+
+      <p>— Mara Voss, Senior Network Administrator</p>
+    `,
+    notebookEntry: {
+      id: 'change-verification-workflow',
+      title: 'Change and Verification Workflow',
+      body: `
+        <ol>
+          <li>Inspect the current device state.</li>
+          <li>Identify the exact interface or configuration involved.</li>
+          <li>Make the smallest required change.</li>
+          <li>Verify the running configuration and operational result.</li>
+          <li>Save only after the intended configuration is confirmed.</li>
+        </ol>
+      `
+    }
+  },
+
+  {
+    id: 'postmission-corporate-survey',
+    unlockAfterQuest: 'mission-1',
+    from: 'People Operations',
+    subject: 'Required: Infrastructure Wellness Pulse Survey',
+    preview: 'Please rate how supported your cables feel.',
+    heliosMessage:
+      'The survey contains no questions about network availability. This may explain several organizational trends.',
+    body: `
+      <p>
+        People Operations invites all infrastructure personnel to complete this quarter's mandatory wellness survey.
+        Please rate rack airflow, cable morale, and your sense of belonging within the change-control process.
+      </p>
+
+      <p>
+        Responses are anonymous except for name, department, employee number, device fingerprint, and manager approval code.
+      </p>
+    `
+  },
+
+  {
+    id: 'postmission-operations-brief',
+    unlockAfterQuest: 'mission-1',
+    from: 'District 3 Operations Queue',
+    subject: 'Shift Brief: Unknown Endpoint Reports',
+    preview: 'Future tickets may not include a room or switchport.',
+    heliosMessage:
+      'Operations has discovered that users do not label devices for our convenience. A bold new obstacle.',
+    body: `
+      <p>
+        Upcoming endpoint investigations may provide only a hardware address instead of a room or switchport.
+        Record identifiers exactly as reported and inspect device tables before making configuration changes.
+      </p>
+
+      <p>
+        A switch can associate a learned source MAC address with the interface where frames arrived. This is evidence,
+        not permission to reconfigure the port. Confirm the physical context first.
+      </p>
+    `,
+    notebookEntry: {
+      id: 'endpoint-identification-basics',
+      title: 'Endpoint Identification Basics',
+      body: `
+        <p>
+          A switch learns source MAC addresses and associates them with interfaces. When a ticket supplies a MAC address,
+          preserve it accurately, inspect the switch's MAC address table, and verify the resulting interface against the
+          physical location before changing configuration.
+        </p>
+      `
+    }
   }
 ];

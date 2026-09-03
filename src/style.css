@@ -949,6 +949,17 @@ button.building-floor {
   opacity: 0.65;
 }
 
+.email-new-badge {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.1rem 0.35rem;
+  border: 1px solid #38bdf8;
+  border-radius: 999px;
+  color: #7dd3fc;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+}
+
 .email-actions {
   margin-top: 1.25rem;
   padding-top: 1rem;
