@@ -102,6 +102,9 @@ function showHelp() {
   print('  show mac address-table address MAC');
   print('  show mac address-table interface INTERFACE');
   print('  show mac address-table vlan VLAN');
+  print('  show power inline');
+  print('  show power inline INTERFACE');
+  print('  show environment');
   print('  show running-config');
   print('  show running-config interface gi1/0/12');
   print('  copy running-config startup-config');

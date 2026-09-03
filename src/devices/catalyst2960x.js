@@ -58,6 +58,24 @@ export function createD8SW1() {
       { vlan: '10', mac: '00aa.bbcc.dd21', type: 'DYNAMIC', interface: 'g0/21' }
     ],
 
+    inlinePower: [
+      { interface: 'g0/2', admin: 'auto', oper: 'on', powerWatts: 6.3, defaultPowerWatts: 6.3, device: 'IP Phone', class: '2', maxWatts: 30.0, requiredForLink: false },
+      { interface: 'g0/3', admin: 'auto', oper: 'on', powerWatts: 6.3, defaultPowerWatts: 6.3, device: 'IP Phone', class: '2', maxWatts: 30.0, requiredForLink: false },
+      { interface: 'g0/5', admin: 'auto', oper: 'on', powerWatts: 6.3, defaultPowerWatts: 6.3, device: 'IP Phone', class: '2', maxWatts: 30.0, requiredForLink: false },
+      { interface: 'g0/7', admin: 'auto', oper: 'on', powerWatts: 6.3, defaultPowerWatts: 6.3, device: 'IP Phone', class: '2', maxWatts: 30.0, requiredForLink: false },
+      { interface: 'g0/8', admin: 'auto', oper: 'on', powerWatts: 15.4, defaultPowerWatts: 15.4, device: 'AP-D8-01', class: '3', maxWatts: 30.0, requiredForLink: false },
+      { interface: 'g0/19', admin: 'auto', oper: 'on', powerWatts: 7.0, defaultPowerWatts: 7.0, device: 'Security Camera Front Door', class: '2', maxWatts: 30.0, requiredForLink: true },
+      { interface: 'g0/20', admin: 'auto', oper: 'on', powerWatts: 7.0, defaultPowerWatts: 7.0, device: 'Security Camera Rear Door', class: '2', maxWatts: 30.0, requiredForLink: true }
+    ],
+
+    environment: {
+      temperature: 'OK',
+      fans: 'OK',
+      powerSupply1: 'OK',
+      powerSupply2: 'OK',
+      overall: 'OK'
+    },
+
     interfaces: {
       'g0/1': createInterface(1, {
         description: 'Uplink to D8CORE1',

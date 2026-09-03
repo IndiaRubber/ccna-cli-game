@@ -10,6 +10,38 @@ function getCurrentInterfaceLabel() {
   return intf?.displayName ?? GameState.currentInterface;
 }
 
+function getInlinePowerEntry(interfaceName) {
+  return GameState.inlinePower?.find((entry) => entry.interface === interfaceName) ?? null;
+}
+
+function getInlinePowerSnapshot(interfaceName) {
+  const entry = getInlinePowerEntry(interfaceName);
+  if (!entry) return {};
+
+  return {
+    powerInline: entry.admin,
+    powerOper: entry.oper,
+    powerWatts: entry.powerWatts
+  };
+}
+
+function updateInlinePowerState(entry) {
+  if (entry.admin === 'never') {
+    entry.oper = 'off';
+    entry.powerWatts = 0;
+    if (entry.requiredForLink && GameState.interfaces?.[entry.interface]) {
+      GameState.interfaces[entry.interface].linkUp = false;
+    }
+    return;
+  }
+
+  entry.oper = 'on';
+  if (entry.powerWatts === 0) entry.powerWatts = entry.defaultPowerWatts ?? 7.0;
+  if (entry.requiredForLink && GameState.interfaces?.[entry.interface]) {
+    GameState.interfaces[entry.interface].linkUp = !GameState.interfaces[entry.interface].shutdown;
+  }
+}
+
 export function normalizeInterfaceName(input = '') {
   const compact = input.toLowerCase().replace(/\s+/g, '');
   const match = compact.match(/^(?:g0\/|g1\/0\/|gi1\/0\/|gigabitethernet1\/0\/)(\d{1,2})$/);
@@ -304,6 +336,33 @@ export function cmdShutdown() {
   };
 }
 
+export function cmdPowerInline(command) {
+  if (GameState.mode !== 'interface') {
+    return { error: '% Command rejected: not in interface configuration mode.' };
+  }
+
+  const intf = GameState.interfaces[GameState.currentInterface];
+  const entry = getInlinePowerEntry(GameState.currentInterface);
+
+  if (!intf) return { error: '% No interface selected.' };
+  if (!entry) return { error: `% Inline power is not available on ${getCurrentInterfaceLabel()}.` };
+
+  const admin = command.trim().split(/\s+/).pop();
+  if (admin !== 'auto' && admin !== 'never') {
+    return { error: `% Invalid inline power mode: ${admin}` };
+  }
+
+  if (entry.admin !== admin) {
+    entry.admin = admin;
+    updateInlinePowerState(entry);
+    markConfigurationChanged();
+  }
+
+  return {
+    success: `Inline power ${admin} configured on ${getCurrentInterfaceLabel()}.`
+  };
+}
+
 export function cmdSaveConfig() {
   if (GameState.mode !== 'privileged') return;
 
@@ -405,6 +464,61 @@ export function cmdShowMacAddressTable(command) {
   ];
 }
 
+function snapshotInlinePowerEntry(entry) {
+  return { ...entry };
+}
+
+function formatInlinePowerEntry(entry) {
+  const intf = GameState.interfaces?.[entry.interface];
+  return `${(intf?.displayName || entry.interface).padEnd(10)} ${entry.admin.padEnd(6)} ${entry.oper.padEnd(10)} ${entry.powerWatts.toFixed(1).padStart(7)} ${entry.device.padEnd(25)} ${entry.class.padEnd(5)} ${entry.maxWatts.toFixed(1)}`;
+}
+
+export function cmdShowPowerInline(command) {
+  if (GameState.mode === 'user') return null;
+
+  const tokens = command.trim().split(/\s+/);
+  const rawInterface = tokens[3] === 'interface' ? tokens[4] : tokens[3];
+  let value = null;
+
+  if (rawInterface) {
+    value = normalizeInterfaceName(rawInterface);
+    if (!value) return { error: `% Invalid interface type and number: ${rawInterface}` };
+  }
+
+  const entries = (GameState.inlinePower ?? [])
+    .filter((entry) => !value || entry.interface === value)
+    .map(snapshotInlinePowerEntry);
+
+  if (!Array.isArray(GameState.observations)) GameState.observations = [];
+  GameState.observations.push({
+    type: 'inline-power',
+    query: { kind: value ? 'interface' : 'all', value },
+    entries: entries.map(snapshotInlinePowerEntry)
+  });
+
+  return [
+    'Interface  Admin  Oper       Power   Device                    Class Max',
+    '---------  ------ ---------- ------- ------------------------- ----- ----',
+    ...entries.map(formatInlinePowerEntry)
+  ];
+}
+
+export function cmdShowEnvironment() {
+  if (GameState.mode === 'user') return null;
+
+  const status = { ...(GameState.environment ?? {}) };
+  if (!Array.isArray(GameState.observations)) GameState.observations = [];
+  GameState.observations.push({ type: 'environment', status: { ...status } });
+
+  return [
+    `SYSTEM TEMPERATURE is ${status.temperature ?? 'UNKNOWN'}`,
+    `SYSTEM FAN STATUS is ${status.fans ?? 'UNKNOWN'}`,
+    `POWER SUPPLY 1 is ${status.powerSupply1 ?? 'UNKNOWN'}`,
+    `POWER SUPPLY 2 is ${status.powerSupply2 ?? 'UNKNOWN'}`,
+    `ENVIRONMENT is ${status.overall ?? 'UNKNOWN'}`
+  ];
+}
+
 export function cmdShowRunningConfig() {
   if (GameState.mode === 'user') return null;
 
@@ -438,6 +552,11 @@ export function cmdShowRunningConfig() {
       lines.push(` switchport voice vlan ${intf.voiceVlan}`);
     }
 
+    const powerEntry = getInlinePowerEntry(intName);
+    if (powerEntry?.admin === 'never') {
+      lines.push(' power inline never');
+    }
+
     if (intf.shutdown) {
       lines.push(' shutdown');
     }
@@ -457,6 +576,9 @@ function renderInterfaceConfig(interfaceName, intf) {
     lines.push(` switchport access vlan ${intf.accessVlan}`);
   }
   if (intf.voiceVlan) lines.push(` switchport voice vlan ${intf.voiceVlan}`);
+  if (getInlinePowerEntry(interfaceName)?.admin === 'never') {
+    lines.push(' power inline never');
+  }
   if (intf.shutdown) lines.push(' shutdown');
 
   return lines;
@@ -485,6 +607,7 @@ export function cmdShowRunningConfigInterface(command) {
     voiceVlan: intf.voiceVlan,
     shutdown: intf.shutdown,
     linkUp: intf.linkUp,
+    ...getInlinePowerSnapshot(interfaceName),
     configurationChanges: GameState.configurationChanges ?? 0
   });
 
@@ -504,7 +627,8 @@ export function cmdShowInterfacesStatus() {
         shutdown: intf.shutdown,
         mode: intf.mode,
         accessVlan: intf.accessVlan,
-        voiceVlan: intf.voiceVlan
+        voiceVlan: intf.voiceVlan,
+        ...getInlinePowerSnapshot(name)
       }])
     )
   });

@@ -11,6 +11,9 @@ export function getAutocomplete(input, mode) {
       'show mac address-table address',
       'show mac address-table interface',
       'show mac address-table vlan',
+      'show power inline',
+      'show power inline interface',
+      'show environment',
       'write memory',
       'copy running-config startup-config',
       'exit',
@@ -25,6 +28,8 @@ export function getAutocomplete(input, mode) {
       'description',
       'no shutdown',
       'shutdown',
+      'power inline auto',
+      'power inline never',
       'exit',
       'help'
     ],
@@ -35,6 +40,9 @@ export function getAutocomplete(input, mode) {
   if (!normalizedInput) return null;
 
   const inputTokens = normalizedInput.split(' ');
+
+  const exactMatch = commands.find((command) => command === normalizedInput);
+  if (exactMatch) return exactMatch;
 
   const tokenMatches = (command) => {
     const commandTokens = command.split(' ');
