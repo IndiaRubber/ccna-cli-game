@@ -36,7 +36,16 @@ function isTicketEmail(email) {
 }
 
 function isTicketLocked(email) {
-  return isTicketEmail(email) && GameState.questCompleted !== true;
+  if (!isTicketEmail(email)) return false;
+
+  if (email.missionId) {
+    return !(
+      GameState.completedQuests?.includes(email.missionId) ||
+      (GameState.currentQuestId === email.missionId && GameState.questCompleted === true)
+    );
+  }
+
+  return GameState.questCompleted !== true;
 }
 
 export function isEmailAvailable(email, state = GameState) {
@@ -281,6 +290,13 @@ export function openEmail(emailId, options = {}) {
 
     if (emailStartTicketButton) {
       emailStartTicketButton.addEventListener('click', () => {
+        if (email.missionId) {
+          window.dispatchEvent(new CustomEvent('cisco:start-mission', {
+            detail: { missionId: email.missionId }
+          }));
+          return;
+        }
+
         const goToTerminalButton = document.getElementById('go-to-terminal-button');
 
         if (goToTerminalButton) {

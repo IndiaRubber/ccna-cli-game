@@ -29,38 +29,19 @@ test('the factory port description does not satisfy the update objective', () =>
   assert.equal(progress.readyToSubmit, false);
 });
 
-test('submitting phase one reveals voice VLAN work and invalidates the save', () => {
+test('completing the workstation configuration finishes Mission 1', () => {
   const state = createPhaseOneState();
-  const result = advanceMissionOne(state);
-
-  assert.equal(result.type, MISSION_ONE_EVENTS.HIDDEN_OBJECTIVE_REVEALED);
-  assert.equal(state.hiddenObjectiveRevealed, true);
-  assert.equal(state.ticketSubmitted, true);
-  assert.equal(state.saved, false);
-  assert.equal(result.progress.readyToSubmit, false);
-});
-
-test('the second phase requires voice VLAN 20 and another save', () => {
-  const state = createPhaseOneState();
-  advanceMissionOne(state);
-
-  state.interfaces['g0/12'].voiceVlan = '20';
-  assert.equal(evaluateMissionOne(state).phaseTwoComplete, false);
-
-  state.saved = true;
   const result = advanceMissionOne(state);
 
   assert.equal(result.type, MISSION_ONE_EVENTS.COMPLETED);
   assert.equal(state.questCompleted, true);
+  assert.equal(state.interfaces['g0/12'].voiceVlan, null);
   assert.equal(state.xp, 100);
   assert.equal(state.credits, 25);
 });
 
 test('a completed mission cannot award completion repeatedly', () => {
   const state = createPhaseOneState();
-  advanceMissionOne(state);
-  state.interfaces['g0/12'].voiceVlan = '20';
-  state.saved = true;
   advanceMissionOne(state);
 
   const result = advanceMissionOne(state);

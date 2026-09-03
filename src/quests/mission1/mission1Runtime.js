@@ -1,6 +1,5 @@
 export const MISSION_ONE_EVENTS = {
   DEVICE_MISSING: 'device-missing',
-  HIDDEN_OBJECTIVE_REVEALED: 'hidden-objective-revealed',
   COMPLETED: 'completed',
   ALREADY_COMPLETED: 'already-completed',
   BLOCKED: 'blocked'
@@ -14,7 +13,6 @@ export function evaluateMissionOne(state) {
       officePort: null,
       objectiveStates: {},
       phaseOneComplete: false,
-      phaseTwoComplete: false,
       readyToSubmit: false
     };
   }
@@ -32,8 +30,7 @@ export function evaluateMissionOne(state) {
     'g012-mode-access': officePort.mode === 'access',
     'g012-access-vlan10': officePort.accessVlan === '10',
     'g012-description': hasUpdatedDescription,
-    save: state.saved === true,
-    'g012-voice-vlan20': officePort.voiceVlan === '20'
+    save: state.saved === true
   };
 
   const phaseOneComplete =
@@ -42,17 +39,11 @@ export function evaluateMissionOne(state) {
     objectiveStates['g012-description'] &&
     objectiveStates.save;
 
-  const phaseTwoComplete =
-    phaseOneComplete && objectiveStates['g012-voice-vlan20'];
-
   return {
     officePort,
     objectiveStates,
     phaseOneComplete,
-    phaseTwoComplete,
-    readyToSubmit: state.hiddenObjectiveRevealed
-      ? phaseTwoComplete
-      : phaseOneComplete
+    readyToSubmit: phaseOneComplete
   };
 }
 
@@ -67,18 +58,7 @@ export function advanceMissionOne(state) {
     return { type: MISSION_ONE_EVENTS.ALREADY_COMPLETED, progress };
   }
 
-  if (!state.hiddenObjectiveRevealed && progress.phaseOneComplete) {
-    state.ticketSubmitted = true;
-    state.hiddenObjectiveRevealed = true;
-    state.saved = false;
-
-    return {
-      type: MISSION_ONE_EVENTS.HIDDEN_OBJECTIVE_REVEALED,
-      progress: evaluateMissionOne(state)
-    };
-  }
-
-  if (state.hiddenObjectiveRevealed && progress.phaseTwoComplete) {
+  if (progress.phaseOneComplete) {
     state.questCompleted = true;
     state.xp = Math.max(state.xp ?? 0, 100);
     state.credits = Math.max(state.credits ?? 0, 25);

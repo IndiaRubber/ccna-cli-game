@@ -87,6 +87,7 @@ write memory</code></pre>
 
   {
     id: 'ticket-office4b',
+    missionId: 'mission-1',
     from: 'Helpdesk Queue',
     subject: 'Ticket: Office 4B New Hire Port',
     preview: 'User reports workstation offline.',
@@ -146,7 +147,7 @@ write memory</code></pre>
       'A compliment from Network Administration has arrived wearing several layers of protective sarcasm.',
     body: `
       <p>
-        Office 4B is online, including the phone. You inspected the switch, changed the intended interface,
+        The Office 4B workstation is online. You inspected the switch, changed the intended interface,
         and saved the configuration. That clears the current standard for "did not create an outage elsewhere."
       </p>
 
@@ -173,6 +174,68 @@ write memory</code></pre>
   },
 
   {
+    id: 'ticket-office4b-phone',
+    missionId: 'mission-2',
+    unlockAfterQuest: 'mission-1',
+    from: 'Helpdesk Queue',
+    subject: 'Ticket: Office 4B Desk Phone Offline',
+    preview: 'The workstation works, but the phone will not register.',
+    heliosMessage:
+      'The workstation is online, so the physical link and data configuration are probably not our first suspects.',
+    body: `
+      <p>
+        The new hire in Office 4B can reach the network from their workstation, but the IP phone at the same desk
+        displays "Network Unavailable" and will not register.
+      </p>
+
+      <p>
+        The workstation and phone share the desk connection through Gi1/0/12 on D8SW1. Inspect the existing
+        switchport configuration before making changes, restore phone service, and verify the result.
+      </p>
+
+      <p>Ticket priority: Medium.</p>
+
+      <button id="email-start-ticket-button" class="email-action-button">
+        Open Terminal for This Ticket
+      </button>
+    `,
+    notebookEntry: {
+      id: 'voice-vlan-basics',
+      title: 'Voice VLAN Basics',
+      body: `
+        <p>
+          A workstation and an IP phone can share one physical switchport while using different logical networks.
+          The access VLAN carries ordinary workstation traffic; a separately configured voice VLAN identifies the
+          phone's voice traffic.
+        </p>
+      `
+    }
+  },
+
+  {
+    id: 'mission2-debrief',
+    unlockAfterQuest: 'mission-2',
+    from: 'Mara Voss — Network Administration',
+    subject: 'RE: Office 4B Phone — Service Restored',
+    preview: 'One port, two logical networks, and no unnecessary outage.',
+    heliosMessage:
+      'Phone service restored. The physical port was shared; the missing distinction was logical. Networking remains committed to abstraction.',
+    body: `
+      <p>
+        The Office 4B workstation remained on DATA VLAN 10 while the desk phone was restored on VOICE VLAN 20.
+        Both devices can share the same physical switchport while belonging to separate logical networks.
+      </p>
+
+      <p>
+        You used the working workstation as evidence, inspected before changing, corrected only the missing voice
+        configuration, verified the result, and saved the switch configuration.
+      </p>
+
+      <p>— Mara Voss, Senior Network Administrator</p>
+    `
+  },
+
+  {
     id: 'postmission-corporate-survey',
     unlockAfterQuest: 'mission-1',
     from: 'People Operations',
@@ -194,7 +257,7 @@ write memory</code></pre>
 
   {
     id: 'postmission-operations-brief',
-    unlockAfterQuest: 'mission-1',
+    unlockAfterQuest: 'mission-2',
     from: 'District 3 Operations Queue',
     subject: 'Shift Brief: Unknown Endpoint Reports',
     preview: 'Future tickets may not include a room or switchport.',

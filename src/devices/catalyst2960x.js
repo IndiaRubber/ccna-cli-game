@@ -227,6 +227,7 @@ export function createD8SW1() {
 
     currentVlan: null,
     currentInterface: null,
+    observations: [],
     saved: false,
     xp: 0,
     questCompleted: false

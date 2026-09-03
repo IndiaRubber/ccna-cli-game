@@ -1,6 +1,10 @@
 export const mission1 = {
   id: 'mission-1',
   name: 'New Hire Port Activation',
+  completionEmailId: 'mission1-debrief',
+  completionMessage: 'New Hire Port Activation',
+  rewardXp: 100,
+  rewardCredits: 25,
   title: 'Quest: New Hire Port Activation',
   description:
     'A new hire is starting in Office 4B. Find the correct switchport, configure their workstation network access, then save your work.',
@@ -28,15 +32,13 @@ export const mission1 = {
     }
   ],
 
-  hiddenObjectives: [
-    {
-      id: 'g012-voice-vlan20',
-      text: 'Hidden Objective: Assign the Office 4B port to VOICE VLAN 20'
-    }
-  ],
+  hiddenObjectives: [],
 
   hint:
     'Use show interfaces status to identify the correct port. Look for Office 4B in the interface descriptions.',
+  hints: [
+    'Use show interfaces status to identify the correct port. Look for Office 4B in the interface descriptions.'
+  ],
 
   notes: [
     'District: 8',

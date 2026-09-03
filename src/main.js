@@ -10,7 +10,6 @@ import { createTerminal } from './ui/terminal.js';
 import './style.css';
 
 import { getMission } from './quests/missionRegistry.js';
-import { MISSION_ONE_EVENTS } from './quests/mission1/mission1Runtime.js';
 import { renderObjectiveStates, renderQuest } from './quests/questEngine.js';
 import { loadEmails, openEmail, resetEmailState } from './systems/emailSystem.js';
 import { heliosSay, heliosSayRandom } from './systems/helios.js';
@@ -26,7 +25,7 @@ import {
 // Quest / Terminal Setup
 // ----------------------------
 
-const activeMission = getMission('mission-1');
+let activeMission = getMission('mission-1');
 
 if (!activeMission) {
   throw new Error('Mission 1 is not registered.');
@@ -70,7 +69,8 @@ function initializeTerminal() {
     print,
     showHelp,
     updateObjectives,
-    persistProgress: saveProgressToLocalStorage
+    persistProgress: saveProgressToLocalStorage,
+    writeCaret: terminal.writeCaret
   };
 
   heliosSayRandom('terminalInitial', 'ai-message');
@@ -97,6 +97,7 @@ function showHelp() {
   print('  show interfaces status');
   print('  show vlan brief');
   print('  show running-config');
+  print('  show running-config interface gi1/0/12');
   print('  copy running-config startup-config');
   print('  write memory');
   print('  end');
@@ -114,7 +115,7 @@ function updateObjectives() {
     hiddenObjectiveIds: activeMission.definition.hiddenObjectives?.map(
       (objective) => objective.id
     ),
-    showHiddenObjectives: GameState.hiddenObjectiveRevealed === true
+    showHiddenObjectives: false
   });
 
   const questStatus = document.getElementById('quest-status');
@@ -183,7 +184,7 @@ function loadSaveData() {
       hasSave: true,
       totalCredits: parsedSave.totalCredits ?? 0,
       currentQuestId: parsedSave.currentQuestId ?? 'mission-1',
-      currentQuestName: parsedSave.currentQuestName ?? activeMission.definition.name,
+      currentQuestName: parsedSave.currentQuestName ?? getMission(parsedSave.currentQuestId)?.definition.name ?? activeMission.definition.name,
       rank: parsedSave.rank ?? 'Helpdesk Refugee',
       xp: parsedSave.xp ?? 0,
       completedQuests: parsedSave.completedQuests ?? [],
@@ -213,6 +214,8 @@ function saveProgressToLocalStorage() {
     completedQuests.add(GameState.currentQuestId);
   }
 
+  GameState.completedQuests = [...completedQuests];
+
   const updatedSave = {
     ...existingSave,
     schemaVersion: SAVE_SCHEMA_VERSION,
@@ -222,7 +225,7 @@ function saveProgressToLocalStorage() {
     currentQuestName: GameState.currentQuestName ?? existingSave.currentQuestName ?? activeMission.definition.name,
     rank: GameState.rank ?? existingSave.rank ?? 'Helpdesk Refugee',
     xp: GameState.xp ?? existingSave.xp ?? 0,
-    completedQuests: [...completedQuests],
+    completedQuests: GameState.completedQuests,
     unlockedMiniGames: existingSave.unlockedMiniGames ?? ['subnet-sprint', 'vlan-sorter'],
     deviceState: createGameStateSnapshot()
   };
@@ -238,6 +241,10 @@ function applySaveToGameState(saveData) {
   GameState.xp = saveData.xp ?? 0;
   GameState.completedQuests = saveData.completedQuests ?? [];
 
+  activeMission = getMission(GameState.currentQuestId) ?? getMission('mission-1');
+  GameState.currentQuestId = activeMission.definition.id;
+  GameState.currentQuestName = activeMission.definition.name;
+
   const xpCounter = document.getElementById('xp-counter');
 
   if (xpCounter) {
@@ -247,7 +254,7 @@ function applySaveToGameState(saveData) {
 
 function renderMissionState() {
   renderQuest(activeMission.definition, {
-    showHiddenObjectives: GameState.hiddenObjectiveRevealed === true
+    showHiddenObjectives: false
   });
 
   const questStatus = document.getElementById('quest-status');
@@ -274,46 +281,13 @@ function renderMissionState() {
 function handleTicketButtonClick() {
   const result = activeMission.advance(GameState);
 
-  if (result.type === MISSION_ONE_EVENTS.DEVICE_MISSING) {
+  if (result.type === 'device-missing') {
     print('');
     print('Ticket system error: Office 4B port has not been identified yet.');
     return;
   }
 
-  if (result.type === MISSION_ONE_EVENTS.HIDDEN_OBJECTIVE_REVEALED) {
-    renderQuest(activeMission.definition, { showHiddenObjectives: true });
-
-    print('');
-    print('Ticket Update:');
-    print('The new hire reports their workstation is online, but their desk phone says "Network Unavailable."');
-    print('');
-    print('Hidden Objective Revealed:');
-    print('Configure the Office 4B port for VOICE VLAN 20.');
-    print('');
-
-    heliosSay(
-      'Classic. Data works, phone does not. Check for a missing voice VLAN.',
-      'ai-message'
-    );
-
-    const questStatus = document.getElementById('quest-status');
-    const nextQuestButton = document.getElementById('next-quest-button');
-
-    if (questStatus) {
-      questStatus.textContent = 'In Progress';
-    }
-
-    if (nextQuestButton) {
-      nextQuestButton.textContent = 'Mark Ticket Complete';
-      nextQuestButton.disabled = true;
-    }
-
-    updateObjectives();
-    saveProgressToLocalStorage();
-    return;
-  }
-
-  if (result.type === MISSION_ONE_EVENTS.COMPLETED) {
+  if (result.type === 'completed') {
     const xpCounter = document.getElementById('xp-counter');
     const questStatus = document.getElementById('quest-status');
     const nextQuestButton = document.getElementById('next-quest-button');
@@ -335,16 +309,17 @@ function handleTicketButtonClick() {
     updateHomeSummary();
 
     print('');
-    print('*** Quest Complete: New Hire Port Activation ***');
-    print('+100 XP');
-    print('+25 Credits');
+    print(`*** Quest Complete: ${activeMission.definition.completionMessage} ***`);
+    print(`+${activeMission.definition.rewardXp} XP`);
+    print(`+${activeMission.definition.rewardCredits} Credits`);
 
-    showHomeScreen({ openEmailId: 'mission1-debrief' });
+    heliosSayRandom('missionComplete', 'ai-message');
+    showHomeScreen({ openEmailId: activeMission.definition.completionEmailId });
 
     return;
   }
 
-  if (result.type === MISSION_ONE_EVENTS.ALREADY_COMPLETED) {
+  if (result.type === 'already-completed') {
     print('');
     print('No additional quest is available yet.');
     return;
@@ -393,6 +368,46 @@ const missionToHomeButton = document.getElementById('mission-to-home-button');
 
 const missionRank = document.getElementById('mission-rank');
 const missionCredits = document.getElementById('mission-credits');
+const questHintButton = document.getElementById('quest-hint-button');
+
+function activateMission(missionId) {
+  const mission = getMission(missionId);
+
+  if (!mission) return;
+
+  const completedQuests = new Set(GameState.completedQuests ?? []);
+  if (completedQuests.has(missionId)) {
+    heliosSay('That ticket is already closed. Reopening solved incidents is a management feature, not a training feature.');
+    return;
+  }
+
+  if (missionId === 'mission-2' && !completedQuests.has('mission-1')) {
+    heliosSay('Mission 2 is locked until the Office 4B workstation ticket is complete.');
+    return;
+  }
+
+  activeMission = mission;
+  GameState.currentQuestId = mission.definition.id;
+  GameState.currentQuestName = mission.definition.name;
+  GameState.questCompleted = false;
+  GameState.observations = [];
+  GameState.hintLevel = 0;
+  delete GameState.hiddenObjectiveRevealed;
+  delete GameState.ticketSubmitted;
+
+  saveProgressToLocalStorage();
+  renderMissionState();
+
+  if (terminal) terminal.reset();
+  showGameScreen();
+
+  if (missionId === 'mission-2') {
+    heliosSay(
+      'The workstation is online, so the physical link and data configuration are probably not our first suspects.',
+      'ai-message'
+    );
+  }
+}
 
 function updateLaunchSummary() {
   const saveData = loadSaveData();
@@ -580,6 +595,25 @@ const ticketButton = document.getElementById('next-quest-button');
 if (ticketButton) {
   ticketButton.addEventListener('click', handleTicketButtonClick);
 }
+
+if (questHintButton) {
+  questHintButton.addEventListener('click', () => {
+    const hints = activeMission.definition.hints ?? [activeMission.definition.hint];
+    const hintIndex = Math.min(GameState.hintLevel ?? 0, hints.length - 1);
+    const hint = hints[hintIndex];
+
+    if (hint) {
+      heliosSay(hint, 'ai-message');
+      document.getElementById('quest-hint').textContent = hint;
+      GameState.hintLevel = Math.min(hintIndex + 1, hints.length - 1);
+      saveProgressToLocalStorage();
+    }
+  });
+}
+
+window.addEventListener('cisco:start-mission', (event) => {
+  activateMission(event.detail?.missionId);
+});
 
 if (newGameButton) {
   newGameButton.addEventListener('click', startNewGame);

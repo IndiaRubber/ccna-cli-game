@@ -32,6 +32,8 @@ export function createTerminal({
   });
 
   let input = '';
+  const history = [];
+  let historyIndex = -1;
 
   function print(line = '') {
     term.write(`\r\n${line}`);
@@ -49,8 +51,23 @@ export function createTerminal({
 
   function reset() {
     input = '';
+    historyIndex = -1;
     term.reset();
     writeWelcome();
+  }
+
+  function replaceInput(nextInput) {
+    if (input.length > 0) {
+      term.write('\b \b'.repeat(input.length));
+    }
+
+    input = nextInput;
+    term.write(input);
+  }
+
+  function writeCaret(position) {
+    const promptOffset = getPrompt().length + 1;
+    term.write(`\r\n${' '.repeat(promptOffset + position)}^`);
   }
 
   writeWelcome();
@@ -58,13 +75,34 @@ export function createTerminal({
   term.onData((data) => {
     const char = data;
 
+    if (char === '\u001b[A') {
+      if (history.length > 0) {
+        historyIndex = historyIndex < 0
+          ? history.length - 1
+          : Math.max(0, historyIndex - 1);
+        replaceInput(history[historyIndex]);
+      }
+      return;
+    }
+
+    if (char === '\u001b[B') {
+      if (historyIndex >= 0) {
+        historyIndex += 1;
+        if (historyIndex >= history.length) {
+          historyIndex = -1;
+          replaceInput('');
+        } else {
+          replaceInput(history[historyIndex]);
+        }
+      }
+      return;
+    }
+
     if (char === '\t') {
       const completed = getAutocomplete(input);
 
       if (completed) {
-        const remaining = completed.slice(input.length);
-        input = completed;
-        term.write(remaining);
+        replaceInput(completed);
       }
 
       return;
@@ -72,6 +110,10 @@ export function createTerminal({
 
     if (char === '\r') {
       term.write('\r\n');
+      if (input.trim()) {
+        history.push(input);
+      }
+      historyIndex = -1;
       runCommand(input);
       input = '';
       writePrompt();
@@ -100,6 +142,7 @@ export function createTerminal({
     print,
     writePrompt,
     fit: () => fitAddon.fit(),
+    writeCaret,
     reset
   };
 }

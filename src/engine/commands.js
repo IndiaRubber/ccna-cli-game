@@ -9,7 +9,7 @@ function getCurrentInterfaceLabel() {
   return intf?.displayName ?? GameState.currentInterface;
 }
 
-function normalizeInterfaceName(input = '') {
+export function normalizeInterfaceName(input = '') {
   const compact = input.toLowerCase().replace(/\s+/g, '');
   const match = compact.match(/^(?:g0\/|gi1\/0\/|gigabitethernet1\/0\/)(\d{1,2})$/);
 
@@ -360,6 +360,46 @@ export function cmdShowRunningConfig() {
   }
 
   return lines;
+}
+
+function renderInterfaceConfig(interfaceName, intf) {
+  const lines = [`interface ${intf.displayName || interfaceName}`];
+
+  if (intf.description) lines.push(` description ${intf.description}`);
+  if (intf.mode === 'access') lines.push(' switchport mode access');
+  if (intf.accessVlan && intf.accessVlan !== '1') {
+    lines.push(` switchport access vlan ${intf.accessVlan}`);
+  }
+  if (intf.voiceVlan) lines.push(` switchport voice vlan ${intf.voiceVlan}`);
+  if (intf.shutdown) lines.push(' shutdown');
+
+  return lines;
+}
+
+export function cmdShowRunningConfigInterface(command) {
+  if (GameState.mode === 'user') return null;
+
+  const requestedName = command
+    .replace(/^show\s+running-config\s+interface\s+/i, '')
+    .trim();
+  const interfaceName = normalizeInterfaceName(requestedName);
+  const intf = interfaceName ? GameState.interfaces?.[interfaceName] : null;
+
+  if (!intf) {
+    return { error: `% Invalid interface type and number: ${requestedName}` };
+  }
+
+  if (!Array.isArray(GameState.observations)) GameState.observations = [];
+  GameState.observations.push({
+    type: 'interface-config',
+    interfaceName,
+    mode: intf.mode,
+    accessVlan: intf.accessVlan,
+    voiceVlan: intf.voiceVlan,
+    shutdown: intf.shutdown
+  });
+
+  return renderInterfaceConfig(interfaceName, intf);
 }
 
 export function cmdShowInterfacesStatus() {
