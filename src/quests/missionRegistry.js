@@ -2,6 +2,7 @@ import { mission1 } from './mission1/mission1.js';
 import { mission2 } from './mission2/mission2.js';
 import { mission0 } from './mission0/mission0.js';
 import { mission3 } from './mission3/mission3.js';
+import { mission4 } from './mission4/mission4.js';
 import {
   advanceMissionOne,
   evaluateMissionOne
@@ -18,6 +19,10 @@ import {
   advanceMissionThree,
   evaluateMissionThree
 } from './mission3/mission3Runtime.js';
+import {
+  advanceMissionFour,
+  evaluateMissionFour
+} from './mission4/mission4Runtime.js';
 
 const missions = {
   [mission0.id]: {
@@ -39,10 +44,15 @@ const missions = {
     definition: mission3,
     evaluate: evaluateMissionThree,
     advance: advanceMissionThree
+  },
+  [mission4.id]: {
+    definition: mission4,
+    evaluate: evaluateMissionFour,
+    advance: advanceMissionFour
   }
 };
 
-const missionOrder = ['mission-0', 'mission-1', 'mission-2', 'mission-3'];
+const missionOrder = ['mission-0', 'mission-1', 'mission-2', 'mission-3', 'mission-4'];
 
 export function getMission(missionId) {
   return missions[missionId] ?? null;

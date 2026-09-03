@@ -32,9 +32,31 @@ export function createD8SW1() {
     vlans: {
       '1': { name: 'default' },
       '10': { name: 'DATA' },
+         '15': { name: 'PRINTER' },
       '20': { name: 'VOICE' },
       '99': { name: 'MGMT' }
     },
+
+    macAddressTable: [
+      { vlan: '10', mac: '0011.2233.4402', type: 'DYNAMIC', interface: 'g0/2' },
+      { vlan: '20', mac: '0011.2233.5502', type: 'DYNAMIC', interface: 'g0/2' },
+      { vlan: '10', mac: '0011.2233.4403', type: 'DYNAMIC', interface: 'g0/3' },
+      { vlan: '20', mac: '0011.2233.5503', type: 'DYNAMIC', interface: 'g0/3' },
+      { vlan: '10', mac: '00aa.bbcc.dd04', type: 'DYNAMIC', interface: 'g0/4' },
+      { vlan: '10', mac: '00aa.bbcc.dd05', type: 'DYNAMIC', interface: 'g0/5' },
+      { vlan: '20', mac: '00aa.bbcc.ee05', type: 'DYNAMIC', interface: 'g0/5' },
+      { vlan: '10', mac: '00aa.bbcc.dd07', type: 'DYNAMIC', interface: 'g0/7' },
+      { vlan: '10', mac: '00aa.bbcc.dd08', type: 'DYNAMIC', interface: 'g0/8' },
+      { vlan: '10', mac: '00aa.bbcc.dd10', type: 'DYNAMIC', interface: 'g0/10' },
+      { vlan: '20', mac: '00aa.bbcc.ee10', type: 'DYNAMIC', interface: 'g0/10' },
+      { vlan: '10', mac: '00aa.bbcc.dd11', type: 'DYNAMIC', interface: 'g0/11' },
+      { vlan: '10', mac: '00aa.bbcc.dd14', type: 'DYNAMIC', interface: 'g0/14' },
+      { vlan: '10', mac: '00aa.bbcc.dd15', type: 'DYNAMIC', interface: 'g0/15' },
+      { vlan: '10', mac: '00aa.bbcc.dd17', type: 'DYNAMIC', interface: 'g0/17' },
+      { vlan: '10', mac: '00aa.bbcc.dd19', type: 'DYNAMIC', interface: 'g0/19' },
+      { vlan: '10', mac: '00aa.bbcc.dd20', type: 'DYNAMIC', interface: 'g0/20' },
+      { vlan: '10', mac: '00aa.bbcc.dd21', type: 'DYNAMIC', interface: 'g0/21' }
+    ],
 
     interfaces: {
       'g0/1': createInterface(1, {
@@ -230,6 +252,7 @@ export function createD8SW1() {
     observations: [],
     configurationChanges: 0,
     mission3ScenarioPrepared: false,
+    mission4ScenarioPrepared: false,
     saved: false,
     xp: 0,
     questCompleted: false

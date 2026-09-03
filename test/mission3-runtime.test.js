@@ -73,7 +73,7 @@ test('printer operation depends on port state, not description', () => {
   const state = preparedState();
   const port = state.interfaces['g0/13'];
   port.mode = 'access';
-  port.accessVlan = '10';
+  port.accessVlan = '15';
   port.description = 'Spare Office Jack';
   state.configurationChanges = 1;
   inspect(state, 'g0/6');
@@ -81,6 +81,17 @@ test('printer operation depends on port state, not description', () => {
 
   assert.equal(evaluateMissionThree(state).printerOperational, true);
   assert.equal(evaluateMissionThree(state).descriptionComplete, false);
+});
+
+test('Mission 3 requires the dedicated Printer VLAN 15', () => {
+  const state = preparedState();
+  const port = state.interfaces['g0/13'];
+  port.mode = 'access';
+  port.accessVlan = '10';
+  port.linkUp = true;
+
+  assert.equal(evaluateMissionThree(state).printerOperational, false);
+  assert.deepEqual(state.vlans['15'], { name: 'PRINTER' });
 });
 
 test('Mission 3 requires a post-mutation verification, documentation, and save', () => {
@@ -91,14 +102,37 @@ test('Mission 3 requires a post-mutation verification, documentation, and save',
 
   const port = state.interfaces['g0/13'];
   port.mode = 'access';
-  port.accessVlan = '10';
+  port.accessVlan = '15';
   port.description = 'Records Printer';
   state.configurationChanges = 1;
   state.saved = true;
   assert.equal(evaluateMissionThree(state).verified, false);
 
   inspect(state, 'g0/13');
+  assert.equal(evaluateMissionThree(state).objectiveStates['shutdown-old-printer-port'], false);
+  assert.equal(evaluateMissionThree(state).readyToSubmit, false);
+
+  state.interfaces['g0/6'].shutdown = true;
   assert.equal(evaluateMissionThree(state).readyToSubmit, true);
   assert.equal(advanceMissionThree(state).type, MISSION_THREE_EVENTS.COMPLETED);
   assert.equal(advanceMissionThree(state).type, MISSION_THREE_EVENTS.ALREADY_COMPLETED);
+});
+
+test('Mission 3 accepts required operations in any order', () => {
+  const state = preparedState();
+  const port = state.interfaces['g0/13'];
+
+  port.mode = 'access';
+  port.accessVlan = '15';
+  port.description = 'Records Printer';
+  state.configurationChanges = 1;
+
+  inspect(state, 'g0/13');
+  inspect(state, 'g0/6');
+  state.interfaces['g0/6'].shutdown = true;
+  status(state);
+  state.saved = true;
+
+  assert.equal(evaluateMissionThree(state).investigated, true);
+  assert.equal(evaluateMissionThree(state).readyToSubmit, true);
 });

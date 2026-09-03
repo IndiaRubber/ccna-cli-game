@@ -38,6 +38,8 @@ test('resetGameState restores a configured mission switch in place', () => {
   assert.equal(GameState.interfaces['g0/12'].description, 'Office 4B New Hire - Pending Setup');
   assert.equal(GameState.saved, false);
   assert.equal(GameState.configurationChanges, 0);
+  assert.ok(GameState.macAddressTable.length >= 15);
+  assert.equal(GameState.macAddressTable[0].interface, 'g0/2');
   assert.equal(GameState.questCompleted, false);
   assert.equal(GameState.xp, 0);
   assert.equal('hiddenObjectiveRevealed' in GameState, false);
@@ -56,6 +58,8 @@ test('a saved device and mission snapshot can be restored', () => {
   GameState.hiddenObjectiveRevealed = true;
   GameState.ticketSubmitted = true;
   GameState.rank = 'Helpdesk Refugee';
+  GameState.currentQuestId = 'mission-4';
+  GameState.mission4ScenarioPrepared = true;
 
   const snapshot = createGameStateSnapshot();
 
@@ -73,6 +77,8 @@ test('a saved device and mission snapshot can be restored', () => {
   assert.equal(GameState.hiddenObjectiveRevealed, true);
   assert.equal(GameState.ticketSubmitted, true);
   assert.equal(GameState.rank, 'Helpdesk Refugee');
+  assert.equal(GameState.currentQuestId, 'mission-4');
+  assert.equal(GameState.mission4ScenarioPrepared, true);
 });
 
 test('restoreGameState keeps new factory fields when loading an older snapshot', () => {
@@ -94,4 +100,6 @@ test('restoreGameState keeps new factory fields when loading an older snapshot',
   assert.equal(GameState.interfaces['g0/12'].displayName, 'Gi1/0/12');
   assert.equal(GameState.interfaces['g0/12'].mediaType, '10/100/1000BaseTX');
   assert.equal(GameState.interfaces['g0/13'].displayName, 'Gi1/0/13');
+  assert.ok(GameState.macAddressTable.length >= 15);
+  assert.equal(GameState.macAddressTable[0].mac, '0011.2233.4402');
 });

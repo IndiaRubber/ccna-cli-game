@@ -81,8 +81,9 @@ test('the complete Mission 0-3 campaign awards 350 XP and 85 credits exactly onc
   inspectInterface(state, 'g0/6');
   inspectInterface(state, 'g0/13');
   state.interfaces['g0/13'].mode = 'access';
-  state.interfaces['g0/13'].accessVlan = '10';
+  state.interfaces['g0/13'].accessVlan = '15';
   state.interfaces['g0/13'].description = 'Records Printer';
+  state.interfaces['g0/6'].shutdown = true;
   state.configurationChanges += 1;
   state.saved = true;
   inspectInterface(state, 'g0/13');

@@ -17,6 +17,8 @@ const missionTwoTicket = emails.find((email) => email.id === 'ticket-office4b-ph
 const missionTwoDebrief = emails.find((email) => email.id === 'mission2-debrief');
 const missionThreeTicket = emails.find((email) => email.id === 'ticket-relocated-printer');
 const missionThreeDebrief = emails.find((email) => email.id === 'mission3-debrief');
+const missionFourTicket = emails.find((email) => email.id === 'ticket-warehouse-endpoint');
+const missionFourDebrief = emails.find((email) => email.id === 'mission4-debrief');
 
 test('post-mission email remains hidden before Mission 1 is complete', () => {
   const state = {
@@ -94,6 +96,10 @@ test('Mission 2 ticket follows Mission 1 and its debrief waits for Mission 2', (
 });
 
 test('Mission 3 ticket follows Mission 2 and its debrief waits for Mission 3', () => {
+  assert.ok(missionThreeTicket.notebookEntry);
+  assert.match(missionThreeTicket.body, /interface g0\/6[\s\S]*shutdown/);
+  assert.match(missionThreeTicket.notebookEntry.body, /interface g0\/13[\s\S]*write memory/);
+
   assert.equal(isEmailAvailable(missionThreeTicket, {
     currentQuestId: 'mission-2',
     questCompleted: true,
@@ -104,6 +110,21 @@ test('Mission 3 ticket follows Mission 2 and its debrief waits for Mission 3', (
     questCompleted: false,
     completedQuests: ['mission-0', 'mission-1', 'mission-2']
   }), false);
+});
+
+test('Mission 4 ticket follows Mission 3 and its debrief waits for Mission 4', () => {
+  assert.equal(isEmailAvailable(missionFourTicket, {
+    currentQuestId: 'mission-3',
+    questCompleted: true,
+    completedQuests: ['mission-0', 'mission-1', 'mission-2', 'mission-3']
+  }), true);
+  assert.match(missionFourTicket.body, /00aa\.bbcc\.dd21/);
+  assert.equal(isEmailAvailable(missionFourDebrief, {
+    currentQuestId: 'mission-4',
+    questCompleted: false,
+    completedQuests: ['mission-0', 'mission-1', 'mission-2', 'mission-3']
+  }), false);
+  assert.ok(missionFourDebrief.notebookEntry);
 });
 
 test('completing a mission archives its ticket but leaves the debrief available', () => {

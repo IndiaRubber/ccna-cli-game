@@ -42,12 +42,16 @@ export function createTerminal({
   const history = [];
   let historyIndex = -1;
 
+  function writeAndScroll(text) {
+    term.write(text, () => term.scrollToBottom());
+  }
+
   function print(line = '') {
-    term.write(`\r\n${line}`);
+    writeAndScroll(`\r\n${line}`);
   }
 
   function writePrompt() {
-    term.write(`\r\n${getPrompt()} `);
+    writeAndScroll(`\r\n${getPrompt()} `);
   }
 
   function writeWelcome() {

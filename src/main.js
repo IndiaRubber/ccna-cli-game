@@ -11,6 +11,7 @@ import './style.css';
 
 import { getMission } from './quests/missionRegistry.js';
 import { prepareMissionThreeScenario } from './quests/mission3/mission3Runtime.js';
+import { prepareMissionFourScenario } from './quests/mission4/mission4Runtime.js';
 import { renderObjectiveStates, renderQuest } from './quests/questEngine.js';
 import { archiveMissionEmails, getNextActionableOffice4bTicket, loadEmails, openEmail, resetEmailState } from './systems/emailSystem.js';
 import { heliosSay, heliosSayRandom } from './systems/helios.js';
@@ -97,6 +98,10 @@ function showHelp() {
   print('  shutdown');
   print('  show interfaces status');
   print('  show vlan brief');
+  print('  show mac address-table');
+  print('  show mac address-table address MAC');
+  print('  show mac address-table interface INTERFACE');
+  print('  show mac address-table vlan VLAN');
   print('  show running-config');
   print('  show running-config interface gi1/0/12');
   print('  copy running-config startup-config');
@@ -111,12 +116,13 @@ function showHelp() {
 
 function updateObjectives() {
   const progress = activeMission.evaluate(GameState);
+  const showHiddenObjectives = activeMission.definition.id === 'mission-3';
 
   renderObjectiveStates(progress.objectiveStates, {
     hiddenObjectiveIds: activeMission.definition.hiddenObjectives?.map(
       (objective) => objective.id
     ),
-    showHiddenObjectives: false
+    showHiddenObjectives
   });
 
   const questStatus = document.getElementById('quest-status');
@@ -254,8 +260,10 @@ function applySaveToGameState(saveData) {
 }
 
 function renderMissionState() {
+  const showHiddenObjectives = activeMission.definition.id === 'mission-3';
+
   renderQuest(activeMission.definition, {
-    showHiddenObjectives: false
+    showHiddenObjectives
   });
 
   const questStatus = document.getElementById('quest-status');
@@ -361,6 +369,8 @@ const homeCredits = document.getElementById('home-credits');
 const goToTerminalButton = document.getElementById('go-to-terminal-button');
 const homeToLaunchButton = document.getElementById('home-to-launch-button');
 const missionToHomeButton = document.getElementById('mission-to-home-button');
+const missionSelect = document.getElementById('mission-select');
+const missionSelectButton = document.getElementById('mission-select-button');
 
 const missionRank = document.getElementById('mission-rank');
 const missionCredits = document.getElementById('mission-credits');
@@ -398,19 +408,19 @@ function showMissionCompletionModal() {
   }
 }
 
-function activateMission(missionId) {
+function activateMission(missionId, options = {}) {
   const mission = getMission(missionId);
 
   if (!mission) return;
 
   const completedQuests = new Set(GameState.completedQuests ?? []);
-  if (completedQuests.has(missionId)) {
+  if (!options.bypassLocks && completedQuests.has(missionId)) {
     heliosSay('That ticket is already closed. Reopening solved incidents is a management feature, not a training feature.');
     return;
   }
 
   const prerequisite = mission.definition.requires;
-  if (prerequisite && !completedQuests.has(prerequisite)) {
+  if (!options.bypassLocks && prerequisite && !completedQuests.has(prerequisite)) {
     heliosSay(`That assignment is locked until ${getMission(prerequisite)?.definition.name ?? prerequisite} is complete.`);
     return;
   }
@@ -426,6 +436,9 @@ function activateMission(missionId) {
 
   if (missionId === 'mission-3') {
     prepareMissionThreeScenario(GameState);
+  }
+  if (missionId === 'mission-4') {
+    prepareMissionFourScenario(GameState);
   }
 
   saveProgressToLocalStorage();
@@ -444,6 +457,13 @@ function activateMission(missionId) {
   if (missionId === 'mission-3') {
     heliosSay(
       'Facilities moved the printer without moving its switchport configuration. Before building anything from memory, find the old known-good port and compare it with the new connection.',
+      'ai-message'
+    );
+  }
+
+  if (missionId === 'mission-4') {
+    heliosSay(
+      'A MAC address is not a room number. Fortunately, the switch keeps receipts.',
       'ai-message'
     );
   }
@@ -653,6 +673,18 @@ if (missionCompletionHome) {
   missionCompletionHome.addEventListener('click', () => {
     hideModal(missionCompletionModal);
     showHomeScreen({ openEmailId: activeMission.definition.completionEmailId });
+  });
+}
+
+if (missionSelectButton) {
+  missionSelectButton.addEventListener('click', () => {
+    resetGameState();
+    resetEmailState();
+    resetNotebook();
+    resetMissionTutorial();
+    GameState.completedQuests = [];
+    saveProgressToLocalStorage();
+    activateMission(missionSelect?.value ?? 'mission-0', { bypassLocks: true });
   });
 }
 
