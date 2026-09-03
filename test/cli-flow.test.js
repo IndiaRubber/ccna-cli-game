@@ -152,8 +152,22 @@ test('interface running-config inspection records the observed network state', (
     mode: null,
     accessVlan: '1',
     voiceVlan: null,
-    shutdown: false
+    shutdown: false,
+    configurationChanges: 0
   });
+});
+
+test('premature voice VLAN configuration can be removed with Cisco no syntax', () => {
+  resetHarness();
+
+  runCommand('enable');
+  runCommand('configure terminal');
+  runCommand('interface gi1/0/12');
+  runCommand('switchport voice vlan 20');
+  runCommand('no switchport voice vlan');
+
+  assert.equal(GameState.interfaces['g0/12'].voiceVlan, null);
+  assert.ok(output.includes('Voice VLAN removed from Gi1/0/12.'));
 });
 
 test('interface running-config rejects invalid interfaces', () => {

@@ -10,6 +10,7 @@ import {
   cmdSwitchportModeAccess,
   cmdSwitchportAccessVlan,
   cmdSwitchportVoiceVlan,
+  cmdNoSwitchportVoiceVlan,
   cmdDescription,
   cmdNoShutdown,
   cmdShutdown,
@@ -110,6 +111,13 @@ function normalizeCommand(command, mode = GameState.mode) {
   }
 
   if (mode === 'interface') {
+    if (
+      tokens.length === 4 &&
+      matches(tokens, ['no', 'switchport', 'voice', 'vlan'])
+    ) {
+      return 'no switchport voice vlan';
+    }
+
     if (
       tokens.length === 3 &&
       matches(tokens, ['switchport', 'mode', 'access'])
@@ -531,6 +539,17 @@ export function runCommand(rawCommand) {
 
   if (lower.startsWith('switchport voice vlan ')) {
     const result = cmdSwitchportVoiceVlan(command);
+
+    if (printResult(result)) {
+      updateObjectivesSafely();
+      commentOnCommand(command);
+    }
+
+    return;
+  }
+
+  if (lower === 'no switchport voice vlan') {
+    const result = cmdNoSwitchportVoiceVlan();
 
     if (printResult(result)) {
       updateObjectivesSafely();

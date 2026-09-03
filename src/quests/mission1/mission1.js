@@ -47,7 +47,6 @@ export const mission1 = {
     'Model: Cisco Catalyst 2960X-24PS-L',
     'Ticket location: Office 4B',
     'DATA VLAN: 10',
-    'VOICE VLAN: 20',
     'MGMT VLAN: 99',
     'D8SW1 management IP: 10.8.99.2',
     'Default gateway: 10.8.99.1',

@@ -50,3 +50,14 @@ test('a completed mission cannot award completion repeatedly', () => {
   assert.equal(state.xp, 100);
   assert.equal(state.credits, 25);
 });
+
+test('Mission 1 does not complete with an out-of-scope voice VLAN', () => {
+  const state = createPhaseOneState();
+  state.interfaces['g0/12'].voiceVlan = '20';
+
+  assert.equal(evaluateMissionOne(state).readyToSubmit, false);
+  assert.equal(advanceMissionOne(state).type, MISSION_ONE_EVENTS.BLOCKED);
+
+  state.interfaces['g0/12'].voiceVlan = null;
+  assert.equal(advanceMissionOne(state).type, MISSION_ONE_EVENTS.COMPLETED);
+});

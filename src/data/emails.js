@@ -140,15 +140,7 @@ write memory</code></pre>
       <button id="email-start-ticket-button" class="email-action-button">
         Open Terminal for This Ticket
       </button>
-    `,
-    notebookEntry: {
-      id: 'office4b-switch-connection',
-      title: 'Office 4B Switch Connection',
-      body: `
-        <p>Office 4B → D8SW1 → Gi1/0/12</p>
-        <p>Verified from the switch interface-status output before configuration.</p>
-      `
-    }
+    `
   },
 
   {
@@ -191,7 +183,15 @@ write memory</code></pre>
         Keep the habit: observe first, understand what the device reports, then make the smallest change that solves
         the actual ticket.
       </p>
-    `
+    `,
+    notebookEntry: {
+      id: 'office4b-switch-connection',
+      title: 'Office 4B Switch Connection',
+      body: `
+        <p>Office 4B → D8SW1 → Gi1/0/12</p>
+        <p>Verified from the switch interface-status output before configuration.</p>
+      `
+    }
   },
 
   {

@@ -32,7 +32,8 @@ export function evaluateMissionTwo(state) {
       observation.mode === 'access' &&
       observation.accessVlan === '10' &&
       observation.voiceVlan === '20' &&
-      observation.shutdown === false
+      observation.shutdown === false &&
+      (observation.configurationChanges ?? 0) === (state.configurationChanges ?? 0)
   );
 
   const objectiveStates = {

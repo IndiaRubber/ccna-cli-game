@@ -31,13 +31,15 @@ function inspect(state) {
     mode: port.mode,
     accessVlan: port.accessVlan,
     voiceVlan: port.voiceVlan,
-    shutdown: port.shutdown
+    shutdown: port.shutdown,
+    configurationChanges: state.configurationChanges ?? 0
   });
 }
 
 test('Mission 2 requires investigation before remediation', () => {
   const state = createMissionTwoState();
   state.interfaces['g0/12'].voiceVlan = '20';
+  state.configurationChanges = 1;
   state.saved = false;
   inspect(state);
 
@@ -58,6 +60,7 @@ test('Mission 2 distinguishes inspection before repair from verification after i
   assert.equal(progress.objectiveStates['correct-switchport-configuration'], false);
 
   state.interfaces['g0/12'].voiceVlan = '20';
+  state.configurationChanges = 1;
   state.saved = false;
   progress = evaluateMissionTwo(state);
   assert.equal(progress.objectiveStates['correct-switchport-configuration'], true);
@@ -68,7 +71,11 @@ test('Mission 2 distinguishes inspection before repair from verification after i
   assert.equal(progress.objectiveStates['verify-phone-operational'], true);
   assert.equal(progress.readyToSubmit, false);
 
+  state.configurationChanges = 2;
+  assert.equal(evaluateMissionTwo(state).objectiveStates['verify-phone-operational'], false);
+
   state.saved = true;
+  inspect(state);
   assert.equal(evaluateMissionTwo(state).readyToSubmit, true);
 });
 
@@ -76,6 +83,7 @@ test('Mission 2 derives phone operation from the complete interface state', () =
   const state = createMissionTwoState();
   inspect(state);
   state.interfaces['g0/12'].voiceVlan = '20';
+  state.configurationChanges = 1;
 
   for (const property of ['mode', 'accessVlan', 'shutdown', 'linkUp']) {
     const original = state.interfaces['g0/12'][property];
@@ -89,6 +97,7 @@ test('Mission 2 completion requires a post-repair inspection and save and awards
   const state = createMissionTwoState();
   inspect(state);
   state.interfaces['g0/12'].voiceVlan = '20';
+  state.configurationChanges = 1;
   state.saved = false;
   inspect(state);
 

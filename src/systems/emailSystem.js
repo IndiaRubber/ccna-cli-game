@@ -61,6 +61,19 @@ export function getAvailableEmails(state = GameState) {
   return emails.filter((email) => isEmailAvailable(email, state));
 }
 
+export function getNextActionableOffice4bTicket(state = GameState) {
+  const ticketIds = [
+    'ticket-office4b-observation',
+    'ticket-office4b',
+    'ticket-office4b-phone'
+  ];
+  const completedQuests = new Set(state.completedQuests ?? []);
+
+  return getAvailableEmails(state).find((email) =>
+    ticketIds.includes(email.id) && !completedQuests.has(email.missionId)
+  ) ?? null;
+}
+
 function isArchived(emailId) {
   const emailState = loadEmailState();
   return emailState.archivedEmailIds.includes(emailId);

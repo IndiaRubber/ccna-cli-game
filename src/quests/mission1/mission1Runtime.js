@@ -37,7 +37,8 @@ export function evaluateMissionOne(state) {
     objectiveStates['g012-mode-access'] &&
     objectiveStates['g012-access-vlan10'] &&
     objectiveStates['g012-description'] &&
-    objectiveStates.save;
+    objectiveStates.save &&
+    officePort.voiceVlan === null;
 
   return {
     officePort,
@@ -60,8 +61,8 @@ export function advanceMissionOne(state) {
 
   if (progress.phaseOneComplete) {
     state.questCompleted = true;
-    state.xp = Math.max(state.xp ?? 0, 100);
-    state.credits = Math.max(state.credits ?? 0, 25);
+    state.xp = (state.xp ?? 0) + 100;
+    state.credits = (state.credits ?? 0) + 25;
 
     return {
       type: MISSION_ONE_EVENTS.COMPLETED,

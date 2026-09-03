@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 
 import { emails } from '../src/data/emails.js';
 import {
+  getNextActionableOffice4bTicket,
   getAvailableEmails,
   isEmailAvailable
 } from '../src/systems/emailSystem.js';
@@ -48,6 +49,28 @@ test('Mission 0 is available first and unlocks the Mission 1 ticket', () => {
 
   assert.equal(isEmailAvailable(missionZeroDebrief, afterMissionZero), true);
   assert.equal(isEmailAvailable(missionOneTicket, afterMissionZero), true);
+  assert.equal(missionZeroTicket.notebookEntry, undefined);
+  assert.ok(missionZeroDebrief.notebookEntry);
+});
+
+test('the Office 4B map action advances to the next actionable ticket', () => {
+  assert.equal(getNextActionableOffice4bTicket({
+    currentQuestId: 'mission-0',
+    questCompleted: true,
+    completedQuests: ['mission-0']
+  }).id, 'ticket-office4b');
+
+  assert.equal(getNextActionableOffice4bTicket({
+    currentQuestId: 'mission-1',
+    questCompleted: true,
+    completedQuests: ['mission-0', 'mission-1']
+  }).id, 'ticket-office4b-phone');
+
+  assert.equal(getNextActionableOffice4bTicket({
+    currentQuestId: 'mission-2',
+    questCompleted: true,
+    completedQuests: ['mission-0', 'mission-1', 'mission-2']
+  }), null);
 });
 
 test('Mission 2 ticket follows Mission 1 and its debrief waits for Mission 2', () => {

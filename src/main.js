@@ -11,7 +11,7 @@ import './style.css';
 
 import { getMission } from './quests/missionRegistry.js';
 import { renderObjectiveStates, renderQuest } from './quests/questEngine.js';
-import { loadEmails, openEmail, resetEmailState } from './systems/emailSystem.js';
+import { getNextActionableOffice4bTicket, loadEmails, openEmail, resetEmailState } from './systems/emailSystem.js';
 import { heliosSay, heliosSayRandom } from './systems/helios.js';
 import { initDocsPanel, resetNotebook } from './ui/docsPanel.js';
 import {
@@ -718,9 +718,13 @@ if (missionToHomeButton) {
 
 if (mapOffice4bButton) {
   mapOffice4bButton.addEventListener('click', () => {
-    openEmail(activeMission.definition.id === 'mission-0'
-      ? 'ticket-office4b-observation'
-      : 'ticket-office4b');
+    const nextTicket = getNextActionableOffice4bTicket();
+
+    if (nextTicket) {
+      openEmail(nextTicket.id);
+    } else {
+      heliosSay('There are no actionable Office 4B tickets right now. A rare moment of administrative peace.');
+    }
   });
 }
 

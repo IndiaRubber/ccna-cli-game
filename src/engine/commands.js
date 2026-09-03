@@ -206,6 +206,27 @@ export function cmdSwitchportVoiceVlan(command) {
   };
 }
 
+export function cmdNoSwitchportVoiceVlan() {
+  if (GameState.mode !== 'interface') {
+    return { error: '% Command rejected: not in interface configuration mode.' };
+  }
+
+  const intf = GameState.interfaces[GameState.currentInterface];
+
+  if (!intf) {
+    return { error: '% No interface selected.' };
+  }
+
+  if (intf.voiceVlan !== null) {
+    intf.voiceVlan = null;
+    markConfigurationChanged();
+  }
+
+  return {
+    success: `Voice VLAN removed from ${getCurrentInterfaceLabel()}.`
+  };
+}
+
 export function cmdDescription(command) {
   if (GameState.mode !== 'interface') {
     return { error: '% Command rejected: not in interface configuration mode.' };
@@ -397,7 +418,8 @@ export function cmdShowRunningConfigInterface(command) {
     mode: intf.mode,
     accessVlan: intf.accessVlan,
     voiceVlan: intf.voiceVlan,
-    shutdown: intf.shutdown
+    shutdown: intf.shutdown,
+    configurationChanges: GameState.configurationChanges ?? 0
   });
 
   return renderInterfaceConfig(interfaceName, intf);
