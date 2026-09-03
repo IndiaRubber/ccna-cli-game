@@ -38,6 +38,8 @@ test('resetGameState restores a configured mission switch in place', () => {
   assert.equal(GameState.interfaces['g0/12'].description, 'Office 4B New Hire - Pending Setup');
   assert.equal(GameState.saved, false);
   assert.equal(GameState.configurationChanges, 0);
+  assert.ok(GameState.macAddressTable.length >= 15);
+  assert.equal(GameState.macAddressTable[0].interface, 'g0/2');
   assert.equal(GameState.questCompleted, false);
   assert.equal(GameState.xp, 0);
   assert.equal('hiddenObjectiveRevealed' in GameState, false);
@@ -94,4 +96,6 @@ test('restoreGameState keeps new factory fields when loading an older snapshot',
   assert.equal(GameState.interfaces['g0/12'].displayName, 'Gi1/0/12');
   assert.equal(GameState.interfaces['g0/12'].mediaType, '10/100/1000BaseTX');
   assert.equal(GameState.interfaces['g0/13'].displayName, 'Gi1/0/13');
+  assert.ok(GameState.macAddressTable.length >= 15);
+  assert.equal(GameState.macAddressTable[0].mac, '0011.2233.4402');
 });

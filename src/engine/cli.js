@@ -18,7 +18,8 @@ import {
   cmdShowVlanBrief,
   cmdShowRunningConfig,
   cmdShowRunningConfigInterface,
-  cmdShowInterfacesStatus
+  cmdShowInterfacesStatus,
+  cmdShowMacAddressTable
 } from './commands.js';
 import { GameState } from './state.js';
 
@@ -79,6 +80,20 @@ function normalizeCommand(command, mode = GameState.mode) {
           tokens.length === 3 && abbreviates(tokens[2], 'brief')
         )) {
           return 'show vlan brief';
+        }
+      }
+
+      if (abbreviates(tokens[1], 'mac')) {
+        if (tokens.length === 2 || (tokens.length === 3 && abbreviates(tokens[2], 'address-table'))) {
+          return 'show mac address-table';
+        }
+
+        if (
+          tokens.length === 5 &&
+          abbreviates(tokens[2], 'address-table') &&
+          (abbreviates(tokens[3], 'address') || abbreviates(tokens[3], 'interface') || abbreviates(tokens[3], 'vlan'))
+        ) {
+          return `show mac address-table ${tokens[3]} ${tokens[4]}`;
         }
       }
 
@@ -246,6 +261,7 @@ export function getInvalidCommandPosition(rawCommand, mode = GameState.mode) {
     if (
       !tokenMatches(spans[1], 'interfaces') &&
       !tokenMatches(spans[1], 'vlan') &&
+      !tokenMatches(spans[1], 'mac') &&
       !tokenMatches(spans[1], 'running-config')
     ) return spans[1].start;
 
@@ -261,6 +277,18 @@ export function getInvalidCommandPosition(rawCommand, mode = GameState.mode) {
       return tokenMatches(spans[2], 'brief')
         ? (spans[3]?.start ?? rawCommand.length)
         : spans[2].start;
+    }
+
+    if (tokenMatches(spans[1], 'mac')) {
+      if (!spans[2]) return rawCommand.length;
+      if (!tokenMatches(spans[2], 'address-table')) return spans[2].start;
+      if (!spans[3]) return rawCommand.length;
+      if (
+        !tokenMatches(spans[3], 'address') &&
+        !tokenMatches(spans[3], 'interface') &&
+        !tokenMatches(spans[3], 'vlan')
+      ) return spans[3].start;
+      return spans[4]?.start ?? rawCommand.length;
     }
 
     if (!spans[2]) return rawCommand.length;
@@ -451,6 +479,21 @@ export function runCommand(rawCommand) {
 
     if (printLines(output)) {
       commentOnCommand(command);
+    }
+
+    return;
+  }
+
+  if (lower === 'show mac address-table' || lower.startsWith('show mac address-table ')) {
+    const output = cmdShowMacAddressTable(command);
+
+    if (output?.error) {
+      printResult(output);
+    } else if (printLines(output)) {
+      if (typeof window.CiscoUI?.persistProgress === 'function') {
+        window.CiscoUI.persistProgress();
+      }
+      commentOnCommand('show mac address-table');
     }
 
     return;

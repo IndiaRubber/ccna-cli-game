@@ -84,6 +84,72 @@ test('show interfaces status records the switch observation used by Mission 0', 
   assert.equal(GameState.configurationChanges, 0);
 });
 
+test('show mac address-table displays the full table and records a snapshot', () => {
+  resetHarness();
+
+  runCommand('enable');
+  runCommand('show mac address-table');
+
+  assert.ok(output.includes('          Mac Address Table'));
+  assert.ok(output.some((line) => line.includes('0011.2233.4402')));
+  assert.equal(GameState.observations[0].type, 'mac-address-table');
+  assert.deepEqual(GameState.observations[0].query, { kind: 'all', value: null });
+  assert.ok(GameState.observations[0].entries.length > 5);
+  assert.equal(GameState.observations[0].entries[0].interface, 'g0/2');
+  assert.ok(output.some((line) => line.includes('Gi1/0/2')));
+});
+
+test('MAC table filters accept MAC formats, interfaces, and VLANs', () => {
+  resetHarness();
+
+  runCommand('enable');
+  runCommand('show mac add address 00:11:22:33:44:02');
+  assert.equal(GameState.observations[0].query.kind, 'address');
+  assert.equal(GameState.observations[0].query.value, '0011.2233.4402');
+  assert.equal(GameState.observations[0].entries.length, 1);
+
+  for (const mac of ['0011-2233-4402', '001122334402', '0011.2233.4402']) {
+    resetHarness();
+    runCommand('enable');
+    runCommand(`show mac address-table address ${mac}`);
+    assert.equal(GameState.observations[0].entries.length, 1);
+  }
+
+  resetHarness();
+  runCommand('enable');
+  runCommand('show mac address-table interface g1/0/2');
+  assert.deepEqual(GameState.observations[0].query, { kind: 'interface', value: 'g0/2' });
+  assert.equal(GameState.observations[0].entries.length, 2);
+
+  resetHarness();
+  runCommand('enable');
+  runCommand('show mac address-table vlan 20');
+  assert.deepEqual(GameState.observations[0].query, { kind: 'vlan', value: '20' });
+  assert.ok(GameState.observations[0].entries.every((entry) => entry.vlan === '20'));
+});
+
+test('MAC table rejects invalid filters and preserves observed entry snapshots', () => {
+  resetHarness();
+
+  runCommand('enable');
+  runCommand('show mac address-table');
+  const observedEntry = GameState.observations[0].entries[0];
+  assert.equal(observedEntry.mac, '0011.2233.4402');
+
+  GameState.macAddressTable[0].mac = 'ffff.ffff.ffff';
+  assert.equal(observedEntry.mac, '0011.2233.4402');
+
+  runCommand('show mac address-table address 0011.2233.4455');
+  assert.equal(GameState.observations[1].entries.length, 0);
+  assert.ok(output.some((line) => line.includes('Mac Address Table')));
+
+  runCommand('show mac address-table address invalid-mac');
+  runCommand('show mac address-table interface gi1/0/99');
+  assert.ok(output.some((line) => line.includes('Invalid MAC address')));
+  assert.ok(output.some((line) => line.includes('Invalid interface type and number')));
+  assert.equal(GameState.observations.length, 2);
+});
+
 test('shorthand interface names work but nonexistent ports are rejected', () => {
   resetHarness();
 
@@ -303,6 +369,10 @@ test('invalid command caret points at the first unrecognized command segment', (
 
 test('tab completion resolves unique Cisco-style command prefixes', () => {
   assert.equal(getAutocomplete('sh int', 'privileged'), 'show interfaces status');
+  assert.equal(
+    getAutocomplete('show mac address-table ad', 'privileged'),
+    'show mac address-table address'
+  );
   assert.equal(getAutocomplete('sh ru int', 'privileged'), 'show running-config interface');
   assert.equal(getAutocomplete('conf t', 'privileged'), 'configure terminal');
   assert.equal(getAutocomplete('sw vo', 'interface'), 'switchport voice vlan');

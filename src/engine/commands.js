@@ -22,6 +22,14 @@ export function normalizeInterfaceName(input = '') {
   return `g0/${portNumber}`;
 }
 
+export function normalizeMacAddress(input = '') {
+  const compact = String(input).toLowerCase().replace(/[.:-]/g, '');
+
+  if (!/^[0-9a-f]{12}$/.test(compact)) return null;
+
+  return compact.match(/.{4}/g).join('.');
+}
+
 export function cmdEnable() {
   if (GameState.mode === 'user') {
     GameState.mode = 'privileged';
@@ -339,6 +347,58 @@ export function cmdShowVlanBrief() {
   }
 
   return lines;
+}
+
+function formatMacTableEntry(entry) {
+  const intf = GameState.interfaces?.[entry.interface];
+  return `${String(entry.vlan).padStart(4)}    ${entry.mac.padEnd(18)} ${entry.type.padEnd(11)} ${intf?.displayName || entry.interface}`;
+}
+
+export function cmdShowMacAddressTable(command) {
+  if (GameState.mode === 'user') return null;
+
+  const tokens = command.trim().split(/\s+/);
+  const kind = tokens[3] || 'all';
+  const rawValue = tokens[4];
+  let value = rawValue;
+
+  if (kind === 'address') {
+    value = normalizeMacAddress(rawValue);
+    if (!value) return { error: `% Invalid MAC address: ${rawValue || ''}` };
+  }
+
+  if (kind === 'interface') {
+    value = normalizeInterfaceName(rawValue);
+    if (!value) return { error: `% Invalid interface type and number: ${rawValue || ''}` };
+  }
+
+  if (kind === 'vlan' && (!/^\d+$/.test(value || '') || Number(value) < 1 || Number(value) > 4094)) {
+    return { error: '% Invalid VLAN ID. Valid range is 1-4094.' };
+  }
+
+  const table = GameState.macAddressTable ?? [];
+  const entries = table.filter((entry) => {
+    if (kind === 'address') return entry.mac === value;
+    if (kind === 'interface') return entry.interface === value;
+    if (kind === 'vlan') return String(entry.vlan) === value;
+    return true;
+  }).map((entry) => ({ ...entry }));
+
+  if (!Array.isArray(GameState.observations)) GameState.observations = [];
+  GameState.observations.push({
+    type: 'mac-address-table',
+    query: { kind, value: kind === 'all' ? null : value },
+    entries: entries.map((entry) => ({ ...entry }))
+  });
+
+  return [
+    '          Mac Address Table',
+    '-------------------------------------------',
+    '',
+    'Vlan    Mac Address       Type        Ports',
+    '----    -----------       --------    -----',
+    ...entries.map(formatMacTableEntry)
+  ];
 }
 
 export function cmdShowRunningConfig() {
