@@ -19,7 +19,10 @@ import {
   cmdShowRunningConfig,
   cmdShowRunningConfigInterface,
   cmdShowInterfacesStatus,
-  cmdShowMacAddressTable
+  cmdShowMacAddressTable,
+  cmdShowPowerInline,
+  cmdShowEnvironment,
+  cmdPowerInline
 } from './commands.js';
 import { GameState } from './state.js';
 
@@ -97,6 +100,20 @@ function normalizeCommand(command, mode = GameState.mode) {
         }
       }
 
+      if (abbreviates(tokens[1], 'power') && tokens.length >= 3 && abbreviates(tokens[2], 'inline')) {
+        if (tokens.length === 3) return 'show power inline';
+        if (tokens.length === 4) return `show power inline ${tokens[3]}`;
+        if (tokens.length === 5 && abbreviates(tokens[3], 'interface')) {
+          return `show power inline interface ${tokens[4]}`;
+        }
+      }
+
+      if (abbreviates(tokens[1], 'environment')) {
+        if (tokens.length === 2 || (tokens.length === 3 && abbreviates(tokens[2], 'all'))) {
+          return 'show environment';
+        }
+      }
+
       if (abbreviates(tokens[1], 'running-config', 1)) {
         if (tokens.length === 2) return 'show running-config';
         if (
@@ -161,6 +178,14 @@ function normalizeCommand(command, mode = GameState.mode) {
     if (matches(tokens, ['no', 'shutdown'])) return 'no shutdown';
     if (tokens.length === 1 && abbreviates(tokens[0], 'shutdown', 2)) {
       return 'shutdown';
+    }
+    if (
+      tokens.length === 3 &&
+      abbreviates(tokens[0], 'power') &&
+      abbreviates(tokens[1], 'inline') &&
+      (abbreviates(tokens[2], 'auto') || abbreviates(tokens[2], 'never'))
+    ) {
+      return `power inline ${tokens[2]}`;
     }
   }
 
@@ -291,6 +316,18 @@ export function getInvalidCommandPosition(rawCommand, mode = GameState.mode) {
       return spans[4]?.start ?? rawCommand.length;
     }
 
+    if (tokenMatches(spans[1], 'power')) {
+      if (!spans[2]) return rawCommand.length;
+      if (!tokenMatches(spans[2], 'inline')) return spans[2].start;
+      return spans[3]?.start ?? rawCommand.length;
+    }
+
+    if (tokenMatches(spans[1], 'environment')) {
+      return tokenMatches(spans[2], 'all')
+        ? (spans[3]?.start ?? rawCommand.length)
+        : (spans[2]?.start ?? rawCommand.length);
+    }
+
     if (!spans[2]) return rawCommand.length;
     if (!tokenMatches(spans[2], 'interface')) return spans[2].start;
     return spans[3]?.start ?? rawCommand.length;
@@ -324,12 +361,18 @@ export function getInvalidCommandPosition(rawCommand, mode = GameState.mode) {
     return spans[3]?.start ?? rawCommand.length;
   }
 
+  if (mode === 'interface' && tokenMatches(first, 'power')) {
+    if (!spans[1]) return rawCommand.length;
+    if (!tokenMatches(spans[1], 'inline')) return spans[1].start;
+    return spans[2]?.start ?? rawCommand.length;
+  }
+
   const knownRoots = mode === 'global'
     ? ['hostname', 'vlan', 'interface', 'exit', 'end', 'help']
     : mode === 'vlan'
       ? ['name', 'exit', 'end', 'help']
       : mode === 'interface'
-        ? ['description', 'exit', 'end', 'switchport', 'shutdown', 'no', 'help']
+        ? ['description', 'exit', 'end', 'switchport', 'shutdown', 'power', 'no', 'help']
         : ['enable', 'configure', 'copy', 'write', 'exit', 'end', 'help', 'show'];
 
   return knownRoots.some((root) => tokenMatches(first, root, root === 'exit' ? 2 : 1))
@@ -407,6 +450,14 @@ export function getContextualHelp(rawCommand, mode) {
       tokens[3] === '?'
     ) {
       return ['  <1-4094>  Voice VLAN ID'];
+    }
+
+    if (tokens.length === 2 && abbreviates(tokens[0], 'power') && tokens[1] === '?') {
+      return ['  inline  Configure inline power'];
+    }
+
+    if (tokens.length === 3 && abbreviates(tokens[0], 'power') && abbreviates(tokens[1], 'inline') && tokens[2] === '?') {
+      return ['  auto    Enable inline power', '  never   Disable inline power'];
     }
   }
 
@@ -494,6 +545,31 @@ export function runCommand(rawCommand) {
         window.CiscoUI.persistProgress();
       }
       commentOnCommand('show mac address-table');
+    }
+
+    return;
+  }
+
+  if (lower === 'show power inline' || lower.startsWith('show power inline ')) {
+    const output = cmdShowPowerInline(command);
+
+    if (output?.error) {
+      printResult(output);
+    } else if (printLines(output)) {
+      if (typeof window.CiscoUI?.persistProgress === 'function') {
+        window.CiscoUI.persistProgress();
+      }
+      commentOnCommand('show power inline');
+    }
+
+    return;
+  }
+
+  if (lower === 'show environment') {
+    const output = cmdShowEnvironment();
+
+    if (printLines(output)) {
+      commentOnCommand('show environment');
     }
 
     return;
@@ -626,6 +702,17 @@ export function runCommand(rawCommand) {
 
   if (lower === 'shutdown') {
     const result = cmdShutdown();
+
+    if (printResult(result)) {
+      updateObjectivesSafely();
+      commentOnCommand(command);
+    }
+
+    return;
+  }
+
+  if (lower === 'power inline auto' || lower === 'power inline never') {
+    const result = cmdPowerInline(command);
 
     if (printResult(result)) {
       updateObjectivesSafely();

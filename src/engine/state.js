@@ -13,6 +13,7 @@ export function restoreGameState(savedState) {
 
   const freshState = createD8SW1();
   const savedInterfaces = savedState.interfaces ?? {};
+  const savedInlinePower = savedState.inlinePower ?? [];
   const restoredInterfaces = Object.fromEntries(
     Object.entries(freshState.interfaces).map(([name, freshInterface]) => [
       name,
@@ -33,6 +34,14 @@ export function restoreGameState(savedState) {
     vlans: {
       ...freshState.vlans,
       ...(savedState.vlans ?? {})
+    },
+    inlinePower: freshState.inlinePower.map((entry) => ({
+      ...entry,
+      ...(savedInlinePower.find((savedEntry) => savedEntry.interface === entry.interface) ?? {})
+    })),
+    environment: {
+      ...freshState.environment,
+      ...(savedState.environment ?? {})
     },
     interfaces: restoredInterfaces
   };

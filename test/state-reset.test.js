@@ -58,8 +58,9 @@ test('a saved device and mission snapshot can be restored', () => {
   GameState.hiddenObjectiveRevealed = true;
   GameState.ticketSubmitted = true;
   GameState.rank = 'Helpdesk Refugee';
-  GameState.currentQuestId = 'mission-4';
   GameState.mission4ScenarioPrepared = true;
+  GameState.currentQuestId = 'mission-5';
+  GameState.mission5ScenarioPrepared = true;
 
   const snapshot = createGameStateSnapshot();
 
@@ -77,8 +78,9 @@ test('a saved device and mission snapshot can be restored', () => {
   assert.equal(GameState.hiddenObjectiveRevealed, true);
   assert.equal(GameState.ticketSubmitted, true);
   assert.equal(GameState.rank, 'Helpdesk Refugee');
-  assert.equal(GameState.currentQuestId, 'mission-4');
+  assert.equal(GameState.currentQuestId, 'mission-5');
   assert.equal(GameState.mission4ScenarioPrepared, true);
+  assert.equal(GameState.mission5ScenarioPrepared, true);
 });
 
 test('restoreGameState keeps new factory fields when loading an older snapshot', () => {

@@ -12,6 +12,7 @@ import './style.css';
 import { getMission } from './quests/missionRegistry.js';
 import { prepareMissionThreeScenario } from './quests/mission3/mission3Runtime.js';
 import { prepareMissionFourScenario } from './quests/mission4/mission4Runtime.js';
+import { prepareMissionFiveScenario } from './quests/mission5/mission5Runtime.js';
 import { renderObjectiveStates, renderQuest } from './quests/questEngine.js';
 import { archiveMissionEmails, getNextActionableOffice4bTicket, loadEmails, openEmail, resetEmailState } from './systems/emailSystem.js';
 import { heliosSay, heliosSayRandom } from './systems/helios.js';
@@ -102,6 +103,9 @@ function showHelp() {
   print('  show mac address-table address MAC');
   print('  show mac address-table interface INTERFACE');
   print('  show mac address-table vlan VLAN');
+  print('  show power inline');
+  print('  show power inline INTERFACE');
+  print('  show environment');
   print('  show running-config');
   print('  show running-config interface gi1/0/12');
   print('  copy running-config startup-config');
@@ -428,6 +432,9 @@ function activateMission(missionId, options = {}) {
   activeMission = mission;
   GameState.currentQuestId = mission.definition.id;
   GameState.currentQuestName = mission.definition.name;
+  GameState.mode = 'user';
+  GameState.currentInterface = null;
+  GameState.currentVlan = null;
   GameState.questCompleted = false;
   GameState.observations = [];
   GameState.hintLevel = 0;
@@ -439,6 +446,9 @@ function activateMission(missionId, options = {}) {
   }
   if (missionId === 'mission-4') {
     prepareMissionFourScenario(GameState);
+  }
+  if (missionId === 'mission-5') {
+    prepareMissionFiveScenario(GameState);
   }
 
   saveProgressToLocalStorage();
@@ -457,6 +467,13 @@ function activateMission(missionId, options = {}) {
   if (missionId === 'mission-3') {
     heliosSay(
       'Facilities moved the printer without moving its switchport configuration. Before building anything from memory, find the old known-good port and compare it with the new connection.',
+      'ai-message'
+    );
+  }
+
+  if (missionId === 'mission-5') {
+    heliosSay(
+      'The front camera is still online, which makes a total switch failure less fashionable as a theory.',
       'ai-message'
     );
   }
