@@ -27,6 +27,7 @@ export const mission4 = {
   notes: [
     'Switch: D8SW1',
     'Scanner MAC: 00aa.bbcc.dd21',
-    'The scanner should remain operational on access VLAN 10.'
+    'The scanner should remain operational on access VLAN 10.',
+    'The final interface description must include both warehouse and scanner.'
   ]
 };

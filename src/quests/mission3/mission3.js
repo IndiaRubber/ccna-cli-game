@@ -33,6 +33,7 @@ export const mission3 = {
     'Switch: D8SW1',
     'Use interface status and descriptions to identify the moved printer connection.',
        'Printer network: PRINTER VLAN 15 (already present on D8SW1)',
+     'The new port description must include printer and one location term: records, annex, or office.',
     'After confirming the move, shut down the abandoned old port Gi1/0/6.'
   ]
 };

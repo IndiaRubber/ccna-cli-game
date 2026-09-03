@@ -26,6 +26,7 @@ export const mission0 = {
   notes: [
     'Switch: D8SW1',
     'Location: IDF-3A',
-    'Assignment: verify the physical Office 4B connection before activation.'
+    'Assignment: verify the physical Office 4B connection before activation.',
+    'The observed interface description must mention Office 4B.'
   ]
 };
