@@ -271,6 +271,7 @@ export function createD8SW1() {
     configurationChanges: 0,
     mission3ScenarioPrepared: false,
     mission4ScenarioPrepared: false,
+    mission5ScenarioPrepared: false,
     saved: false,
     xp: 0,
     questCompleted: false

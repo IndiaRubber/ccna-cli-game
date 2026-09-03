@@ -465,6 +465,78 @@ show mac address-table interface &lt;interface&gt;</code></pre>
   },
 
   {
+    id: 'ticket-rear-door-camera',
+    missionId: 'mission-5',
+    unlockAfterQuest: 'mission-4',
+    from: 'Security Operations',
+    subject: 'Ticket: Rear Door Camera Offline',
+    preview: 'One camera is down. The neighboring one is not.',
+    heliosMessage:
+      'The front camera is still online, which makes a total switch failure less fashionable as a theory.',
+    body: `
+      <p>
+        Security reports that the rear-door camera is unreachable. The front-door camera remains operational,
+        and Facilities confirms the rear camera is still physically connected to D8SW1.
+      </p>
+
+      <p>
+        Please confirm that D8SW1 itself is healthy, determine why the rear camera is offline, restore service,
+        verify power and connectivity, and save the configuration. The camera's Ethernet configuration should
+        be treated as working unless your evidence shows otherwise.
+      </p>
+
+      <p>Ticket priority: High.</p>
+
+      <button id="email-start-ticket-button" class="email-action-button">
+        Open Terminal for This Ticket
+      </button>
+    `
+  },
+
+  {
+    id: 'mission5-debrief',
+    unlockAfterQuest: 'mission-5',
+    from: 'Mara Voss — Network Administration',
+    subject: 'RE: Rear Door Camera — Service Restored',
+    preview: 'The switch was healthy. The port simply stopped providing power.',
+    heliosMessage:
+      'The switch itself was healthy, and the smallest interface-level correction restored the camera.',
+    body: `
+      <p>
+        You confirmed the switch environment was healthy, compared the working front camera with the rear camera,
+        and found that the rear port's PoE delivery had been disabled. Restoring automatic inline power brought the
+        camera back online without changing its VLAN or other interface settings.
+      </p>
+
+      <p>
+        This is a useful Layer 1 reminder: a powered Ethernet endpoint can disappear when its network connection
+        remains physically present but no longer supplies electrical power.
+      </p>
+    `,
+    notebookEntry: {
+      id: 'poe-troubleshooting-reference',
+      title: 'PoE Troubleshooting Reference',
+      body: `
+        <p>
+          PoE means Power over Ethernet. Phones, access points, cameras, and other endpoints may receive electrical
+          power through the same Ethernet connection that carries their data.
+        </p>
+
+        <pre><code>show power inline
+show power inline &lt;interface&gt;
+power inline auto
+power inline never
+show environment</code></pre>
+
+        <p>
+          <strong>Admin</strong> is the configured PoE behavior. <strong>Oper</strong> is the actual delivery state.
+          Admin <code>never</code>, Oper <code>off</code>, and 0 watts can explain why a PoE-dependent endpoint is offline.
+        </p>
+      `
+    }
+  },
+
+  {
     id: 'postmission-corporate-survey',
     unlockAfterQuest: 'mission-1',
     from: 'People Operations',

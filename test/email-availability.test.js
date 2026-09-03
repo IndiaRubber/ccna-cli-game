@@ -19,6 +19,8 @@ const missionThreeTicket = emails.find((email) => email.id === 'ticket-relocated
 const missionThreeDebrief = emails.find((email) => email.id === 'mission3-debrief');
 const missionFourTicket = emails.find((email) => email.id === 'ticket-warehouse-endpoint');
 const missionFourDebrief = emails.find((email) => email.id === 'mission4-debrief');
+const missionFiveTicket = emails.find((email) => email.id === 'ticket-rear-door-camera');
+const missionFiveDebrief = emails.find((email) => email.id === 'mission5-debrief');
 
 test('post-mission email remains hidden before Mission 1 is complete', () => {
   const state = {
@@ -125,6 +127,22 @@ test('Mission 4 ticket follows Mission 3 and its debrief waits for Mission 4', (
     completedQuests: ['mission-0', 'mission-1', 'mission-2', 'mission-3']
   }), false);
   assert.ok(missionFourDebrief.notebookEntry);
+});
+
+test('Mission 5 ticket follows Mission 4 and its debrief waits for Mission 5', () => {
+  assert.equal(isEmailAvailable(missionFiveTicket, {
+    currentQuestId: 'mission-4',
+    questCompleted: true,
+    completedQuests: ['mission-0', 'mission-1', 'mission-2', 'mission-3', 'mission-4']
+  }), true);
+  assert.match(missionFiveTicket.body, /rear-door camera/i);
+  assert.doesNotMatch(missionFiveTicket.body, /power inline never/i);
+  assert.equal(isEmailAvailable(missionFiveDebrief, {
+    currentQuestId: 'mission-5',
+    questCompleted: false,
+    completedQuests: ['mission-0', 'mission-1', 'mission-2', 'mission-3', 'mission-4']
+  }), false);
+  assert.ok(missionFiveDebrief.notebookEntry);
 });
 
 test('completing a mission archives its ticket but leaves the debrief available', () => {
