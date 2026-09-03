@@ -10,8 +10,9 @@ import { createTerminal } from './ui/terminal.js';
 import './style.css';
 
 import { getMission } from './quests/missionRegistry.js';
+import { prepareMissionThreeScenario } from './quests/mission3/mission3Runtime.js';
 import { renderObjectiveStates, renderQuest } from './quests/questEngine.js';
-import { getNextActionableOffice4bTicket, loadEmails, openEmail, resetEmailState } from './systems/emailSystem.js';
+import { archiveMissionEmails, getNextActionableOffice4bTicket, loadEmails, openEmail, resetEmailState } from './systems/emailSystem.js';
 import { heliosSay, heliosSayRandom } from './systems/helios.js';
 import { initDocsPanel, resetNotebook } from './ui/docsPanel.js';
 import {
@@ -306,6 +307,7 @@ function handleTicketButtonClick() {
     }
 
     saveProgressToLocalStorage();
+    archiveMissionEmails(activeMission.definition.id);
     updateHomeSummary();
 
     showMissionCompletionModal();
@@ -422,6 +424,10 @@ function activateMission(missionId) {
   delete GameState.hiddenObjectiveRevealed;
   delete GameState.ticketSubmitted;
 
+  if (missionId === 'mission-3') {
+    prepareMissionThreeScenario(GameState);
+  }
+
   saveProgressToLocalStorage();
   renderMissionState();
 
@@ -431,6 +437,13 @@ function activateMission(missionId) {
   if (missionId === 'mission-2') {
     heliosSay(
       'The workstation is online, so the physical link and data configuration are probably not our first suspects.',
+      'ai-message'
+    );
+  }
+
+  if (missionId === 'mission-3') {
+    heliosSay(
+      'Facilities moved the printer without moving its switchport configuration. Before building anything from memory, find the old known-good port and compare it with the new connection.',
       'ai-message'
     );
   }

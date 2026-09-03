@@ -415,6 +415,7 @@ export function cmdShowRunningConfigInterface(command) {
   GameState.observations.push({
     type: 'interface-config',
     interfaceName,
+    description: intf.description,
     mode: intf.mode,
     accessVlan: intf.accessVlan,
     voiceVlan: intf.voiceVlan,
@@ -437,7 +438,8 @@ export function cmdShowInterfacesStatus() {
         linkUp: intf.linkUp,
         shutdown: intf.shutdown,
         mode: intf.mode,
-        accessVlan: intf.accessVlan
+        accessVlan: intf.accessVlan,
+        voiceVlan: intf.voiceVlan
       }])
     )
   });

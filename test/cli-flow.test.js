@@ -149,6 +149,7 @@ test('interface running-config inspection records the observed network state', (
   assert.deepEqual(GameState.observations[0], {
     type: 'interface-config',
     interfaceName: 'g0/12',
+    description: 'Office 4B New Hire - Pending Setup',
     mode: null,
     accessVlan: '1',
     voiceVlan: null,

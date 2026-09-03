@@ -5,12 +5,14 @@ import { createD8SW1 } from '../src/devices/catalyst2960x.js';
 import { advanceMissionZero } from '../src/quests/mission0/mission0Runtime.js';
 import { advanceMissionOne } from '../src/quests/mission1/mission1Runtime.js';
 import { advanceMissionTwo } from '../src/quests/mission2/mission2Runtime.js';
+import { advanceMissionThree, prepareMissionThreeScenario } from '../src/quests/mission3/mission3Runtime.js';
 
-function inspectInterface(state) {
-  const port = state.interfaces['g0/12'];
+function inspectInterface(state, interfaceName = 'g0/12') {
+  const port = state.interfaces[interfaceName];
   state.observations.push({
     type: 'interface-config',
-    interfaceName: 'g0/12',
+    interfaceName,
+    description: port.description,
     mode: port.mode,
     accessVlan: port.accessVlan,
     voiceVlan: port.voiceVlan,
@@ -19,7 +21,7 @@ function inspectInterface(state) {
   });
 }
 
-test('the complete Mission 0-2 campaign awards 250 XP and 60 credits exactly once', () => {
+test('the complete Mission 0-3 campaign awards 350 XP and 85 credits exactly once', () => {
   const state = createD8SW1();
   state.currentQuestId = 'mission-0';
   state.observations.push({
@@ -58,6 +60,35 @@ test('the complete Mission 0-2 campaign awards 250 XP and 60 credits exactly onc
   advanceMissionTwo(state);
 
   assert.deepEqual([state.xp, state.credits], [250, 60]);
-  advanceMissionTwo(state);
-  assert.deepEqual([state.xp, state.credits], [250, 60]);
+
+  state.currentQuestId = 'mission-3';
+  state.questCompleted = false;
+  state.observations = [];
+  prepareMissionThreeScenario(state);
+  state.observations.push({
+    type: 'interfaces-status',
+    interfaces: {
+      'g0/6': {
+        linkUp: state.interfaces['g0/6'].linkUp,
+        shutdown: state.interfaces['g0/6'].shutdown
+      },
+      'g0/13': {
+        linkUp: state.interfaces['g0/13'].linkUp,
+        shutdown: state.interfaces['g0/13'].shutdown
+      }
+    }
+  });
+  inspectInterface(state, 'g0/6');
+  inspectInterface(state, 'g0/13');
+  state.interfaces['g0/13'].mode = 'access';
+  state.interfaces['g0/13'].accessVlan = '10';
+  state.interfaces['g0/13'].description = 'Records Printer';
+  state.configurationChanges += 1;
+  state.saved = true;
+  inspectInterface(state, 'g0/13');
+  advanceMissionThree(state);
+
+  assert.deepEqual([state.xp, state.credits], [350, 85]);
+  advanceMissionThree(state);
+  assert.deepEqual([state.xp, state.credits], [350, 85]);
 });

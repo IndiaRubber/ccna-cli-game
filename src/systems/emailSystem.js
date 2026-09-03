@@ -61,6 +61,23 @@ export function getAvailableEmails(state = GameState) {
   return emails.filter((email) => isEmailAvailable(email, state));
 }
 
+export function archiveMissionEmails(missionId) {
+  if (!missionId) return;
+
+  const missionEmailIds = emails
+    .filter((email) => email.missionId === missionId)
+    .map((email) => email.id);
+
+  if (missionEmailIds.length === 0) return;
+
+  const emailState = loadEmailState();
+  emailState.archivedEmailIds = [
+    ...new Set([...emailState.archivedEmailIds, ...missionEmailIds])
+  ];
+  saveEmailState(emailState);
+  loadEmails();
+}
+
 export function getNextActionableOffice4bTicket(state = GameState) {
   const ticketIds = [
     'ticket-office4b-observation',

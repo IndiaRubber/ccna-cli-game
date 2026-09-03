@@ -293,6 +293,65 @@ write memory</code></pre>
   },
 
   {
+    id: 'ticket-relocated-printer',
+    missionId: 'mission-3',
+    unlockAfterQuest: 'mission-2',
+    from: 'Facilities Support Queue',
+    subject: 'Ticket: Relocated Department Printer Offline',
+    preview: 'The printer moved. Its network configuration did not.',
+    heliosMessage:
+      'Facilities moved hardware without moving its network configuration. A timeless collaboration strategy.',
+    body: `
+      <p>
+        A department printer stopped working after an office move. Facilities confirms the printer is now connected
+        to a spare wall jack, but no network move request was submitted.
+      </p>
+
+      <p>
+        Inspect the switch to determine which printer port went offline and which spare connection is now active.
+        Use the old printer port as a known-good comparison before restoring service.
+      </p>
+
+      <p>Ticket priority: Medium.</p>
+
+      <button id="email-start-ticket-button" class="email-action-button">
+        Open Terminal for This Ticket
+      </button>
+    `
+  },
+
+  {
+    id: 'mission3-debrief',
+    unlockAfterQuest: 'mission-3',
+    from: 'Mara Voss — Network Administration',
+    subject: 'RE: Relocated Printer — Service Restored',
+    preview: 'The configuration stayed with the port, not the printer.',
+    heliosMessage:
+      'Printer service restored. The endpoint moved; the switchport configuration did not. This is why comparisons matter.',
+    body: `
+      <p>
+        You used the old known-good printer port as evidence, configured the new connection on DATA VLAN 10,
+        documented its location, verified the result, and saved the switch configuration.
+      </p>
+
+      <p>
+        The abandoned port remains configured for its former device. We will cover cleanup and unused-port protection
+        in a later exercise.
+      </p>
+    `,
+    notebookEntry: {
+      id: 'relocated-printer-workflow',
+      title: 'Relocated Printer Workflow',
+      body: `
+        <p>
+          Endpoint movement does not move switchport configuration. Inspect the disconnected old port, compare its
+          known-good settings with the newly connected port, then configure and verify the replacement.
+        </p>
+      `
+    }
+  },
+
+  {
     id: 'postmission-corporate-survey',
     unlockAfterQuest: 'mission-1',
     from: 'People Operations',

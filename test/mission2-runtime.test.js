@@ -51,6 +51,26 @@ test('Mission 2 requires investigation before remediation', () => {
   assert.equal(progress.readyToSubmit, false);
 });
 
+test('Mission 2 accepts a pre-remediation interface-status inspection as investigation', () => {
+  const state = createMissionTwoState();
+  state.observations.push({
+    type: 'interfaces-status',
+    interfaces: {
+      'g0/12': {
+        linkUp: true,
+        shutdown: false,
+        accessVlan: '10',
+        voiceVlan: null
+      }
+    }
+  });
+
+  assert.equal(evaluateMissionTwo(state).investigated, true);
+  state.interfaces['g0/12'].voiceVlan = '20';
+  state.configurationChanges = 1;
+  assert.equal(evaluateMissionTwo(state).objectiveStates['correct-switchport-configuration'], true);
+});
+
 test('Mission 2 distinguishes inspection before repair from verification after it', () => {
   const state = createMissionTwoState();
   inspect(state);

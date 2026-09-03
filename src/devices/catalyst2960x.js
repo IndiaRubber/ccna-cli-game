@@ -229,6 +229,7 @@ export function createD8SW1() {
     currentInterface: null,
     observations: [],
     configurationChanges: 0,
+    mission3ScenarioPrepared: false,
     saved: false,
     xp: 0,
     questCompleted: false

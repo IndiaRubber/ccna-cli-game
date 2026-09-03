@@ -9,8 +9,8 @@ function officePhoneIsOperational(port) {
   return Boolean(
     port &&
     port.mode === 'access' &&
-    port.accessVlan === '10' &&
-    port.voiceVlan === '20' &&
+    String(port.accessVlan) === '10' &&
+    String(port.voiceVlan) === '20' &&
     port.shutdown === false &&
     port.linkUp === true
   );
@@ -23,15 +23,17 @@ export function evaluateMissionTwo(state) {
       observation.type === 'interface-config' &&
       observation.interfaceName === 'g0/12'
   );
-  const investigated = inspections.some(
-    (observation) => observation.voiceVlan !== '20'
-  );
+  const investigated = inspections.some((observation) => String(observation.voiceVlan) !== '20') ||
+    (state.observations ?? []).some((observation) =>
+      observation.type === 'interfaces-status' &&
+      String(observation.interfaces?.['g0/12']?.voiceVlan) !== '20'
+    );
   const phoneOperational = officePhoneIsOperational(officePort);
   const verified = investigated && phoneOperational && inspections.some(
     (observation) =>
       observation.mode === 'access' &&
-      observation.accessVlan === '10' &&
-      observation.voiceVlan === '20' &&
+      String(observation.accessVlan) === '10' &&
+      String(observation.voiceVlan) === '20' &&
       observation.shutdown === false &&
       (observation.configurationChanges ?? 0) === (state.configurationChanges ?? 0)
   );
