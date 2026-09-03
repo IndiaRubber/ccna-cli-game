@@ -108,13 +108,56 @@ Do not guess your way through infrastructure changes. Read the ticket, inspect t
   }
 ];
 
+const missionZeroTutorialSteps = [
+  {
+    text:
+`First assignment workspace initialized.
+
+This is where you will inspect the facility's network equipment and record what you find. For this assignment, observation comes before configuration.`,
+    target: null,
+    cardPosition: 'center'
+  },
+  {
+    text:
+`This is the terminal. Commands ask the simulated switch what it can see, and the prompt shows where you are.
+
+Start with enable, then use show interfaces status to inspect the switch.`,
+    target: '#terminal',
+    cardPosition: 'nearTarget'
+  },
+  {
+    text:
+`The mission panel tracks what you need to discover.
+
+You are not being asked to change the switch yet. Find the Office 4B connection and confirm what the device reports.`,
+    target: '.panel',
+    cardPosition: 'leftTarget'
+  },
+  {
+    text:
+`HELIOS will help you read the output and reason from the evidence.
+
+If you need a reminder, check the Documentation pane or ask for another hint.`,
+    target: '#notes-panel',
+    cardPosition: 'topLeft'
+  },
+  {
+    text:
+`Professional habit:
+
+Before we touch anything, let's see what the switch thinks is happening. Nothing should be configured during this assignment.`,
+    target: null,
+    cardPosition: 'center'
+  }
+];
+
 
 let currentStepIndex = 0;
 let typingTimer = null;
 let activeTutorialSteps = tutorialSteps;
 let activeTutorialCompleteKey = TUTORIAL_COMPLETE_KEY;
 
-export function startMissionTutorial({ force = false } = {}) {
+export function startMissionTutorial({ force = false, missionId = null } = {}) {
   const alreadyComplete =
     localStorage.getItem(MISSION_TUTORIAL_COMPLETE_KEY) === 'true';
 
@@ -123,7 +166,9 @@ export function startMissionTutorial({ force = false } = {}) {
   }
 
   currentStepIndex = 0;
-  activeTutorialSteps = missionTutorialSteps;
+  activeTutorialSteps = missionId === 'mission-0'
+    ? missionZeroTutorialSteps
+    : missionTutorialSteps;
   activeTutorialCompleteKey = MISSION_TUTORIAL_COMPLETE_KEY;
 
   const overlay = document.getElementById('tutorial-overlay');
@@ -361,5 +406,4 @@ function completeTutorial() {
 
   localStorage.setItem(activeTutorialCompleteKey, 'true');
 }
-
 

@@ -21,7 +21,13 @@ export function renderQuest(quest, options = {}) {
   for (const objective of allObjectives) {
     const li = document.createElement('li');
     li.id = `obj-${objective.id}`;
-    li.textContent = objective.text;
+
+    const marker = document.createElement('span');
+    marker.className = 'objective-marker';
+    marker.textContent = '○';
+    marker.setAttribute('aria-hidden', 'true');
+    li.appendChild(marker);
+    li.appendChild(document.createTextNode(` ${objective.text}`));
 
     if (quest.hiddenObjectives?.some(hidden => hidden.id === objective.id)) {
       li.classList.add('hidden-objective');
@@ -60,6 +66,9 @@ export function renderObjectiveStates(objectiveStates, options = {}) {
 
     if (element) {
       element.classList.toggle('complete', isComplete);
+
+      const marker = element.querySelector('.objective-marker');
+      if (marker) marker.textContent = isComplete ? '✓' : '○';
     }
   }
 }

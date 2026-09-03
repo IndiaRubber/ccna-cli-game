@@ -1,5 +1,6 @@
 export const mission1 = {
   id: 'mission-1',
+  requires: 'mission-0',
   name: 'New Hire Port Activation',
   completionEmailId: 'mission1-debrief',
   completionMessage: 'New Hire Port Activation',

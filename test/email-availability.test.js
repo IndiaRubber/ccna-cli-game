@@ -8,6 +8,9 @@ import {
 } from '../src/systems/emailSystem.js';
 
 const debrief = emails.find((email) => email.id === 'mission1-debrief');
+const missionZeroTicket = emails.find((email) => email.id === 'ticket-office4b-observation');
+const missionZeroDebrief = emails.find((email) => email.id === 'mission0-debrief');
+const missionOneTicket = emails.find((email) => email.id === 'ticket-office4b');
 const missionTwoTicket = emails.find((email) => email.id === 'ticket-office4b-phone');
 const missionTwoDebrief = emails.find((email) => email.id === 'mission2-debrief');
 
@@ -23,6 +26,28 @@ test('post-mission email remains hidden before Mission 1 is complete', () => {
     getAvailableEmails(state).some((email) => email.id === debrief.id),
     false
   );
+});
+
+test('Mission 0 is available first and unlocks the Mission 1 ticket', () => {
+  assert.equal(isEmailAvailable(missionZeroTicket, {
+    currentQuestId: 'mission-0',
+    questCompleted: false,
+    completedQuests: []
+  }), true);
+  assert.equal(isEmailAvailable(missionOneTicket, {
+    currentQuestId: 'mission-0',
+    questCompleted: false,
+    completedQuests: []
+  }), false);
+
+  const afterMissionZero = {
+    currentQuestId: 'mission-0',
+    questCompleted: true,
+    completedQuests: ['mission-0']
+  };
+
+  assert.equal(isEmailAvailable(missionZeroDebrief, afterMissionZero), true);
+  assert.equal(isEmailAvailable(missionOneTicket, afterMissionZero), true);
 });
 
 test('Mission 2 ticket follows Mission 1 and its debrief waits for Mission 2', () => {

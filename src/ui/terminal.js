@@ -23,6 +23,13 @@ export function createTerminal({
   term.loadAddon(fitAddon);
   term.open(terminalElement);
 
+  term.attachCustomKeyEventHandler((event) => {
+    if (event.key === 'Tab' || event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+      event.preventDefault();
+    }
+    return true;
+  });
+
   requestAnimationFrame(() => {
     fitAddon.fit();
   });

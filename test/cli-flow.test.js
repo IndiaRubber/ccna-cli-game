@@ -68,6 +68,22 @@ test('player command flow configures and saves the Office 4B port', () => {
   assert.ok(output.includes('[OK]'));
 });
 
+test('show interfaces status records the switch observation used by Mission 0', () => {
+  resetHarness();
+
+  runCommand('enable');
+  runCommand('show interfaces status');
+
+  assert.equal(GameState.observations.length, 1);
+  assert.equal(GameState.observations[0].type, 'interfaces-status');
+  assert.equal(
+    GameState.observations[0].interfaces['g0/12'].description,
+    'Office 4B New Hire - Pending Setup'
+  );
+  assert.equal(GameState.observations[0].interfaces['g0/12'].linkUp, true);
+  assert.equal(GameState.configurationChanges, 0);
+});
+
 test('shorthand interface names work but nonexistent ports are rejected', () => {
   resetHarness();
 

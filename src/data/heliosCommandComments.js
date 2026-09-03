@@ -23,9 +23,9 @@ export const heliosCommandComments = {
   ],
 
   "show interfaces status": [
-    "This gives you a quick port-by-port summary: connected state, VLAN, speed, duplex, and description. A switch gossip report.",
+    "This gives you a quick port-by-port summary: connected state, speed, duplex, and description. A switch gossip report.",
     "Interface status is your map of the switchports. If a device moved, this is a good place to start asking uncomfortable questions.",
-    "This command helps identify which ports are connected, unused, or assigned to the wrong VLAN. Very rude of them."
+    "This command helps identify which ports are connected, unused, or worth investigating. Very rude of them."
   ],
 
   "show interfaces brief": [

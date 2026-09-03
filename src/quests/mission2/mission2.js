@@ -1,5 +1,6 @@
 export const mission2 = {
   id: 'mission-2',
+  requires: 'mission-1',
   name: 'Office 4B Phone Recovery',
   completionEmailId: 'mission2-debrief',
   completionMessage: 'Office 4B Phone Recovery',

@@ -25,10 +25,10 @@ import {
 // Quest / Terminal Setup
 // ----------------------------
 
-let activeMission = getMission('mission-1');
+let activeMission = getMission('mission-0');
 
 if (!activeMission) {
-  throw new Error('Mission 1 is not registered.');
+  throw new Error('Mission 0 is not registered.');
 }
 
 renderQuest(activeMission.definition);
@@ -144,7 +144,7 @@ function getDefaultSaveData() {
     schemaVersion: SAVE_SCHEMA_VERSION,
     hasSave: true,
     totalCredits: 0,
-    currentQuestId: 'mission-1',
+    currentQuestId: 'mission-0',
     currentQuestName: activeMission.definition.name,
     rank: 'Helpdesk Refugee',
     xp: 0,
@@ -183,7 +183,7 @@ function loadSaveData() {
       schemaVersion: parsedSave.schemaVersion ?? 0,
       hasSave: true,
       totalCredits: parsedSave.totalCredits ?? 0,
-      currentQuestId: parsedSave.currentQuestId ?? 'mission-1',
+      currentQuestId: parsedSave.currentQuestId ?? 'mission-0',
       currentQuestName: parsedSave.currentQuestName ?? getMission(parsedSave.currentQuestId)?.definition.name ?? activeMission.definition.name,
       rank: parsedSave.rank ?? 'Helpdesk Refugee',
       xp: parsedSave.xp ?? 0,
@@ -221,7 +221,7 @@ function saveProgressToLocalStorage() {
     schemaVersion: SAVE_SCHEMA_VERSION,
     hasSave: true,
     totalCredits: GameState.credits ?? existingSave.totalCredits ?? 0,
-    currentQuestId: GameState.currentQuestId ?? existingSave.currentQuestId ?? 'mission-1',
+    currentQuestId: GameState.currentQuestId ?? existingSave.currentQuestId ?? 'mission-0',
     currentQuestName: GameState.currentQuestName ?? existingSave.currentQuestName ?? activeMission.definition.name,
     rank: GameState.rank ?? existingSave.rank ?? 'Helpdesk Refugee',
     xp: GameState.xp ?? existingSave.xp ?? 0,
@@ -235,13 +235,13 @@ function saveProgressToLocalStorage() {
 
 function applySaveToGameState(saveData) {
   GameState.credits = saveData.totalCredits ?? 0;
-  GameState.currentQuestId = saveData.currentQuestId ?? 'mission-1';
+  GameState.currentQuestId = saveData.currentQuestId ?? 'mission-0';
   GameState.currentQuestName = saveData.currentQuestName ?? activeMission.definition.name;
   GameState.rank = saveData.rank ?? 'Helpdesk Refugee';
   GameState.xp = saveData.xp ?? 0;
   GameState.completedQuests = saveData.completedQuests ?? [];
 
-  activeMission = getMission(GameState.currentQuestId) ?? getMission('mission-1');
+  activeMission = getMission(GameState.currentQuestId) ?? getMission('mission-0');
   GameState.currentQuestId = activeMission.definition.id;
   GameState.currentQuestName = activeMission.definition.name;
 
@@ -308,13 +308,7 @@ function handleTicketButtonClick() {
     saveProgressToLocalStorage();
     updateHomeSummary();
 
-    print('');
-    print(`*** Quest Complete: ${activeMission.definition.completionMessage} ***`);
-    print(`+${activeMission.definition.rewardXp} XP`);
-    print(`+${activeMission.definition.rewardCredits} Credits`);
-
-    heliosSayRandom('missionComplete', 'ai-message');
-    showHomeScreen({ openEmailId: activeMission.definition.completionEmailId });
+    showMissionCompletionModal();
 
     return;
   }
@@ -369,6 +363,38 @@ const missionToHomeButton = document.getElementById('mission-to-home-button');
 const missionRank = document.getElementById('mission-rank');
 const missionCredits = document.getElementById('mission-credits');
 const questHintButton = document.getElementById('quest-hint-button');
+const ticketResolutionModal = document.getElementById('ticket-resolution-modal');
+const missionCompletionModal = document.getElementById('mission-completion-modal');
+const ticketResolutionNo = document.getElementById('ticket-resolution-no');
+const ticketResolutionYes = document.getElementById('ticket-resolution-yes');
+const missionCompletionHome = document.getElementById('mission-completion-home');
+
+function hideModal(modal) {
+  if (modal) modal.classList.add('hidden');
+}
+
+function showTicketResolutionModal() {
+  if (ticketResolutionModal) ticketResolutionModal.classList.remove('hidden');
+}
+
+function showMissionCompletionModal() {
+  const title = document.getElementById('mission-completion-title');
+  const message = document.getElementById('mission-completion-message');
+  const xp = document.getElementById('mission-completion-xp');
+  const credits = document.getElementById('mission-completion-credits');
+
+  if (title) title.textContent = activeMission.definition.completionMessage;
+  if (message) message.textContent = 'The ticket has been resolved and your progress has been saved.';
+  if (xp) xp.textContent = `+${activeMission.definition.rewardXp}`;
+  if (credits) credits.textContent = `+${activeMission.definition.rewardCredits}`;
+  if (missionCompletionModal) missionCompletionModal.classList.remove('hidden');
+
+  if (activeMission.definition.completionHeliosMessage) {
+    heliosSay(activeMission.definition.completionHeliosMessage, 'ai-message');
+  } else {
+    heliosSayRandom('missionComplete', 'ai-message');
+  }
+}
 
 function activateMission(missionId) {
   const mission = getMission(missionId);
@@ -381,8 +407,9 @@ function activateMission(missionId) {
     return;
   }
 
-  if (missionId === 'mission-2' && !completedQuests.has('mission-1')) {
-    heliosSay('Mission 2 is locked until the Office 4B workstation ticket is complete.');
+  const prerequisite = mission.definition.requires;
+  if (prerequisite && !completedQuests.has(prerequisite)) {
+    heliosSay(`That assignment is locked until ${getMission(prerequisite)?.definition.name ?? prerequisite} is complete.`);
     return;
   }
 
@@ -519,7 +546,7 @@ function showGameScreen() {
   requestAnimationFrame(() => {
     initializeTerminal();
 
-    startMissionTutorial();
+    startMissionTutorial({ missionId: activeMission.definition.id });
 
     setTimeout(() => {
       window.dispatchEvent(new Event('resize'));
@@ -596,6 +623,26 @@ if (ticketButton) {
   ticketButton.addEventListener('click', handleTicketButtonClick);
 }
 
+if (ticketResolutionNo) {
+  ticketResolutionNo.addEventListener('click', () => {
+    hideModal(ticketResolutionModal);
+  });
+}
+
+if (ticketResolutionYes) {
+  ticketResolutionYes.addEventListener('click', () => {
+    hideModal(ticketResolutionModal);
+    handleTicketButtonClick();
+  });
+}
+
+if (missionCompletionHome) {
+  missionCompletionHome.addEventListener('click', () => {
+    hideModal(missionCompletionModal);
+    showHomeScreen({ openEmailId: activeMission.definition.completionEmailId });
+  });
+}
+
 if (questHintButton) {
   questHintButton.addEventListener('click', () => {
     const hints = activeMission.definition.hints ?? [activeMission.definition.hint];
@@ -661,13 +708,19 @@ if (homeToLaunchButton) {
 
 if (missionToHomeButton) {
   missionToHomeButton.addEventListener('click', () => {
-    showHomeScreen();
+    if (GameState.questCompleted) {
+      showHomeScreen();
+    } else {
+      showTicketResolutionModal();
+    }
   });
 }
 
 if (mapOffice4bButton) {
   mapOffice4bButton.addEventListener('click', () => {
-    openEmail('ticket-office4b');
+    openEmail(activeMission.definition.id === 'mission-0'
+      ? 'ticket-office4b-observation'
+      : 'ticket-office4b');
   });
 }
 

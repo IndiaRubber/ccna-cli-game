@@ -37,6 +37,7 @@ test('resetGameState restores a configured mission switch in place', () => {
   assert.equal(GameState.interfaces['g0/12'].voiceVlan, null);
   assert.equal(GameState.interfaces['g0/12'].description, 'Office 4B New Hire - Pending Setup');
   assert.equal(GameState.saved, false);
+  assert.equal(GameState.configurationChanges, 0);
   assert.equal(GameState.questCompleted, false);
   assert.equal(GameState.xp, 0);
   assert.equal('hiddenObjectiveRevealed' in GameState, false);

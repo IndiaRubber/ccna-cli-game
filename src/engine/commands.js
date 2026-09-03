@@ -2,6 +2,7 @@ import { GameState } from './state.js';
 
 function markConfigurationChanged() {
   GameState.saved = false;
+  GameState.configurationChanges = (GameState.configurationChanges ?? 0) + 1;
 }
 
 function getCurrentInterfaceLabel() {
@@ -404,6 +405,20 @@ export function cmdShowRunningConfigInterface(command) {
 
 export function cmdShowInterfacesStatus() {
   if (GameState.mode === 'user') return null;
+
+  if (!Array.isArray(GameState.observations)) GameState.observations = [];
+  GameState.observations.push({
+    type: 'interfaces-status',
+    interfaces: Object.fromEntries(
+      Object.entries(GameState.interfaces || {}).map(([name, intf]) => [name, {
+        description: intf.description,
+        linkUp: intf.linkUp,
+        shutdown: intf.shutdown,
+        mode: intf.mode,
+        accessVlan: intf.accessVlan
+      }])
+    )
+  });
 
   const lines = [];
 

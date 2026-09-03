@@ -429,6 +429,9 @@ export function runCommand(rawCommand) {
     const output = cmdShowInterfacesStatus();
 
     if (printLines(output)) {
+      if (typeof window.CiscoUI?.persistProgress === 'function') {
+        window.CiscoUI.persistProgress();
+      }
       commentOnCommand(command);
     }
 

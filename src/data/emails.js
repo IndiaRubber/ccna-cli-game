@@ -23,6 +23,7 @@ export const emails = [
 
   {
     id: 'training',
+    unlockAfterQuest: 'mission-0',
     from: 'HELIOS-CLI',
     subject: 'Training Brief: Switch Access Ports',
     preview: 'Useful commands for your first assignment.',
@@ -88,6 +89,7 @@ write memory</code></pre>
   {
     id: 'ticket-office4b',
     missionId: 'mission-1',
+    unlockAfterQuest: 'mission-0',
     from: 'Helpdesk Queue',
     subject: 'Ticket: Office 4B New Hire Port',
     preview: 'User reports workstation offline.',
@@ -116,6 +118,40 @@ write memory</code></pre>
   },
 
   {
+    id: 'ticket-office4b-observation',
+    missionId: 'mission-0',
+    from: 'Facilities Support Queue',
+    subject: 'Ticket: Verify Office 4B Connection',
+    preview: 'Confirm the physical switch connection before activation.',
+    heliosMessage:
+      'Before we touch anything, let\'s see what the switch thinks is happening.',
+    body: `
+      <p>
+        Facilities reports that the new workstation for Office 4B has been connected in IDF-3A.
+      </p>
+
+      <p>
+        Before anyone activates or changes the port, inspect D8SW1 and identify which switch interface is carrying
+        the Office 4B connection. Record the finding for the next technician.
+      </p>
+
+      <p>Ticket priority: Low.</p>
+
+      <button id="email-start-ticket-button" class="email-action-button">
+        Open Terminal for This Ticket
+      </button>
+    `,
+    notebookEntry: {
+      id: 'office4b-switch-connection',
+      title: 'Office 4B Switch Connection',
+      body: `
+        <p>Office 4B → D8SW1 → Gi1/0/12</p>
+        <p>Verified from the switch interface-status output before configuration.</p>
+      `
+    }
+  },
+
+  {
     id: 'corporate',
     from: 'Facilities',
     subject: 'Reminder: Do Not Block IDF Doors',
@@ -133,6 +169,27 @@ write memory</code></pre>
 
       <p>
         Thank you for your cooperation.
+      </p>
+    `
+  },
+
+  {
+    id: 'mission0-debrief',
+    unlockAfterQuest: 'mission-0',
+    from: 'Network Operations Training',
+    subject: 'RE: Office 4B Connection Verified',
+    preview: 'Nothing changed. That was the point.',
+    heliosMessage:
+      'Physical path verified. We learned what the switch sees before asking it to do anything new.',
+    body: `
+      <p>
+        You confirmed that Office 4B is physically connected through Gi1/0/12 on D8SW1.
+        No configuration changes were made during this check.
+      </p>
+
+      <p>
+        Keep the habit: observe first, understand what the device reports, then make the smallest change that solves
+        the actual ticket.
       </p>
     `
   },
