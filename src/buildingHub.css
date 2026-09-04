@@ -1,0 +1,432 @@
+.building-hub {
+  height: calc(100% - 44px);
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  place-items: center;
+  gap: 6px;
+  overflow: hidden;
+  background:
+    linear-gradient(rgba(56, 189, 248, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.018) 1px, transparent 1px),
+    radial-gradient(circle at 50% 18%, #111d2d 0, #070d17 64%);
+  background-size: 16px 16px;
+  border: 2px solid #263447;
+  box-shadow: inset 0 0 28px rgba(0, 0, 0, 0.72);
+  image-rendering: pixelated;
+}
+
+.building-hub-loading {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.building-stage {
+  position: relative;
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+  aspect-ratio: 48 / 35;
+  align-self: center;
+  justify-self: center;
+}
+
+.district-building {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.floor-labels text,
+.mdf-label {
+  fill: #d0d9e6;
+  font: 700 15px Consolas, "Courier New", monospace;
+  letter-spacing: 1px;
+  paint-order: stroke;
+  stroke: #07101c;
+  stroke-width: 1px;
+}
+
+.floor-labels > path:first-child {
+  fill: #0d1928;
+  stroke: #536276;
+}
+
+.mdf-label {
+  fill: #67e8f9;
+  font-size: 11px;
+}
+
+.ceiling-light {
+  filter: drop-shadow(0 3px 3px rgba(186, 230, 253, 0.28));
+  animation: hub-light-hum 8s steps(1, end) infinite;
+}
+
+.ups-label {
+  fill: #94a3b8;
+  font: 700 9px Consolas, "Courier New", monospace;
+  letter-spacing: 1px;
+}
+
+.operator-sprite {
+  filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, 0.68));
+}
+
+.floor-slabs {
+  filter: drop-shadow(0 4px 0 #080d15);
+}
+
+.rack-leds circle,
+.switch-leds circle {
+  fill: #22c55e;
+  filter: url(#soft-glow);
+  animation: hub-led-blink 2.8s steps(1, end) infinite;
+}
+
+.rack-leds circle:nth-child(2n),
+.switch-leds circle:nth-child(3n) {
+  fill: #f59e0b;
+  animation-delay: -1.15s;
+}
+
+.monitor-screen,
+.terminal-screen {
+  animation: hub-screen-flicker 5s steps(1, end) infinite;
+}
+
+.terminal-lines {
+  animation: hub-terminal-activity 2.4s steps(2, end) infinite;
+}
+
+.antenna-light,
+.camera-light {
+  animation: hub-beacon 2s steps(1, end) infinite;
+}
+
+.building-hotspot-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.building-hotspot {
+  --hotspot-color: #64748b;
+  position: absolute;
+  left: var(--hotspot-x);
+  top: var(--hotspot-y);
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #e2e8f0;
+  font: 700 10px Consolas, "Courier New", monospace;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  cursor: help;
+}
+
+.building-hotspot:disabled {
+  opacity: 0.28;
+  cursor: default;
+}
+
+.building-hotspot.status-warning {
+  --hotspot-color: #f59e0b;
+}
+
+.building-hotspot.status-critical {
+  --hotspot-color: #ef4444;
+}
+
+.building-hotspot.status-resolved {
+  --hotspot-color: #22c55e;
+}
+
+.hotspot-symbol {
+  position: relative;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  box-sizing: border-box;
+  border: 3px solid #07101c;
+  outline: 2px solid var(--hotspot-color);
+  background: var(--hotspot-color);
+  box-shadow: 0 0 0 2px #07101c, 0 0 7px var(--hotspot-color);
+}
+
+.hotspot-symbol::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 13px;
+  width: 3px;
+  height: 8px;
+  background: var(--hotspot-color);
+  box-shadow: 0 5px 0 rgba(7, 16, 28, 0.8);
+}
+
+.status-warning .hotspot-symbol,
+.status-critical .hotspot-symbol {
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  animation: hub-warning-pulse 1.35s steps(2, end) infinite;
+}
+
+.status-resolved .hotspot-symbol::after {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 0;
+  width: 4px;
+  height: 7px;
+  border: solid #06110b;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.status-resolved .hotspot-symbol::before {
+  display: none;
+}
+
+.hotspot-label {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  width: max-content;
+  max-width: 145px;
+  padding: 4px 6px;
+  border: 1px solid var(--hotspot-color);
+  background: rgba(3, 8, 16, 0.96);
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  transform: translateY(-50%);
+  pointer-events: none;
+  transition: opacity 90ms linear;
+}
+
+/* Mission telemetry changes the affected place, not just the marker above it. */
+.building-stage:has(.building-hotspot[data-hotspot-id="office-4b"].status-warning) .office-4b-room,
+.building-stage:has(.building-hotspot[data-hotspot-id="relocated-printer"].status-warning) .printer-device,
+.building-stage:has(.building-hotspot[data-hotspot-id="warehouse-scanner"].status-warning) .warehouse-zone {
+  filter: drop-shadow(0 0 5px rgba(245, 158, 11, 0.9));
+  animation: hub-place-warning 1.8s steps(2, end) infinite;
+}
+
+.building-stage:has(.building-hotspot[data-hotspot-id="office-4b"].status-warning) .office-4b-room,
+.building-stage:has(.building-hotspot[data-hotspot-id="warehouse-scanner"].status-warning) .warehouse-zone,
+.building-stage:has(.building-hotspot[data-hotspot-id="relocated-printer"].status-warning) .printer-device > rect:first-child {
+  stroke: #f59e0b;
+  stroke-width: 4px;
+}
+
+.building-stage:has(.building-hotspot[data-hotspot-id="rear-door-camera"].status-critical) .rear-camera-device {
+  filter: drop-shadow(0 0 7px rgba(239, 68, 68, 0.95));
+  animation: hub-place-critical 1.2s steps(2, end) infinite;
+}
+
+.building-stage:has(.building-hotspot[data-hotspot-id="rear-door-camera"].status-critical) .rear-camera-device path {
+  stroke: #ef4444;
+  stroke-width: 3px;
+}
+
+.building-stage:has(.building-hotspot[data-hotspot-id="office-4b"].status-resolved) .office-4b-room,
+.building-stage:has(.building-hotspot[data-hotspot-id="relocated-printer"].status-resolved) .printer-device,
+.building-stage:has(.building-hotspot[data-hotspot-id="warehouse-scanner"].status-resolved) .warehouse-zone,
+.building-stage:has(.building-hotspot[data-hotspot-id="rear-door-camera"].status-resolved) .rear-camera-device {
+  filter: drop-shadow(0 0 4px rgba(34, 197, 94, 0.58));
+}
+
+.building-hotspot:not(:disabled):hover .hotspot-label,
+.building-hotspot:not(:disabled):focus-visible .hotspot-label {
+  opacity: 1;
+}
+
+.hub-floor-control {
+  position: absolute;
+  left: 19.2%;
+  top: 38%;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 71.9%;
+  height: 10.9%;
+  box-sizing: border-box;
+  gap: 4px;
+  padding: 5px 8px;
+  border: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: #bae6fd;
+  font: 700 9px Consolas, "Courier New", monospace;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.hub-floor-control:hover,
+.hub-floor-control:focus-visible {
+  border-color: rgba(56, 189, 248, 0.58);
+  background: rgba(14, 116, 144, 0.08);
+  outline: 0;
+  box-shadow: inset 0 0 0 2px rgba(7, 16, 28, 0.82);
+}
+
+.hub-floor-control > span {
+  padding: 3px 5px;
+  border: 1px solid #38bdf8;
+  background: rgba(3, 8, 16, 0.94);
+  box-shadow: 2px 2px 0 #020617;
+  opacity: 0;
+}
+
+.hub-floor-control:hover > span,
+.hub-floor-control:focus-visible > span,
+.hub-floor-control[aria-expanded="true"] > span {
+  opacity: 1;
+}
+
+.hub-floor-control .floor-expand-indicator {
+  padding: 3px 5px;
+  border-radius: 0;
+  font-size: 8px;
+  color: #67e8f9;
+}
+
+.building-hub .hub-node-menu {
+  position: absolute;
+  left: 27%;
+  top: 38%;
+  z-index: 8;
+  display: flex;
+  width: max-content;
+  max-width: 56%;
+  gap: 4px;
+  padding: 5px;
+  border: 1px solid #38bdf8;
+  background: rgba(2, 6, 23, 0.97);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.55);
+}
+
+.building-hub .hub-node-menu .map-node {
+  padding: 4px 6px;
+  border-radius: 0;
+  font-size: 9px;
+}
+
+.building-legend {
+  width: calc(100% - 16px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 5px 8px;
+  box-sizing: border-box;
+  border-top: 1px solid #263447;
+  color: #536276;
+  font: 700 9px Consolas, "Courier New", monospace;
+  letter-spacing: 0.04em;
+}
+
+.building-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.building-legend strong {
+  margin-left: auto;
+  color: #557589;
+}
+
+.legend-light {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: #64748b;
+}
+
+.legend-light.status-warning { background: #f59e0b; }
+.legend-light.status-critical { background: #ef4444; }
+.legend-light.status-resolved { background: #22c55e; }
+
+@keyframes hub-led-blink {
+  0%, 72%, 100% { opacity: 1; }
+  73%, 79% { opacity: 0.2; }
+  80%, 86% { opacity: 0.75; }
+}
+
+@keyframes hub-screen-flicker {
+  0%, 93%, 100% { opacity: 1; }
+  94% { opacity: 0.72; }
+  95% { opacity: 0.92; }
+}
+
+@keyframes hub-light-hum {
+  0%, 96%, 100% { opacity: 0.62; }
+  97% { opacity: 0.34; }
+  98% { opacity: 0.7; }
+}
+
+@keyframes hub-terminal-activity {
+  0%, 70% { opacity: 1; }
+  71%, 100% { opacity: 0.42; }
+}
+
+@keyframes hub-beacon {
+  0%, 65% { opacity: 1; }
+  66%, 100% { opacity: 0.18; }
+}
+
+@keyframes hub-warning-pulse {
+  0%, 100% { filter: brightness(1); transform: scale(1); }
+  50% { filter: brightness(1.5); transform: scale(1.18); }
+}
+
+@keyframes hub-place-warning {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.78; }
+}
+
+@keyframes hub-place-critical {
+  0%, 45%, 100% { opacity: 1; }
+  46%, 70% { opacity: 0.58; }
+}
+
+@media (max-width: 1100px), (max-height: 760px) {
+  .building-legend {
+    gap: 7px;
+    font-size: 8px;
+  }
+
+  .building-legend strong {
+    display: none;
+  }
+
+  .hub-floor-control {
+    padding: 2px 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rack-leds circle,
+  .switch-leds circle,
+  .monitor-screen,
+  .terminal-screen,
+  .terminal-lines,
+  .antenna-light,
+  .camera-light,
+  .ceiling-light,
+  .office-4b-room,
+  .printer-device,
+  .warehouse-zone,
+  .rear-camera-device,
+  .status-warning .hotspot-symbol,
+  .status-critical .hotspot-symbol {
+    animation: none !important;
+  }
+}

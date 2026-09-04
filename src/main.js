@@ -8,6 +8,8 @@ import { runCommand } from './engine/cli.js';
 import { getAutocomplete } from './ui/autocomplete.js';
 import { createTerminal } from './ui/terminal.js';
 import './style.css';
+import './buildingHub.css';
+import { initBuildingHub, updateBuildingHub } from './ui/buildingHub.js';
 
 import { getMission } from './quests/missionRegistry.js';
 import { prepareMissionThreeScenario } from './quests/mission3/mission3Runtime.js';
@@ -35,6 +37,7 @@ if (!activeMission) {
 }
 
 renderQuest(activeMission.definition);
+initBuildingHub(document.getElementById('building-hub'), GameState);
 
 const terminalElement = document.getElementById('terminal');
 
@@ -533,6 +536,8 @@ function updateMiniGameButtons(saveData) {
 function updateHomeSummary() {
   const saveData = loadSaveData();
 
+  updateBuildingHub(GameState);
+
   if (homeRank) {
     homeRank.textContent = saveData.rank ?? 'Helpdesk Refugee';
   }
@@ -807,6 +812,10 @@ if (mapSwitchD8sw1Button) {
 if (floor3Button && floor3NodeRow) {
   floor3Button.addEventListener('click', () => {
     floor3NodeRow.classList.toggle('hidden');
+    floor3Button.setAttribute(
+      'aria-expanded',
+      String(!floor3NodeRow.classList.contains('hidden'))
+    );
 
     const indicator = floor3Button.querySelector('.floor-expand-indicator');
 
