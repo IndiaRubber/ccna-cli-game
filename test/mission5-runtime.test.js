@@ -135,11 +135,13 @@ test('repairing before PoE inspection does not trap the player', () => {
   assert.equal(evaluateMissionFive(state).readyToSubmit, true);
 });
 
-test('missing, unrelated, and unhealthy evidence blocks completion', () => {
+test('missing professional evidence reduces evaluation but does not block a repair', () => {
   const state = completeState();
   state.observations = state.observations.filter((observation) => observation.type !== 'environment');
   assert.equal(evaluateMissionFive(state).environmentHealthy, false);
-  assert.equal(advanceMissionFive(state).type, MISSION_FIVE_EVENTS.BLOCKED);
+  const result = advanceMissionFive(state);
+  assert.equal(result.type, MISSION_FIVE_EVENTS.COMPLETED);
+  assert.ok(result.evaluation.deductions.some((deduction) => deduction.id === 'environmentChecked'));
 
   const unrelated = preparedState();
   environmentObservation(unrelated);
@@ -172,14 +174,17 @@ test('wrong VLAN, shutdown, voice VLAN, or never state blocks restored service',
   }
 });
 
-test('save and current post-repair PoE verification are required', () => {
+test('save is required while post-repair verification affects evaluation', () => {
   const state = completeState({ verification: false });
   assert.equal(evaluateMissionFive(state).verified, false);
-  assert.equal(evaluateMissionFive(state).readyToSubmit, false);
+  assert.equal(evaluateMissionFive(state).readyToSubmit, true);
+  assert.equal(evaluateMissionFive(state).evaluationSignals.postChangeVerification, false);
 
   const stale = completeState();
   stale.configurationChanges = 2;
   assert.equal(evaluateMissionFive(stale).verified, false);
+  stale.saved = false;
+  assert.equal(evaluateMissionFive(stale).readyToSubmit, false);
 
   const unsaved = completeState();
   unsaved.saved = false;

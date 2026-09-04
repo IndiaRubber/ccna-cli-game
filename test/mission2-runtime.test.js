@@ -36,7 +36,7 @@ function inspect(state) {
   });
 }
 
-test('Mission 2 requires investigation before remediation', () => {
+test('Mission 2 recognizes a working repair even without pre-change investigation', () => {
   const state = createMissionTwoState();
   state.interfaces['g0/12'].voiceVlan = '20';
   state.configurationChanges = 1;
@@ -47,8 +47,9 @@ test('Mission 2 requires investigation before remediation', () => {
 
   assert.equal(progress.phoneOperational, true);
   assert.equal(progress.investigated, false);
-  assert.equal(progress.verified, false);
+  assert.equal(progress.verified, true);
   assert.equal(progress.readyToSubmit, false);
+  assert.equal(progress.evaluationSignals.preChangeInspection, false);
 });
 
 test('Mission 2 accepts a pre-remediation interface-status inspection as investigation', () => {
@@ -113,7 +114,7 @@ test('Mission 2 derives phone operation from the complete interface state', () =
   }
 });
 
-test('Mission 2 completion requires a post-repair inspection and save and awards once', () => {
+test('Mission 2 completion requires working saved state and awards once', () => {
   const state = createMissionTwoState();
   inspect(state);
   state.interfaces['g0/12'].voiceVlan = '20';

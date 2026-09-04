@@ -7,6 +7,13 @@ export const mission0 = {
   completionHeliosMessage: 'Nothing changed, and that is the point. We verified the physical path before touching the configuration.',
   rewardXp: 50,
   rewardCredits: 10,
+  evaluation: {
+    maximumXp: 50,
+    summary: 'Physical connection identified. No configuration changed.',
+    criteria: [],
+    mistakes: [],
+    perfectComments: ['Nothing changed, the connection was identified, and the evidence survived contact with the ticket. Acceptable.']
+  },
   title: 'Mission 0: First Day Observation',
   description:
     'Facilities says the new Office 4B workstation is physically connected. Inspect D8SW1 and identify the switch interface before anyone changes its configuration.',

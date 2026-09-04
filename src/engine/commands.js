@@ -1,8 +1,13 @@
 import { GameState } from './state.js';
+import { recordActivity, recordObservation } from './activity.js';
 
-function markConfigurationChanged() {
+function markConfigurationChanged(change = {}) {
   GameState.saved = false;
   GameState.configurationChanges = (GameState.configurationChanges ?? 0) + 1;
+  recordActivity(GameState, {
+    type: 'configuration-mutation',
+    ...change
+  });
 }
 
 function getCurrentInterfaceLabel() {
@@ -90,8 +95,9 @@ export function cmdHostname(command) {
   const hostname = command.split(/\s+/)[1] || GameState.hostname;
 
   if (hostname !== GameState.hostname) {
+    const previous = GameState.hostname;
     GameState.hostname = hostname;
-    markConfigurationChanged();
+    markConfigurationChanged({ targetType: 'device', target: 'D8SW1', field: 'hostname', before: previous, after: hostname });
   }
 }
 
@@ -108,7 +114,7 @@ export function cmdVlan(command) {
 
   if (!GameState.vlans[vlanId]) {
     GameState.vlans[vlanId] = { name: `VLAN${vlanId}` };
-    markConfigurationChanged();
+    markConfigurationChanged({ targetType: 'vlan', target: vlanId, field: 'created', before: false, after: true });
   }
 
   GameState.currentVlan = vlanId;
@@ -123,8 +129,9 @@ export function cmdVlanName(command) {
   const name = command.substring(5).trim().toUpperCase();
 
   if (GameState.vlans[GameState.currentVlan].name !== name) {
+    const previous = GameState.vlans[GameState.currentVlan].name;
     GameState.vlans[GameState.currentVlan].name = name;
-    markConfigurationChanged();
+    markConfigurationChanged({ targetType: 'vlan', target: GameState.currentVlan, field: 'name', before: previous, after: name });
   }
 }
 
@@ -181,8 +188,9 @@ export function cmdSwitchportModeAccess() {
   }
 
   if (intf.mode !== 'access') {
+    const previous = intf.mode;
     intf.mode = 'access';
-    markConfigurationChanged();
+    markConfigurationChanged({ targetType: 'interface', target: GameState.currentInterface, field: 'mode', before: previous, after: 'access' });
   }
 
   return {
@@ -210,8 +218,9 @@ export function cmdSwitchportAccessVlan(command) {
   }
 
   if (intf.accessVlan !== vlanId) {
+    const previous = intf.accessVlan;
     intf.accessVlan = vlanId;
-    markConfigurationChanged();
+    markConfigurationChanged({ targetType: 'interface', target: GameState.currentInterface, field: 'accessVlan', before: previous, after: vlanId });
   }
 
   return {
@@ -237,8 +246,9 @@ export function cmdSwitchportVoiceVlan(command) {
   }
 
   if (intf.voiceVlan !== vlanId) {
+    const previous = intf.voiceVlan;
     intf.voiceVlan = vlanId;
-    markConfigurationChanged();
+    markConfigurationChanged({ targetType: 'interface', target: GameState.currentInterface, field: 'voiceVlan', before: previous, after: vlanId });
   }
 
   return {
@@ -258,8 +268,9 @@ export function cmdNoSwitchportVoiceVlan() {
   }
 
   if (intf.voiceVlan !== null) {
+    const previous = intf.voiceVlan;
     intf.voiceVlan = null;
-    markConfigurationChanged();
+    markConfigurationChanged({ targetType: 'interface', target: GameState.currentInterface, field: 'voiceVlan', before: previous, after: null });
   }
 
   return {
@@ -285,8 +296,9 @@ export function cmdDescription(command) {
   }
 
   if (intf.description !== description) {
+    const previous = intf.description;
     intf.description = description;
-    markConfigurationChanged();
+    markConfigurationChanged({ targetType: 'interface', target: GameState.currentInterface, field: 'description', before: previous, after: description });
   }
 
   return {
@@ -306,8 +318,9 @@ export function cmdNoShutdown() {
   }
 
   if (intf.shutdown) {
+    const previous = intf.shutdown;
     intf.shutdown = false;
-    markConfigurationChanged();
+    markConfigurationChanged({ targetType: 'interface', target: GameState.currentInterface, field: 'shutdown', before: previous, after: false });
   }
 
   return {
@@ -327,8 +340,9 @@ export function cmdShutdown() {
   }
 
   if (!intf.shutdown) {
+    const previous = intf.shutdown;
     intf.shutdown = true;
-    markConfigurationChanged();
+    markConfigurationChanged({ targetType: 'interface', target: GameState.currentInterface, field: 'shutdown', before: previous, after: true });
   }
 
   return {
@@ -353,9 +367,10 @@ export function cmdPowerInline(command) {
   }
 
   if (entry.admin !== admin) {
+    const previous = entry.admin;
     entry.admin = admin;
     updateInlinePowerState(entry);
-    markConfigurationChanged();
+    markConfigurationChanged({ targetType: 'interface', target: GameState.currentInterface, field: 'powerInline', before: previous, after: admin });
   }
 
   return {
@@ -367,6 +382,9 @@ export function cmdSaveConfig() {
   if (GameState.mode !== 'privileged') return;
 
   GameState.saved = true;
+  GameState.lastSavedConfigurationChanges = GameState.configurationChanges ?? 0;
+  const saveActivity = recordActivity(GameState, { type: 'configuration-saved' });
+  GameState.lastSavedSequence = saveActivity.sequence;
 
   return [
     'Building configuration...',
@@ -385,6 +403,11 @@ export function cmdShowVlanBrief() {
   const vlanIds = Object.keys(GameState.vlans || {}).sort(
     (a, b) => Number(a) - Number(b)
   );
+
+  recordObservation(GameState, {
+    type: 'vlan-brief',
+    vlans: Object.fromEntries(Object.entries(GameState.vlans ?? {}).map(([id, vlan]) => [id, { ...vlan }]))
+  });
 
   if (vlanIds.length === 0) {
     lines.push('1    default                          active');
@@ -447,8 +470,7 @@ export function cmdShowMacAddressTable(command) {
     return true;
   }).map((entry) => ({ ...entry }));
 
-  if (!Array.isArray(GameState.observations)) GameState.observations = [];
-  GameState.observations.push({
+  recordObservation(GameState, {
     type: 'mac-address-table',
     query: { kind, value: kind === 'all' ? null : value },
     entries: entries.map((entry) => ({ ...entry }))
@@ -489,12 +511,10 @@ export function cmdShowPowerInline(command) {
     .filter((entry) => !value || entry.interface === value)
     .map(snapshotInlinePowerEntry);
 
-  if (!Array.isArray(GameState.observations)) GameState.observations = [];
-  GameState.observations.push({
+  recordObservation(GameState, {
     type: 'inline-power',
     query: { kind: value ? 'interface' : 'all', value },
-    entries: entries.map(snapshotInlinePowerEntry),
-    configurationChanges: GameState.configurationChanges ?? 0
+    entries: entries.map(snapshotInlinePowerEntry)
   });
 
   return [
@@ -508,8 +528,7 @@ export function cmdShowEnvironment() {
   if (GameState.mode === 'user') return null;
 
   const status = { ...(GameState.environment ?? {}) };
-  if (!Array.isArray(GameState.observations)) GameState.observations = [];
-  GameState.observations.push({ type: 'environment', status: { ...status } });
+  recordObservation(GameState, { type: 'environment', status: { ...status } });
 
   return [
     `SYSTEM TEMPERATURE is ${status.temperature ?? 'UNKNOWN'}`,
@@ -524,6 +543,22 @@ export function cmdShowRunningConfig() {
   if (GameState.mode === 'user') return null;
 
   const lines = [];
+
+  recordObservation(GameState, {
+    type: 'running-config',
+    hostname: GameState.hostname,
+    interfaces: Object.fromEntries(
+      Object.entries(GameState.interfaces ?? {}).map(([name, intf]) => [name, {
+        description: intf.description,
+        mode: intf.mode,
+        accessVlan: intf.accessVlan,
+        voiceVlan: intf.voiceVlan,
+        shutdown: intf.shutdown,
+        linkUp: intf.linkUp,
+        ...getInlinePowerSnapshot(name)
+      }])
+    )
+  });
 
   lines.push(`hostname ${GameState.hostname}`);
   lines.push('');
@@ -598,8 +633,7 @@ export function cmdShowRunningConfigInterface(command) {
     return { error: `% Invalid interface type and number: ${requestedName}` };
   }
 
-  if (!Array.isArray(GameState.observations)) GameState.observations = [];
-  GameState.observations.push({
+  recordObservation(GameState, {
     type: 'interface-config',
     interfaceName,
     description: intf.description,
@@ -608,8 +642,7 @@ export function cmdShowRunningConfigInterface(command) {
     voiceVlan: intf.voiceVlan,
     shutdown: intf.shutdown,
     linkUp: intf.linkUp,
-    ...getInlinePowerSnapshot(interfaceName),
-    configurationChanges: GameState.configurationChanges ?? 0
+    ...getInlinePowerSnapshot(interfaceName)
   });
 
   return renderInterfaceConfig(interfaceName, intf);
@@ -618,8 +651,7 @@ export function cmdShowRunningConfigInterface(command) {
 export function cmdShowInterfacesStatus() {
   if (GameState.mode === 'user') return null;
 
-  if (!Array.isArray(GameState.observations)) GameState.observations = [];
-  GameState.observations.push({
+  recordObservation(GameState, {
     type: 'interfaces-status',
     interfaces: Object.fromEntries(
       Object.entries(GameState.interfaces || {}).map(([name, intf]) => [name, {

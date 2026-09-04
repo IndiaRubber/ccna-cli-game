@@ -112,10 +112,12 @@ test('configuration alone or an incomplete final state cannot complete Mission 4
 
 test('correct final state, evidence, verification, and save completes once', () => {
   const state = completeState();
-  assert.equal(advanceMissionFour(state).type, MISSION_FOUR_EVENTS.COMPLETED);
-  assert.deepEqual([state.xp, state.credits], [100, 25]);
+  const result = advanceMissionFour(state);
+  assert.equal(result.type, MISSION_FOUR_EVENTS.COMPLETED);
+  assert.deepEqual([state.xp, state.credits], [90, 25]);
+  assert.equal(result.evaluation.deductions[0].id, 'preChangeInspection');
   assert.equal(advanceMissionFour(state).type, MISSION_FOUR_EVENTS.ALREADY_COMPLETED);
-  assert.deepEqual([state.xp, state.credits], [100, 25]);
+  assert.deepEqual([state.xp, state.credits], [90, 25]);
 });
 
 test('Mission 4 is registered after Mission 3 and requires it', () => {

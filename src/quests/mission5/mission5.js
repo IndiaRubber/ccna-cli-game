@@ -6,6 +6,18 @@ export const mission5 = {
   completionMessage: 'Rear Door Blind Spot',
   rewardXp: 100,
   rewardCredits: 25,
+  evaluation: {
+    maximumXp: 100,
+    criteria: [
+      { id: 'environmentChecked', deduction: 10, label: 'Switch environmental health was not confirmed.', feedback: 'A shared hardware failure was worth eliminating before touching the port.' },
+      { id: 'powerFaultObserved', deduction: 15, label: 'The failed power state was not observed before repair.', feedback: 'You fixed the symptom before establishing the fault.' },
+      { id: 'postChangeVerification', deduction: 15, label: 'Restored power and connectivity were not verified.', feedback: 'The camera may be online. The evidence remained offline.' },
+      { id: 'verifiedBeforeSave', deduction: 10, label: 'The configuration was saved before final verification.', feedback: 'Saved confidence is still confidence.' }
+    ],
+    mistakes: [
+      { id: 'unrelatedInterfaceModified', deduction: 25, label: 'An unrelated interface was modified.', feedback: 'The rear camera failed. The rest of the building had not volunteered.' }
+    ]
+  },
   title: 'Quest: Rear Door Blind Spot',
   description:
     'The rear-door security camera is offline, but the front-door camera remains operational. Confirm the switch is healthy, determine why the rear camera has lost service, restore connectivity, verify the result, and save the configuration.',

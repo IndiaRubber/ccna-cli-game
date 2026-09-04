@@ -1,3 +1,14 @@
+import {
+  hasUnrelatedInterfaceMutation,
+  getObservedInterface,
+  isCurrentConfigurationSaved,
+  wasCurrentObservationBeforeSave,
+  wasObservedAtCurrentRevision,
+  wasObservedBeforeFirstMutation
+} from '../../engine/activity.js';
+import { completeEvaluatedMission } from '../missionEvaluation.js';
+import { mission3 } from './mission3.js';
+
 export const MISSION_THREE_EVENTS = {
   DEVICE_MISSING: 'device-missing',
   COMPLETED: 'completed',
@@ -60,7 +71,7 @@ export function evaluateMissionThree(state) {
   );
   const knownGoodInspection = oldInspections.some((observation) =>
     observation.mode === 'access' &&
-    observation.accessVlan === '10' &&
+    observation.accessVlan === '15' &&
     observation.voiceVlan === null &&
     observation.shutdown === false
   );
@@ -68,23 +79,38 @@ export function evaluateMissionThree(state) {
   const oldPortShutdown = oldPort?.shutdown === true;
   const printerOperational = printerIsOperational(newPort);
   const descriptionComplete = hasPrinterDescription(newPort?.description);
-  const verified = printerOperational && newInspections.some((observation) =>
-    observation.mode === 'access' &&
-       observation.accessVlan === '15' &&
-    observation.voiceVlan === null &&
-    observation.shutdown === false &&
-    observation.description === newPort.description &&
-    (observation.configurationChanges ?? 0) === (state.configurationChanges ?? 0)
-  );
+  const finalInspection = (observation) => {
+    const observed = getObservedInterface(observation, NEW_PRINTER_INTERFACE);
+    return observed?.mode === 'access' &&
+      observed.accessVlan === '15' &&
+      observed.voiceVlan === null &&
+      observed.shutdown === false &&
+      observed.linkUp === true;
+  };
+  const verified = printerOperational && wasObservedAtCurrentRevision(state, finalInspection);
   const investigated = statusEvidence && knownGoodInspection && newPortInspected;
+  const saved = isCurrentConfigurationSaved(state);
   const objectiveStates = {
     'investigate-printer-outage': Boolean(statusObservation),
     'locate-new-printer-connection': statusEvidence,
     'shutdown-old-printer-port': oldPortShutdown,
-    'restore-printer-service': investigated && printerOperational,
-    'verify-printer-repair': investigated && verified,
+    'restore-printer-service': printerOperational,
+    'verify-printer-repair': verified,
     'document-printer-port': descriptionComplete,
-    save: state.saved === true
+    save: saved
+  };
+  const evaluationSignals = {
+    moveEvidenceReviewed: statusEvidence,
+    knownGoodInspected: knownGoodInspection,
+    newPortInspectedBeforeChange: wasObservedBeforeFirstMutation(
+      state,
+      (observation) => Boolean(getObservedInterface(observation, NEW_PRINTER_INTERFACE))
+    ),
+    descriptionUpdated: descriptionComplete,
+    postChangeVerification: verified,
+    verifiedBeforeSave: !verified || wasCurrentObservationBeforeSave(state, finalInspection),
+    abandonedPortSecured: oldPortShutdown,
+    unrelatedInterfaceModified: hasUnrelatedInterfaceMutation(state, [OLD_PRINTER_INTERFACE, NEW_PRINTER_INTERFACE])
   };
 
   return {
@@ -96,7 +122,8 @@ export function evaluateMissionThree(state) {
     descriptionComplete,
     verified,
     objectiveStates,
-    readyToSubmit: investigated && oldPortShutdown && verified && descriptionComplete && objectiveStates.save
+    evaluationSignals,
+    readyToSubmit: printerOperational && saved
   };
 }
 
@@ -110,10 +137,8 @@ export function advanceMissionThree(state) {
     return { type: MISSION_THREE_EVENTS.ALREADY_COMPLETED, progress };
   }
   if (progress.readyToSubmit) {
-    state.questCompleted = true;
-    state.xp = (state.xp ?? 0) + 100;
-    state.credits = (state.credits ?? 0) + 25;
-    return { type: MISSION_THREE_EVENTS.COMPLETED, progress };
+    const evaluation = completeEvaluatedMission(state, mission3, progress);
+    return { type: MISSION_THREE_EVENTS.COMPLETED, progress, evaluation };
   }
   return { type: MISSION_THREE_EVENTS.BLOCKED, progress };
 }

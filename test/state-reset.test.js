@@ -24,6 +24,9 @@ test('resetGameState restores a configured mission switch in place', () => {
   GameState.questCompleted = true;
   GameState.xp = 100;
   GameState.credits = 25;
+  GameState.activityLog.push({ type: 'configuration-mutation' });
+  GameState.activitySequence = 4;
+  GameState.missionEvaluations['mission-1'] = { awardedXp: 75 };
 
   const resetState = resetGameState();
 
@@ -38,6 +41,9 @@ test('resetGameState restores a configured mission switch in place', () => {
   assert.equal(GameState.interfaces['g0/12'].description, 'Office 4B New Hire - Pending Setup');
   assert.equal(GameState.saved, false);
   assert.equal(GameState.configurationChanges, 0);
+  assert.deepEqual(GameState.activityLog, []);
+  assert.equal(GameState.activitySequence, 0);
+  assert.deepEqual(GameState.missionEvaluations, {});
   assert.ok(GameState.macAddressTable.length >= 15);
   assert.equal(GameState.macAddressTable[0].interface, 'g0/2');
   assert.equal(GameState.questCompleted, false);
@@ -61,6 +67,18 @@ test('a saved device and mission snapshot can be restored', () => {
   GameState.mission4ScenarioPrepared = true;
   GameState.currentQuestId = 'mission-5';
   GameState.mission5ScenarioPrepared = true;
+  GameState.activitySequence = 7;
+  GameState.activityLog.push({
+    type: 'configuration-saved',
+    missionId: 'mission-5',
+    sequence: 7,
+    configurationChanges: 2
+  });
+  GameState.missionEvaluations['mission-4'] = {
+    maximumXp: 100,
+    awardedXp: 90,
+    deductions: [{ id: 'preChangeInspection', amount: 10 }]
+  };
 
   const snapshot = createGameStateSnapshot();
 
@@ -81,6 +99,9 @@ test('a saved device and mission snapshot can be restored', () => {
   assert.equal(GameState.currentQuestId, 'mission-5');
   assert.equal(GameState.mission4ScenarioPrepared, true);
   assert.equal(GameState.mission5ScenarioPrepared, true);
+  assert.equal(GameState.activitySequence, 7);
+  assert.equal(GameState.activityLog[0].type, 'configuration-saved');
+  assert.equal(GameState.missionEvaluations['mission-4'].awardedXp, 90);
 });
 
 test('restoreGameState keeps new factory fields when loading an older snapshot', () => {

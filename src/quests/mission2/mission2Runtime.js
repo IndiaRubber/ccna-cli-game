@@ -1,3 +1,15 @@
+import {
+  hasUnrelatedInterfaceMutation,
+  getObservedInterface,
+  getMissionMutations,
+  isCurrentConfigurationSaved,
+  wasCurrentObservationBeforeSave,
+  wasObservedAtCurrentRevision,
+  wasObservedBeforeFirstMutation
+} from '../../engine/activity.js';
+import { completeEvaluatedMission } from '../missionEvaluation.js';
+import { mission2 } from './mission2.js';
+
 export const MISSION_TWO_EVENTS = {
   DEVICE_MISSING: 'device-missing',
   COMPLETED: 'completed',
@@ -18,31 +30,40 @@ function officePhoneIsOperational(port) {
 
 export function evaluateMissionTwo(state) {
   const officePort = state.interfaces?.['g0/12'] ?? null;
-  const inspections = (state.observations ?? []).filter(
-    (observation) =>
-      observation.type === 'interface-config' &&
-      observation.interfaceName === 'g0/12'
-  );
-  const investigated = inspections.some((observation) => String(observation.voiceVlan) !== '20') ||
-    (state.observations ?? []).some((observation) =>
-      observation.type === 'interfaces-status' &&
-      String(observation.interfaces?.['g0/12']?.voiceVlan) !== '20'
-    );
+  const relevantInspection = (observation) => Boolean(getObservedInterface(observation, 'g0/12'));
+  const investigated = (state.observations ?? []).some((observation) => {
+    const observed = getObservedInterface(observation, 'g0/12');
+    return observed && String(observed.voiceVlan) !== '20';
+  });
   const phoneOperational = officePhoneIsOperational(officePort);
-  const verified = investigated && phoneOperational && inspections.some(
-    (observation) =>
-      observation.mode === 'access' &&
-      String(observation.accessVlan) === '10' &&
-      String(observation.voiceVlan) === '20' &&
-      observation.shutdown === false &&
-      (observation.configurationChanges ?? 0) === (state.configurationChanges ?? 0)
-  );
+  const finalInspection = (observation) => {
+    const observed = getObservedInterface(observation, 'g0/12');
+    return observed?.mode === 'access' &&
+      String(observed.accessVlan) === '10' &&
+      String(observed.voiceVlan) === '20' &&
+      observed.shutdown === false;
+  };
+  const verified = phoneOperational && wasObservedAtCurrentRevision(state, finalInspection);
+  const saved = isCurrentConfigurationSaved(state);
 
   const objectiveStates = {
     'investigate-phone-connectivity': investigated,
-    'correct-switchport-configuration': investigated && phoneOperational,
+    'correct-switchport-configuration': phoneOperational,
     'verify-phone-operational': verified,
-    save: state.saved === true
+    save: saved
+  };
+
+  const evaluationSignals = {
+    preChangeInspection: wasObservedBeforeFirstMutation(state, relevantInspection),
+    postChangeVerification: verified,
+    verifiedBeforeSave: !verified || wasCurrentObservationBeforeSave(state, finalInspection),
+    unrelatedInterfaceModified: hasUnrelatedInterfaceMutation(state, ['g0/12']),
+    causedAdditionalOutage: getMissionMutations(state).some((entry) =>
+      entry.target === 'g0/12' && (
+        entry.field === 'shutdown' && entry.after === true ||
+        entry.field === 'accessVlan' && String(entry.after) !== '10'
+      )
+    )
   };
 
   return {
@@ -51,7 +72,8 @@ export function evaluateMissionTwo(state) {
     investigated,
     phoneOperational,
     verified,
-    readyToSubmit: verified && objectiveStates.save
+    evaluationSignals,
+    readyToSubmit: phoneOperational && saved
   };
 }
 
@@ -67,11 +89,8 @@ export function advanceMissionTwo(state) {
   }
 
   if (progress.readyToSubmit) {
-    state.questCompleted = true;
-    state.xp = (state.xp ?? 0) + 100;
-    state.credits = (state.credits ?? 0) + 25;
-
-    return { type: MISSION_TWO_EVENTS.COMPLETED, progress };
+    const evaluation = completeEvaluatedMission(state, mission2, progress);
+    return { type: MISSION_TWO_EVENTS.COMPLETED, progress, evaluation };
   }
 
   return { type: MISSION_TWO_EVENTS.BLOCKED, progress };

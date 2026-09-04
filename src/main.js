@@ -123,7 +123,7 @@ function showHelp() {
 
 function updateObjectives() {
   const progress = activeMission.evaluate(GameState);
-  const showHiddenObjectives = activeMission.definition.id === 'mission-3';
+  const showHiddenObjectives = false;
 
   renderObjectiveStates(progress.objectiveStates, {
     hiddenObjectiveIds: activeMission.definition.hiddenObjectives?.map(
@@ -267,7 +267,7 @@ function applySaveToGameState(saveData) {
 }
 
 function renderMissionState() {
-  const showHiddenObjectives = activeMission.definition.id === 'mission-3';
+  const showHiddenObjectives = false;
 
   renderQuest(activeMission.definition, {
     showHiddenObjectives
@@ -325,7 +325,7 @@ function handleTicketButtonClick() {
     archiveMissionEmails(activeMission.definition.id);
     updateHomeSummary();
 
-    showMissionCompletionModal();
+    showMissionCompletionModal(result.evaluation);
 
     return;
   }
@@ -396,15 +396,45 @@ function showTicketResolutionModal() {
   if (ticketResolutionModal) ticketResolutionModal.classList.remove('hidden');
 }
 
-function showMissionCompletionModal() {
+function showMissionCompletionModal(evaluation) {
   const title = document.getElementById('mission-completion-title');
   const message = document.getElementById('mission-completion-message');
+  const maximum = document.getElementById('mission-completion-maximum');
+  const deductions = document.getElementById('mission-completion-deductions');
+  const comment = document.getElementById('mission-completion-comment');
   const xp = document.getElementById('mission-completion-xp');
   const credits = document.getElementById('mission-completion-credits');
+  const review = evaluation ?? GameState.missionEvaluations?.[activeMission.definition.id] ?? {
+    maximumXp: activeMission.definition.evaluation?.maximumXp ?? activeMission.definition.rewardXp ?? 0,
+    awardedXp: activeMission.definition.rewardXp ?? 0,
+    deductions: [],
+    summary: 'Service restored. Configuration saved.',
+    supervisorComment: 'Service restored. Configuration saved.'
+  };
 
   if (title) title.textContent = activeMission.definition.completionMessage;
-  if (message) message.textContent = 'The ticket has been resolved and your progress has been saved.';
-  if (xp) xp.textContent = `+${activeMission.definition.rewardXp}`;
+  if (message) message.textContent = review.summary;
+  if (maximum) maximum.textContent = `${review.maximumXp} XP`;
+  if (deductions) {
+    deductions.innerHTML = '';
+    for (const deduction of review.deductions ?? []) {
+      const item = document.createElement('li');
+      const summary = document.createElement('strong');
+      const feedback = document.createElement('span');
+      summary.textContent = `-${deduction.amount} XP — ${deduction.label}`;
+      feedback.textContent = `“${deduction.feedback}”`;
+      item.append(summary, feedback);
+      deductions.appendChild(item);
+    }
+    deductions.classList.toggle('evaluation-perfect', review.perfect === true);
+    if (review.perfect) {
+      const item = document.createElement('li');
+      item.textContent = 'No deductions. Professional practice confirmed.';
+      deductions.appendChild(item);
+    }
+  }
+  if (comment) comment.textContent = review.supervisorComment;
+  if (xp) xp.textContent = `${review.awardedXp} / ${review.maximumXp} XP`;
   if (credits) credits.textContent = `+${activeMission.definition.rewardCredits}`;
   if (missionCompletionModal) missionCompletionModal.classList.remove('hidden');
 

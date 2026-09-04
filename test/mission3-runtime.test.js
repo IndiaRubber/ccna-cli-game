@@ -47,7 +47,7 @@ test('Mission 3 preparation models the moved physical connection once', () => {
   assert.equal(prepareMissionThreeScenario(state), true);
   assert.equal(state.interfaces['g0/6'].linkUp, false);
   assert.equal(state.interfaces['g0/13'].linkUp, true);
-  assert.equal(state.interfaces['g0/6'].accessVlan, '10');
+  assert.equal(state.interfaces['g0/6'].accessVlan, '15');
   assert.equal(state.interfaces['g0/13'].accessVlan, '1');
   assert.equal(state.interfaces['g0/13'].voiceVlan, null);
   assert.equal(state.interfaces['g0/13'].shutdown, false);
@@ -94,7 +94,7 @@ test('Mission 3 requires the dedicated Printer VLAN 15', () => {
   assert.deepEqual(state.vlans['15'], { name: 'PRINTER' });
 });
 
-test('Mission 3 requires a post-mutation verification, documentation, and save', () => {
+test('Mission 3 allows a working saved repair while scoring omitted practices', () => {
   const state = preparedState();
   status(state);
   inspect(state, 'g0/6');
@@ -107,14 +107,12 @@ test('Mission 3 requires a post-mutation verification, documentation, and save',
   state.configurationChanges = 1;
   state.saved = true;
   assert.equal(evaluateMissionThree(state).verified, false);
-
-  inspect(state, 'g0/13');
-  assert.equal(evaluateMissionThree(state).objectiveStates['shutdown-old-printer-port'], false);
-  assert.equal(evaluateMissionThree(state).readyToSubmit, false);
-
-  state.interfaces['g0/6'].shutdown = true;
   assert.equal(evaluateMissionThree(state).readyToSubmit, true);
-  assert.equal(advanceMissionThree(state).type, MISSION_THREE_EVENTS.COMPLETED);
+
+  assert.equal(evaluateMissionThree(state).objectiveStates['shutdown-old-printer-port'], false);
+  const result = advanceMissionThree(state);
+  assert.equal(result.type, MISSION_THREE_EVENTS.COMPLETED);
+  assert.ok(result.evaluation.awardedXp < result.evaluation.maximumXp);
   assert.equal(advanceMissionThree(state).type, MISSION_THREE_EVENTS.ALREADY_COMPLETED);
 });
 

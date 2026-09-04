@@ -6,6 +6,18 @@ export const mission1 = {
   completionMessage: 'New Hire Port Activation',
   rewardXp: 100,
   rewardCredits: 25,
+  evaluation: {
+    maximumXp: 100,
+    criteria: [
+      { id: 'descriptionUpdated', deduction: 10, label: 'Interface description was not updated.', feedback: 'Future technicians remain dependent on archaeology.' },
+      { id: 'preChangeInspection', deduction: 15, label: 'No relevant pre-change inspection.', feedback: 'The correct result does not make guessing a methodology.' },
+      { id: 'postChangeVerification', deduction: 10, label: 'The final interface state was not verified.', feedback: 'Configuration without verification is optimism with syntax.' },
+      { id: 'verifiedBeforeSave', deduction: 10, label: 'Configuration was saved before final verification.', feedback: 'Verify first. Preserve second.' }
+    ],
+    mistakes: [
+      { id: 'unrelatedInterfaceModified', deduction: 25, label: 'An unrelated production interface was modified.', feedback: 'The ticket named one desk. The switch contains several other people’s problems.' }
+    ]
+  },
   title: 'Quest: New Hire Port Activation',
   description:
     'A new hire is starting in Office 4B. Find the correct switchport, configure their workstation network access, then save your work.',

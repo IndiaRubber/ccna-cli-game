@@ -1,3 +1,6 @@
+import { completeEvaluatedMission } from '../missionEvaluation.js';
+import { mission0 } from './mission0.js';
+
 export const MISSION_ZERO_EVENTS = {
   DEVICE_MISSING: 'device-missing',
   COMPLETED: 'completed',
@@ -46,10 +49,8 @@ export function advanceMissionZero(state) {
   }
 
   if (progress.readyToSubmit) {
-    state.questCompleted = true;
-    state.xp = (state.xp ?? 0) + 50;
-    state.credits = (state.credits ?? 0) + 10;
-    return { type: MISSION_ZERO_EVENTS.COMPLETED, progress };
+    const evaluation = completeEvaluatedMission(state, mission0, progress);
+    return { type: MISSION_ZERO_EVENTS.COMPLETED, progress, evaluation };
   }
 
   return { type: MISSION_ZERO_EVENTS.BLOCKED, progress };

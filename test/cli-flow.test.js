@@ -214,6 +214,12 @@ test('configuration changes made after saving require another save', () => {
 
   assert.equal(GameState.saved, true);
   assert.equal(persistenceRequests, 2);
+  assert.ok(GameState.activityLog.some((entry) =>
+    entry.type === 'configuration-mutation' &&
+    entry.target === 'g0/12' &&
+    entry.field === 'accessVlan'
+  ));
+  assert.equal(GameState.activityLog.at(-1).type, 'configuration-saved');
 });
 
 test('interface running-config inspection records the observed network state', () => {
@@ -234,7 +240,9 @@ test('interface running-config inspection records the observed network state', (
     voiceVlan: null,
     shutdown: false,
     linkUp: true,
-    configurationChanges: 0
+    configurationChanges: 0,
+    sequence: 1,
+    missionId: null
   });
 });
 
@@ -357,7 +365,9 @@ test('Mission 2 can be investigated, repaired, verified, and saved through the C
   runCommand('end');
   runCommand('write memory');
   assert.equal(evaluateMissionTwo(GameState).readyToSubmit, true);
-  assert.equal(advanceMissionTwo(GameState).type, 'completed');
+  const result = advanceMissionTwo(GameState);
+  assert.equal(result.type, 'completed');
+  assert.equal(result.evaluation.perfect, true);
 });
 
 test('invalid command caret points at the first unrecognized command segment', () => {

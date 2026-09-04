@@ -1,3 +1,14 @@
+import {
+  hasUnrelatedInterfaceMutation,
+  getObservedInterface,
+  isCurrentConfigurationSaved,
+  wasCurrentObservationBeforeSave,
+  wasObservedAtCurrentRevision,
+  wasObservedBeforeFirstMutation
+} from '../../engine/activity.js';
+import { completeEvaluatedMission } from '../missionEvaluation.js';
+import { mission1 } from './mission1.js';
+
 export const MISSION_ONE_EVENTS = {
   DEVICE_MISSING: 'device-missing',
   COMPLETED: 'completed',
@@ -22,6 +33,24 @@ export function evaluateMissionOne(state) {
     normalizedDescription.includes('office 4b') &&
     !normalizedDescription.includes('pending setup');
 
+  const saved = isCurrentConfigurationSaved(state);
+  const workstationOperational = Boolean(
+    officePort.mode === 'access' &&
+    String(officePort.accessVlan) === '10' &&
+    officePort.voiceVlan === null &&
+    officePort.shutdown === false &&
+    officePort.linkUp === true
+  );
+  const relevantInspection = (observation) => Boolean(getObservedInterface(observation, 'g0/12'));
+  const finalInspection = (observation) => {
+    const observed = getObservedInterface(observation, 'g0/12');
+    return observed?.mode === 'access' &&
+      String(observed.accessVlan) === '10' &&
+      observed.voiceVlan === null &&
+      observed.shutdown === false;
+  };
+  const postChangeVerification = workstationOperational && wasObservedAtCurrentRevision(state, finalInspection);
+
   const objectiveStates = {
     'identify-office4b-port':
       state.currentInterface === 'g0/12' ||
@@ -30,19 +59,23 @@ export function evaluateMissionOne(state) {
     'g012-mode-access': officePort.mode === 'access',
     'g012-access-vlan10': officePort.accessVlan === '10',
     'g012-description': hasUpdatedDescription,
-    save: state.saved === true
+    save: saved
   };
 
-  const phaseOneComplete =
-    objectiveStates['g012-mode-access'] &&
-    objectiveStates['g012-access-vlan10'] &&
-    objectiveStates['g012-description'] &&
-    objectiveStates.save &&
-    officePort.voiceVlan === null;
+  const phaseOneComplete = workstationOperational && saved;
+  const evaluationSignals = {
+    descriptionUpdated: hasUpdatedDescription,
+    preChangeInspection: wasObservedBeforeFirstMutation(state, relevantInspection),
+    postChangeVerification,
+    verifiedBeforeSave: !postChangeVerification || wasCurrentObservationBeforeSave(state, finalInspection),
+    unrelatedInterfaceModified: hasUnrelatedInterfaceMutation(state, ['g0/12'])
+  };
 
   return {
     officePort,
     objectiveStates,
+    workstationOperational,
+    evaluationSignals,
     phaseOneComplete,
     readyToSubmit: phaseOneComplete
   };
@@ -60,13 +93,12 @@ export function advanceMissionOne(state) {
   }
 
   if (progress.phaseOneComplete) {
-    state.questCompleted = true;
-    state.xp = (state.xp ?? 0) + 100;
-    state.credits = (state.credits ?? 0) + 25;
+    const evaluation = completeEvaluatedMission(state, mission1, progress);
 
     return {
       type: MISSION_ONE_EVENTS.COMPLETED,
-      progress: evaluateMissionOne(state)
+      progress: evaluateMissionOne(state),
+      evaluation
     };
   }
 

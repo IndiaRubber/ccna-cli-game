@@ -516,6 +516,7 @@ export function runCommand(rawCommand) {
     const output = cmdShowInterfacesStatus();
 
     if (printLines(output)) {
+      updateObjectivesSafely();
       if (typeof window.CiscoUI?.persistProgress === 'function') {
         window.CiscoUI.persistProgress();
       }
@@ -529,6 +530,10 @@ export function runCommand(rawCommand) {
     const output = cmdShowVlanBrief();
 
     if (printLines(output)) {
+      updateObjectivesSafely();
+      if (typeof window.CiscoUI?.persistProgress === 'function') {
+        window.CiscoUI.persistProgress();
+      }
       commentOnCommand(command);
     }
 
@@ -541,6 +546,7 @@ export function runCommand(rawCommand) {
     if (output?.error) {
       printResult(output);
     } else if (printLines(output)) {
+      updateObjectivesSafely();
       if (typeof window.CiscoUI?.persistProgress === 'function') {
         window.CiscoUI.persistProgress();
       }
@@ -556,6 +562,7 @@ export function runCommand(rawCommand) {
     if (output?.error) {
       printResult(output);
     } else if (printLines(output)) {
+      updateObjectivesSafely();
       if (typeof window.CiscoUI?.persistProgress === 'function') {
         window.CiscoUI.persistProgress();
       }
@@ -569,6 +576,10 @@ export function runCommand(rawCommand) {
     const output = cmdShowEnvironment();
 
     if (printLines(output)) {
+      updateObjectivesSafely();
+      if (typeof window.CiscoUI?.persistProgress === 'function') {
+        window.CiscoUI.persistProgress();
+      }
       commentOnCommand('show environment');
     }
 
@@ -595,6 +606,10 @@ export function runCommand(rawCommand) {
     const output = cmdShowRunningConfig();
 
     if (printLines(output)) {
+      updateObjectivesSafely();
+      if (typeof window.CiscoUI?.persistProgress === 'function') {
+        window.CiscoUI.persistProgress();
+      }
       commentOnCommand(command);
     }
 

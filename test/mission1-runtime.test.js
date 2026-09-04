@@ -29,15 +29,17 @@ test('the factory port description does not satisfy the update objective', () =>
   assert.equal(progress.readyToSubmit, false);
 });
 
-test('completing the workstation configuration finishes Mission 1', () => {
+test('working and saved workstation state completes Mission 1 with practice deductions', () => {
   const state = createPhaseOneState();
   const result = advanceMissionOne(state);
 
   assert.equal(result.type, MISSION_ONE_EVENTS.COMPLETED);
   assert.equal(state.questCompleted, true);
   assert.equal(state.interfaces['g0/12'].voiceVlan, null);
-  assert.equal(state.xp, 100);
+  assert.equal(state.xp, 75);
   assert.equal(state.credits, 25);
+  assert.equal(result.evaluation.maximumXp, 100);
+  assert.equal(result.evaluation.totalDeductions, 25);
 });
 
 test('a completed mission cannot award completion repeatedly', () => {
@@ -47,7 +49,7 @@ test('a completed mission cannot award completion repeatedly', () => {
   const result = advanceMissionOne(state);
 
   assert.equal(result.type, MISSION_ONE_EVENTS.ALREADY_COMPLETED);
-  assert.equal(state.xp, 100);
+  assert.equal(state.xp, 75);
   assert.equal(state.credits, 25);
 });
 

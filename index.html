@@ -200,6 +200,10 @@
 
         <h2>Objectives</h2>
         <ul id="quest-objectives"></ul>
+        <p class="evaluation-standing-notice">
+          All changes are subject to administrative review. Investigation,
+          documentation, verification, and change discipline affect compensation.
+        </p>
 
         <h2>Hint</h2>
         <p id="quest-hint"></p>
@@ -277,11 +281,16 @@
   <!-- Mission completion announcement -->
   <div id="mission-completion-modal" class="game-modal hidden" role="dialog" aria-modal="true" aria-labelledby="mission-completion-title">
     <div class="game-modal-card">
-      <p class="modal-eyebrow">MISSION COMPLETE</p>
+      <p class="modal-eyebrow">CHANGE REVIEW COMPLETE</p>
       <h2 id="mission-completion-title"></h2>
       <p id="mission-completion-message">Ticket resolved.</p>
+      <div class="evaluation-maximum">
+        Maximum available: <strong id="mission-completion-maximum">0 XP</strong>
+      </div>
+      <ul id="mission-completion-deductions" class="evaluation-deductions"></ul>
+      <p id="mission-completion-comment" class="evaluation-comment"></p>
       <div class="completion-rewards">
-        <span>XP <strong id="mission-completion-xp">0</strong></span>
+        <span>Final award <strong id="mission-completion-xp">0</strong></span>
         <span>Credits <strong id="mission-completion-credits">0</strong></span>
       </div>
       <div class="game-modal-actions">

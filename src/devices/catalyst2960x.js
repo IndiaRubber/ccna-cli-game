@@ -119,7 +119,7 @@ export function createD8SW1() {
       'g0/6': createInterface(6, {
         description: 'Lobby Printer',
         mode: 'access',
-        accessVlan: '10',
+        accessVlan: '15',
         voiceVlan: null,
         linkUp: true
       }),
@@ -268,12 +268,15 @@ export function createD8SW1() {
     currentVlan: null,
     currentInterface: null,
     observations: [],
+    activityLog: [],
+    activitySequence: 0,
     configurationChanges: 0,
     mission3ScenarioPrepared: false,
     mission4ScenarioPrepared: false,
     mission5ScenarioPrepared: false,
     saved: false,
     xp: 0,
+    missionEvaluations: {},
     questCompleted: false
   };
 }

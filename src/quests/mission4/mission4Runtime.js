@@ -1,3 +1,15 @@
+import {
+  hasUnrelatedInterfaceMutation,
+  getObservedInterface,
+  getMissionMutations,
+  isCurrentConfigurationSaved,
+  wasCurrentObservationBeforeSave,
+  wasObservedAtCurrentRevision,
+  wasObservedBeforeFirstMutation
+} from '../../engine/activity.js';
+import { completeEvaluatedMission } from '../missionEvaluation.js';
+import { mission4 } from './mission4.js';
+
 export const MISSION_FOUR_EVENTS = {
   DEVICE_MISSING: 'device-missing',
   COMPLETED: 'completed',
@@ -47,31 +59,44 @@ function hasTargetMacEvidence(observations) {
 export function evaluateMissionFour(state) {
   const scannerPort = state.interfaces?.[TARGET_INTERFACE] ?? null;
   const observations = state.observations ?? [];
-  const inspections = observations.filter(
-    (observation) =>
-      observation.type === 'interface-config' &&
-      observation.interfaceName === TARGET_INTERFACE
-  );
   const macEvidence = hasTargetMacEvidence(observations);
   const scannerOperational = scannerIsOperational(scannerPort);
   const descriptionComplete = scannerDescriptionIsComplete(scannerPort?.description);
-  const verified = scannerOperational && descriptionComplete && inspections.some(
-    (observation) =>
-      observation.mode === 'access' &&
-      String(observation.accessVlan) === '10' &&
-      observation.voiceVlan === null &&
-      observation.shutdown === false &&
-      observation.linkUp === true &&
-      observation.description === scannerPort.description &&
-      (observation.configurationChanges ?? 0) === (state.configurationChanges ?? 0)
-  );
+  const finalInspection = (observation) => {
+    const observed = getObservedInterface(observation, TARGET_INTERFACE);
+    return observed?.mode === 'access' &&
+      String(observed.accessVlan) === '10' &&
+      observed.voiceVlan === null &&
+      observed.shutdown === false &&
+      observed.linkUp === true &&
+      observed.description === scannerPort.description;
+  };
+  const verified = scannerOperational && descriptionComplete && wasObservedAtCurrentRevision(state, finalInspection);
+  const saved = isCurrentConfigurationSaved(state);
 
   const objectiveStates = {
     'investigate-warehouse-endpoint': macEvidence,
     'locate-scanner-connection': macEvidence,
-    'document-scanner-port': macEvidence && descriptionComplete,
-    'verify-scanner-connection': macEvidence && verified,
-    save: state.saved === true
+    'document-scanner-port': descriptionComplete,
+    'verify-scanner-connection': verified,
+    save: saved
+  };
+  const evaluationSignals = {
+    macEvidenceReviewed: macEvidence,
+    preChangeInspection: wasObservedBeforeFirstMutation(
+      state,
+      (observation) => Boolean(getObservedInterface(observation, TARGET_INTERFACE))
+    ),
+    postChangeVerification: verified,
+    verifiedBeforeSave: !verified || wasCurrentObservationBeforeSave(state, finalInspection),
+    unrelatedInterfaceModified: hasUnrelatedInterfaceMutation(state, [TARGET_INTERFACE]),
+    causedAdditionalOutage: getMissionMutations(state).some((entry) =>
+      entry.target === TARGET_INTERFACE && (
+        entry.field === 'shutdown' && entry.after === true ||
+        entry.field === 'accessVlan' && String(entry.after) !== '10' ||
+        entry.field === 'voiceVlan' && entry.after !== null
+      )
+    )
   };
 
   return {
@@ -81,7 +106,8 @@ export function evaluateMissionFour(state) {
     descriptionComplete,
     verified,
     objectiveStates,
-    readyToSubmit: macEvidence && verified && objectiveStates.save
+    evaluationSignals,
+    readyToSubmit: scannerOperational && descriptionComplete && saved
   };
 }
 
@@ -95,10 +121,8 @@ export function advanceMissionFour(state) {
     return { type: MISSION_FOUR_EVENTS.ALREADY_COMPLETED, progress };
   }
   if (progress.readyToSubmit) {
-    state.questCompleted = true;
-    state.xp = (state.xp ?? 0) + 100;
-    state.credits = (state.credits ?? 0) + 25;
-    return { type: MISSION_FOUR_EVENTS.COMPLETED, progress };
+    const evaluation = completeEvaluatedMission(state, mission4, progress);
+    return { type: MISSION_FOUR_EVENTS.COMPLETED, progress, evaluation };
   }
   return { type: MISSION_FOUR_EVENTS.BLOCKED, progress };
 }

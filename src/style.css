@@ -1199,6 +1199,63 @@ button.building-floor {
   color: #f8fafc;
 }
 
+.evaluation-standing-notice {
+  margin: 12px 0 16px;
+  padding: 9px 10px;
+  border-left: 3px solid #64748b;
+  background: rgba(15, 23, 42, 0.72);
+  color: #94a3b8;
+  font: 0.72rem/1.45 Consolas, "Courier New", monospace;
+}
+
+.evaluation-maximum {
+  margin-top: 16px;
+  color: #94a3b8;
+  font: 700 0.8rem Consolas, "Courier New", monospace;
+}
+
+.evaluation-maximum strong {
+  color: #f8fafc;
+}
+
+.evaluation-deductions {
+  max-height: 220px;
+  margin: 12px 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.evaluation-deductions li {
+  padding: 9px 0;
+  border-bottom: 1px solid #1e293b;
+  color: #fca5a5;
+  font: 0.76rem/1.4 Consolas, "Courier New", monospace;
+}
+
+.evaluation-deductions li strong,
+.evaluation-deductions li span {
+  display: block;
+}
+
+.evaluation-deductions li span {
+  margin-top: 3px;
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.evaluation-deductions.evaluation-perfect li {
+  color: #86efac;
+}
+
+.evaluation-comment {
+  padding: 10px;
+  border: 1px solid #334155;
+  background: #0b1220;
+  color: #cbd5e1 !important;
+  font-style: italic;
+}
+
 .game-modal-actions {
   display: flex;
   justify-content: flex-end;

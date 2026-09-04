@@ -1,3 +1,14 @@
+import {
+  hasUnrelatedInterfaceMutation,
+  getObservedInterface,
+  isCurrentConfigurationSaved,
+  wasCurrentObservationBeforeSave,
+  wasObservedAtCurrentRevision,
+  wasObservedBeforeFirstMutation
+} from '../../engine/activity.js';
+import { completeEvaluatedMission } from '../missionEvaluation.js';
+import { mission5 } from './mission5.js';
+
 export const MISSION_FIVE_EVENTS = {
   DEVICE_MISSING: 'device-missing',
   COMPLETED: 'completed',
@@ -94,9 +105,16 @@ export function evaluateMissionFive(state) {
     rearPower.oper === 'on' &&
     rearPower.powerWatts > 0
   );
-  const verified = restored && observations.some((observation) =>
-    hasRestoredPowerEvidence(observation, state.configurationChanges ?? 0)
-  );
+  const finalPowerInspection = (observation) => {
+    if (hasRestoredPowerEvidence(observation, state.configurationChanges ?? 0)) return true;
+    const observed = getObservedInterface(observation, REAR_CAMERA_INTERFACE);
+    return observed?.linkUp === true &&
+      observed.powerInline === 'auto' &&
+      observed.powerOper === 'on' &&
+      observed.powerWatts > 0;
+  };
+  const verified = restored && wasObservedAtCurrentRevision(state, finalPowerInspection);
+  const saved = isCurrentConfigurationSaved(state);
 
   const objectiveStates = {
     'investigate-camera-outage': investigated,
@@ -104,7 +122,17 @@ export function evaluateMissionFive(state) {
     'identify-power-fault': identifiedFault,
     'restore-camera-service': restored,
     'verify-power-connectivity': verified,
-    save: state.saved === true
+    save: saved
+  };
+  const evaluationSignals = {
+    environmentChecked: environmentHealthy,
+    powerFaultObserved: identifiedFault && wasObservedBeforeFirstMutation(
+      state,
+      (observation) => hasFailedPowerEvidence(observation) || hasFailedInterfaceEvidence(observation)
+    ),
+    postChangeVerification: verified,
+    verifiedBeforeSave: !verified || wasCurrentObservationBeforeSave(state, finalPowerInspection),
+    unrelatedInterfaceModified: hasUnrelatedInterfaceMutation(state, [REAR_CAMERA_INTERFACE])
   };
 
   return {
@@ -117,7 +145,8 @@ export function evaluateMissionFive(state) {
     restored,
     verified,
     objectiveStates,
-    readyToSubmit: investigated && environmentHealthy && identifiedFault && verified && objectiveStates.save
+    evaluationSignals,
+    readyToSubmit: restored && saved
   };
 }
 
@@ -131,10 +160,8 @@ export function advanceMissionFive(state) {
     return { type: MISSION_FIVE_EVENTS.ALREADY_COMPLETED, progress };
   }
   if (progress.readyToSubmit) {
-    state.questCompleted = true;
-    state.xp = (state.xp ?? 0) + 100;
-    state.credits = (state.credits ?? 0) + 25;
-    return { type: MISSION_FIVE_EVENTS.COMPLETED, progress };
+    const evaluation = completeEvaluatedMission(state, mission5, progress);
+    return { type: MISSION_FIVE_EVENTS.COMPLETED, progress, evaluation };
   }
   return { type: MISSION_FIVE_EVENTS.BLOCKED, progress };
 }

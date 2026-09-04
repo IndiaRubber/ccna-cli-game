@@ -6,6 +6,18 @@ export const mission2 = {
   completionMessage: 'Office 4B Phone Recovery',
   rewardXp: 100,
   rewardCredits: 25,
+  evaluation: {
+    maximumXp: 100,
+    criteria: [
+      { id: 'preChangeInspection', deduction: 15, label: 'The switchport was not inspected before the change.', feedback: 'The working PC was evidence. It deserved to be consulted.' },
+      { id: 'postChangeVerification', deduction: 15, label: 'Phone service was not verified after the repair.', feedback: 'A plausible configuration and a working phone are related concepts, not synonyms.' },
+      { id: 'verifiedBeforeSave', deduction: 10, label: 'The configuration was saved before final verification.', feedback: 'Bold. Verify before preserving the boldness.' }
+    ],
+    mistakes: [
+      { id: 'causedAdditionalOutage', deduction: 20, label: 'The working data connection was disrupted during the repair.', feedback: 'The phone was broken. The workstation did not need to join it.' },
+      { id: 'unrelatedInterfaceModified', deduction: 25, label: 'An unrelated production interface was modified.', feedback: 'One silent phone did not authorize a building-wide experiment.' }
+    ]
+  },
   title: 'Quest: Office 4B Phone Recovery',
   description:
     'The Office 4B workstation is online, but the desk phone is not registering. Investigate the existing switchport before making the smallest necessary correction.',
